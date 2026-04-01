@@ -27,7 +27,7 @@ Pinpoint is a competitive guessing game involving more or less the following:
     - Most home runs hit since 2000
     - Single player team WAR
     - All time OPS+
-- Each correct guessnawards points equal to its value
+- Each correct guess awards points equal to its value
 - Incorrect guess results in strikes (3 strikes = elimination)
 - The last remaining player continues guessing solo until they get 3 strikes
 - The winner is the player with the highest score
