@@ -3,11 +3,13 @@ from __future__ import annotations
 import random
 import statistics
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Set
+from typing import Dict, List, Optional, Set
 
 #==============================
 # CONFIG / DATA MODELS
 #==============================
+# These dataclasses define the core objects used by the simulator
+# They do not perform logic by themselves; they simply hold structural data
 
 @dataclass
 class Category:
@@ -19,6 +21,13 @@ class Category:
     - WAR
     - awards
     - niche
+
+    difficulty:
+        A global category difficulty multiplier
+        Higher difficulty means fewer answers are known on average
+
+    tags:
+        Optional labels that can interact with contestant weaknesses 
     """
     name: str
     difficulty: float = 1.0 # >1 harder, <1 easier
@@ -27,50 +36,69 @@ class Category:
 @dataclass
 class PlayerProfile:
     """
-    Base player characteristics.
-    Knowledge_by_bucket:
-        Probability player knows an answer in each point bucket
-        HIgher point values are more obscure / harder in this model
+    Permanent player base profile / identity / tendencies
+
+    knowledge_by_bucket:
+        Probability a player knows answers in each point-value bucket
+        In this version of the model, higher model values are treated as more obscure / harder to know
+
     style:
-        'balanced', 'volatile', 'risky_then_safe', 'conservative'
+        High-level playstyle used by the generic mode-selection logic
+
+    category_modifiers:
+        Optional per-tag knowledge penalites or bonsuses
+        Example: { 'war': 0.78 } means this player knows WAR categories worse
+
+    blind_risk_base:
+        Baseline chance to intentionally guess something they do NOT know
+
+    content_bias:
+        How much the player is influenced by the "make the show entertaining" dynamic
+
+    pressure_sensitivity:
+        How strongly the player reacts to score pressure and table flow
+
+    alternate_safe_risky_on_double:
+        Used for end-of-snake contestants who often alternate risky/safe on their back-to-back style turns
     """
     name: str
     knowledge_by_bucket: Dict[str, float]
     style: str
-
-    # category weakness, ex: {'war': 0.75}
-    # means multiply knowledge by 0.75 in categories tagged 'war'
     category_modifiers: Dict[str, float] = field(default_factory=dict)
-
-    # tendency to sometimes make a guess they do NOT actually know
     blind_risk_base: float = 0.0
-
-    # social/content behavior
-    content_bias: float = 0.0 # likes making entertaining choices
-    pressure_sensitivity: float = 0.0 # reacts to jokes / score pressure
-
-    # for players at snake ends who get two quick picks
+    content_bias: float = 0.0
+    pressure_sensitivity: float = 0.0
     alternate_safe_risky_on_double: bool = False
 
 @dataclass
 class PlayerState:
+    """
+    Temporary per-game state for a player
+
+    This changes throughout a simulation
+    """
     name: str
     score: int = 0
     strikes: int = 0
     alive: bool = True
 
-    # answers this player genuinely knows for this game
+    # Answers this player genuinely knows for this particular game
     known_answers: Set[int] = field(default_factory=set)
 
-    # track recent pick styles for snake-end rhythm
+    # Used for end-of-snake alternating risky/safe behavior
     double_pick_toggle: str = "risky" # alternates risky/safe when applicable
 
-    # recent guess history
+    # Simple tracking counters
     correct_guesses: int = 0
     wrong_guesses: int = 0
 
 @dataclass
 class GuessResult:
+    """
+    One logged guess event.
+
+    This lets you inspect game history later if desired
+    """
     player: str
     guess: Optional[int]
     was_correct: bool
@@ -80,6 +108,11 @@ class GuessResult:
 
 @dataclass
 class SimulationResult:
+    """
+    End-of-game output returned by one simulation
+
+    Includes the normal summary plus solo/endgame tracking fields.
+    """
     scores: Dict[str, int]
     strikes: Dict[str, int]
     winner_names: List[str]
@@ -94,11 +127,13 @@ class SimulationResult:
 
 def point_bucket(points: int) -> str:
     """
-    Bucket point values by difficulty / obscurity
+    Map a point value to a difficulty bucket.
 
     In this model:
-    - higher points are harder / more obscure
-    - lower points are safer / more famous
+    - 90_100: hardest / most obscure
+    - 70_89: medium-hard
+    - 40_69: medium
+    - 1_39: easiest / safest
     """
     if 90 <= points <= 100:
         return"90_100"
@@ -109,14 +144,27 @@ def point_bucket(points: int) -> str:
     return "1_39"
 
 def clamp(x: float, lo: float, hi: float) -> float:
+    """
+    Clamp a numeric value into a bounded range.
+    """
     return max(lo, min(hi, x))
 
 def choose_from_top(values: List[int], n: int, rng: random.Random) -> Optional[int]:
+    """
+    Randomly choose from the top N values of an already-sorted list.
+
+    Used to model "aim high" behavior.
+    """
     if not values:
         return None
     return rng.choice(values[: min(n, len(values))])
 
 def choose_from_bottom(values: List[int], n: int, rng: random.Random) -> Optional[int]:
+    """
+    Randomly choose from the bottom N values of an already-sorted list
+
+    Use to model "play safer / lower-value" behavior.
+    """
     if not values:
         return None
     return rng.choice(values[-min(n, len(values)) :])
@@ -131,7 +179,10 @@ def build_known_answers(
         rng: random.Random,
 ) -> Set[int]:
     """
-    For a given simulated game / category, determine which answers this player actually knows.
+    Build the set of answers a player knows for this simulated game.
+
+    This is one of the biggest "environment" levers in the model.
+    Higher category difficulty lowers the proability that answers are known.
     """
     known = set()
 
@@ -139,16 +190,18 @@ def build_known_answers(
         bucket = point_bucket(points)
         p = profile.knowledge_by_bucket[bucket]
 
-        # category difficulty: harder category reduces knowledge
+        # Harder category: fewer known answers
         p /= category.difficulty
 
-        # apply tag-based category modifiers
+        # Apply category-tag-specific modifiers if relevant
         for tag in category.tags:
             if tag in profile.category_modifiers:
                 p *= profile.category_modifiers[tag]
 
+        # Keep probability valid
         p = clamp(p, 0.0, 1.0)
 
+        # Sample whether this answer is known
         if rng.random() < p:
             known.add(points)
 
@@ -184,26 +237,29 @@ def compute_social_pressure(
         profile: PlayerProfile,
 ) -> float:
     """
-    Very lightweight model of joking / content / pressure
+    Compute a lightweight pressure score.
 
-    Positive pressure => more likely to do something risky/entertaining
-    Negative pressure => more conservative
+    The idea is to capture a few social / momentum dynamics:
+    - trailing players may press
+    - players with 2 strikes become conservative
+    - a very safe table can push content-seeking players toward risk
+    - a very aggressive table can also shift behavior slightly
     """
     pressure = 0.0
 
-    # If player is doing badly relative to others, may press
+    # Falling behind can push a player toward more aggressive choices.
     scores = [s.score for s in all_states.values()]
     avg_score = sum(scores) / len(scores)
     score_gap = avg_score - player_state.score
     pressure += 0.0025 * score_gap
 
-    # If a player already has 2 strikes, naturally become conservative
+    # Strikes push players toward safer play.
     if player_state.strikes == 2:
         pressure -= 0.45
     elif player_state.strikes == 1:
         pressure -= 0.10
 
-    # Recent table vibe
+    # Look at the recent table mood.
     last_few = recent_history[-4:]
     if last_few:
         risky_count = sum(1 for h in last_few if h.style_used in {"risky", "blind_risk"})
@@ -217,7 +273,7 @@ def compute_social_pressure(
         if risky_count >= 3:
             pressure += 0.10 * profile.content_bias
     
-    # Amplify by player sensitivity
+    # More sensitive players react more strongly to the same situation
     pressure *= (1.0 + profile.pressure_sensitivity)
 
     return pressure
@@ -230,14 +286,18 @@ def decide_pick_mode(
         is_part_of_double_pick_window: bool,
 ) -> str:
     """
-    Decide whether this turn is 'safe', 'risky', or 'blind_risk'
+    Choose a generic pick mode for a normal turn.
 
-    This is intentionally heuristic and easy to tweak
+    Return one of:
+    - safe
+    - risky
+    - blind_risk
+
+    This is the default decision function outside of the solo endgame.
     """
-
     pressure = compute_social_pressure(player_state, all_states, recent_history, profile)
 
-    # End players alternating risky/safe on two quick picks
+    # Snake-end players can alternate risky/safe on their double-pick rhythm
     if (
         profile.alternate_safe_risky_on_double
         and is_part_of_double_pick_window
@@ -247,11 +307,11 @@ def decide_pick_mode(
         player_state.double_pick_toggle = "safe" if mode == "risky" else "risky"
         return mode
     
-    # Strong conservative behavior at 2 strikes
+    # At 2 strikes, generic play becomes conservative
     if player_state.strikes >= 2:
         return "safe"
     
-    # Base style
+    # Baseline style tendencies
     if profile.style == "balanced":
         base_risk = 0.30
     elif profile.style == "volatile":
@@ -263,11 +323,11 @@ def decide_pick_mode(
 
     risk_score = base_risk + pressure
 
-    # Small blind-risk chance
+    # Blind risk chance = willingness to just throw out a speculative guess
     blind_risk_chance = profile.blind_risk_base + max(0.0, pressure) * 0.25
     blind_risk_chance = clamp(blind_risk_chance, 0.0, 0.50)
 
-    # blind risk only when not already in danger
+    # Dlind risk only when not already in danger
     if player_state.strikes <= 1 and random.random() < blind_risk_chance:
         return "blind_risk"
     
@@ -280,12 +340,16 @@ def choose_guess_for_mode(
         rng: random.Random,
 ) -> Optional[int]:
     """
-    Choose a specific point value to guess.
-    Higher points = more obscure / higher reward
-    Lower points = safer / famous
+    Convert a generic mode into a specific guess
+
+    safe:
+        Pull from lower-value known answers
+    risky:
+        Pull from higher-value known anwsers
+    blind_risk:
+        Pull from higher-value unknown answers
     """
     known_sorted_desc = sorted(available_known, reverse=True)
-    known_sorted_asc = sorted(available_known)
 
     if mode == "safe":
         # choose from safer, lower-value known answers
@@ -306,6 +370,11 @@ def choose_guess_for_mode(
 #==============================
 
 class PinpointGameSimulator:
+    """
+    Simulates one full game of Pinpoint
+
+    This class holds all game state for a single run
+    """
     def __init__(
         self,
         profiles: List[PlayerProfile],
@@ -314,13 +383,17 @@ class PinpointGameSimulator:
         stop_when_last_player_clinches: bool = False,
         two_player_alternate: bool = True,
     ):
+        # Local RNG for reproducibility
         self.rng = random.Random(seed)
         self.category = category
         self.stop_when_last_player_clinches = stop_when_last_player_clinches
         self.two_player_alternate = two_player_alternate
 
+        # Preserve original seating / order
         self.player_order = [p.name for p in profiles]
         self.profiles = {p.name: p for p in profiles}
+
+        # Build each player's per-game state, including known answers 
         self.states = {
             p.name: PlayerState(
                 name=p.name,
@@ -329,28 +402,45 @@ class PinpointGameSimulator:
             for p in profiles
         }
 
+        # Remaining answers available on the board
         self.remaining_answers: Set[int] = set(range(1, 101))
+
+        # Game log and elimination tracking
         self.history: List[GuessResult] = []
         self.elimination_order: List[str] = []
+
+        # Solo/endgame tracking
         self.solo_player_name: Optional[str] = None
         self.solo_started_behind: bool = False
         self.solo_phase_recorded: bool = False
 
     def alive_players(self) -> List[str]:
+        """REturn players still alive in seating order"""
         return [name for name in self.player_order if self.states[name].alive]
     
     def max_other_score(self, player_name: str) -> int:
+        """Return the highest score among everyone except the named player"""
         others = [s.score for n, s in self.states.items() if n != player_name]
         return max(others) if others else 0
     
     def is_last_player_clinched(self, player_name: str) -> bool:
         """
-        Simple clinch rule:
-        If already ahead of all others and we choose to stop there.
+        Check whether the solo player is already ahead of everyone else.
+
+        This is used if you want a pure competitive stop condition.
         """
         return self.states[player_name].score > self.max_other_score(player_name)
     
     def decide_last_player_mode(self, player_name: str) -> str:
+        """
+        Decide how the solo player behaves once they are the only one left.
+
+        This is a verson-1 approximation of endgame logic:
+        - ahead: victory lap
+        - small deficit: mostly safe
+        - medium deficit: mixed
+        - large deficit: aggressive
+        """
         state = self.states[player_name]
         deficit = self.max_other_score(player_name) - state.score
 
@@ -373,6 +463,12 @@ class PinpointGameSimulator:
         return "risky"
     
     def choose_last_player_guess(self, player_name: str, mode: str) -> Optional[int]:
+        """
+        Pick a more score-aware guess for the solo player
+
+        This tries to model comeback logic more directly than the normal
+        choose_guess_for_mode() helper
+        """
         state = self.states[player_name]
         known = sorted(state.known_answers & self.remaining_answers)
 
@@ -416,6 +512,14 @@ class PinpointGameSimulator:
         return max(below) if below else max(known)
 
     def handle_guess(self, player_name: str, is_part_of_double_pick_window: bool, forced_mode: Optional[str] = None, forced_guess: Optional[int] = None) -> None:
+        """
+        Resolve one guess from one player.
+
+        This function is the main turn-resolution engine
+        It can use either:
+        - normal mode/guess selection
+        - or externally forced solo/endgame choices
+        """
         state = self.states[player_name]
         profile = self.profiles[player_name]
 
@@ -425,6 +529,7 @@ class PinpointGameSimulator:
         available_known = state.known_answers & self.remaining_answers
         available_unknown = self.remaining_answers - state.known_answers
 
+        # Etierh use a forced mode (solo phase) or normal strategy logic
         if forced_mode is not None:
             mode = forced_mode
         else:
@@ -436,6 +541,7 @@ class PinpointGameSimulator:
                 is_part_of_double_pick_window=is_part_of_double_pick_window,
             )
 
+        # Either use a forced guess (solo phase) or normal guess selection
         if forced_guess is not None:
             guess = forced_guess
         else:
@@ -450,6 +556,7 @@ class PinpointGameSimulator:
         points_awarded = 0
         strike_given = False
         
+        # In version 1, a guess is correct if it is known and still on the board
         if guess is not None and guess in self.remaining_answers and guess in state.known_answers:
             was_correct = True
             points_awarded = guess
@@ -461,10 +568,12 @@ class PinpointGameSimulator:
             state.strikes += 1
             state.wrong_guesses += 1
 
+        # Eliminate players once they reach 3 strikes
         if state.strikes >= 3 and state.alive:
             state.alive = False
             self.elimination_order.append(player_name)
 
+        # Log the turn for later analysis
         self.history.append(
             GuessResult(
                 player=player_name,
@@ -477,14 +586,19 @@ class PinpointGameSimulator:
         )
 
     def run(self) -> SimulationResult:
+        """
+        Run one full game until everyone is out or the board is exhausted
+        """
         while True:
             alive = self.alive_players()
             if len(alive) == 0:
                 break
 
+            # SOLO PHASE: one player left
             if len(alive) == 1:
                 last_player = alive[0]
 
+                # Record solo-state info only once, right when solo play begins
                 if not self.solo_phase_recorded:
                     self.solo_player_name = last_player
                     self.solo_started_behind = (
@@ -492,10 +606,11 @@ class PinpointGameSimulator:
                     )
                     self.solo_phase_recorded = True
 
-                # for pure competitive sim, stop here once they clinch
+                # Optional pure-competitive stop
                 if self.stop_when_last_player_clinches and self.is_last_player_clinched(last_player):
                     break
 
+                # Continue solo guesses until eliminated or optional clinch stop
                 while self.states[last_player].alive:
                     if self.stop_when_last_player_clinches and self.is_last_player_clinched(last_player):
                         break
@@ -512,15 +627,13 @@ class PinpointGameSimulator:
 
                 break
 
-            # Multi-player phase
+            # PULTI-PLAYER PHASE
             if len(alive) == 2 and self.two_player_alternate:
                 cycle = alternating_order(alive)
             else:
                 cycle = snake_round_order(alive)
 
-            # Detect which players are in "double-pick window"
-            # In a 3-player snake [A, B, C, C, B, A], A and C have adjacent pairs across cycles
-            # Approximate this by marking the ends of the current alive ordering
+            # Approximate which players are currently in the snake-end cycle
             ends = {alive[0], alive[-1]} if len(alive) >= 3 else set()
 
             for player_name in cycle:
@@ -530,15 +643,16 @@ class PinpointGameSimulator:
                 is_double_window = player_name in ends
                 self.handle_guess(player_name, is_part_of_double_pick_window=is_double_window)
 
-                # if player count changed due to elimination, rebuild next cycle
+                # If someone got eliminated, rebuild the order next outer loop
                 new_alive = self.alive_players()
                 if len(new_alive) != len(alive):
                     break
             
-            # if no answers left, end game
+            # If no answers left, end game
             if not self.remaining_answers:
                 break
         
+        # Final scoring / winner extraction
         scores = {name: state.score for name, state in self.states.items()}
         strikes = {name: state.strikes for name, state in self.states.items()}
         max_score = max(scores.values()) if scores else 0
@@ -566,8 +680,14 @@ def simulate_many(
     stop_when_last_player_clinches: bool = False,
     two_player_alternate: bool = True,
 ) -> Dict[str, object]:
+    """
+    Run many independent simulations and summarize the results
+
+    This is the Monte Carlo wrapper around the single-game engine
+    """
     rng = random.Random(seed)
 
+    # Aggregate tracking containers
     win_counts = {p.name: 0.0 for p in profiles}
     score_history = {p.name: [] for p in profiles}
     strike_history = {p.name: [] for p in profiles}
@@ -589,31 +709,35 @@ def simulate_many(
 
         result = game.run()
 
+        # Track conditional solo
         if result.solo_player_name is not None and result.solo_started_behind:
             solo_started_behind_count += 1
             if result.solo_player_name not in result.winner_names:
                 solo_started_behind_and_lost += 1
 
-        # split ties evenly
+        # Split ties evenly across winners
         for winner in result.winner_names:
             win_counts[winner] += 1.0 / len(result.winner_names)
 
+        # Record raw score/strike distributions
         for name, score in result.scores.items():
             score_history[name].append(score)
 
         for name, strikes in result.strikes.items():
             strike_history[name].append(strikes)
-        
+
+        # Track first elimination        
         if result.elimination_order:
             elimination_first_counts[result.elimination_order[0]] += 1
 
-        # check if last surivor lost
+        # Broad "last survivor still lost" metric
         if result.elimination_order and len(result.elimination_order) == len(profiles):
             # final eliminated is last survivor
             last_survivor= result.elimination_order[-1]
             if last_survivor not in result.winner_names:
                 last_survivor_but_lost += 1
-            
+    
+    # Build the final summary object
     summary = {
         "win_rate": {name: win_counts[name] / n_sims for name in win_counts},
         "avg_score": {name: statistics.mean(vals) for name, vals in score_history.items()},
@@ -642,6 +766,11 @@ def simulate_many(
 #==============================
 
 def main() -> None:
+    """
+    Example entry point
+
+    Defines three contestant profiles, one category, runs the simulation, and prints summary statistics
+    """
     contestant_1 = PlayerProfile(
         name="Contestant 1",
         knowledge_by_bucket={

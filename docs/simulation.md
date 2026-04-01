@@ -4,7 +4,7 @@
 **Date:** March 2026
 
 ## Purpose
-This project is a simulation of the game **Pinpoint** (as seen on YouTube), modeled using a probalistic and behavorial framework.
+This project is a simulation of the game **Pinpoint** (as seen on JM Baseball on YouTube), modeled using a probalistic and behavorial framework.
 
 The goals of this project are:
 - Simulate how different contestants perofrm across many games
@@ -263,7 +263,4 @@ Possible extensions beyond V2:
 ---
 
 ## Final Thoughts
-This project started as a fun idea, but has gradually evolved into:
-- a structured simulation system
-- a sandbox for modeling human decision-making
-- a stepping stone toward more complex behavioral modeling
+This project started as a fun idea. I am a huge fan of JM Baseball's gameshows on YouTube, and the Pinpoint Challenge is one of the newer games they've played. I originally was interested in if was possible to calculate the expected value of the contestants per game and per category, and if it was possible to reliably predict outcomes of the games. I thus thought it would be fun to simulate the game, and over time, it gradually evolved into a structured simulation system, a sandbox for modeling human decision-making, and a stepping stone toward more complex behavioral modeling, and I had a lot of fun playing around with it along the way.
