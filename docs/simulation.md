@@ -25,7 +25,7 @@ This is a **for-fun side project**, but designed with enough structure to resemb
 Pinpoint is a competitive guessing game involving more or less the following:
 - Players take turns guessing answers from a hidden list for a specific category (ranked 1-100). Some examples include:
     - Most home runs hit since 2000
-    - Single player team WAR
+    - Player single team WAR
     - All time OPS+
 - Each correct guess awards points equal to its value
 - Incorrect guess results in strikes (3 strikes = elimination)
