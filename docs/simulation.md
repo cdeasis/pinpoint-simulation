@@ -139,6 +139,17 @@ Typical outcomes:
 - Scores fall into a realistic range
 - First elimination patterns match expectations
 
+Example of an actual run:
+```
+=== Summary ===
+Contestant 1: win_rate=0.471, avg_score=799.2, median_score=795.0, stdev=180.7, avg_strikes=3.00, first_out_rate=0.188
+Contestant 2: win_rate=0.403, avg_score=774.1, median_score=766.0, stdev=175.6, avg_strikes=3.00, first_out_rate=0.235
+Contestant 3: win_rate=0.126, avg_score=623.0, median_score=616.0, stdev=161.2, avg_strikes=3.00, first_out_rate=0.577
+Last survivor but lost rate: 0.269
+Solo started behind rate: 0.353
+Solo started behind and lost rate: 0.762
+```
+
 ### Key Achievements
 Version 1 successfully achieved the following:
 - Risk vs safety tradeoffs
