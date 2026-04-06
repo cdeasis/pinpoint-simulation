@@ -920,36 +920,82 @@ def main() -> None:
 
     profiles = [contestant_1, contestant_2, contestant_3]
 
-    category = Category(
-        name="All-Time OPS+",
-        difficulty=3.5,
-        tags=set(),
-    )
+    def run_validation_suite(profiles: List[PlayerProfile]) -> None:
+        """
+        comment here later
+        """
+        categories = [
+            Category(name="All-Time OPS+", difficulty=3.5, tags=set()),
+            Category(name="All-Time bWAR", difficulty=4.2, tags={"war"}),
+            Category(name="Home Runs since 2000", difficulty=2.5, tags={"modern"}),
+            Category(name="Hits since 1900", difficulty=3.0, tags={"all_time"}),
+            Category(name="Every MVP Winner", difficulty=5.0, tags={"awards"}),
+        ]
 
-    summary = simulate_many(
-        profiles=profiles,
-        category=category,
-        n_sims=10000,
-        seed=42,
-        stop_when_last_player_clinches=False,
-        two_player_alternate=True,
-    )
+        all_summaries = []
+        
+        # per category summaries
+        for category in categories:
+            print(f"\n=== Category: {category.name} ===")
 
-    print("=== Summary ===")
-    for name in [p.name for p in profiles]:
-        print(
-            f"{name}: "
-            f"win_rate={summary['win_rate'][name]:.3f}, "
-            f"avg_score={summary['avg_score'][name]:.1f}, "
-            f"median_score={summary['median_score'][name]:.1f}, "
-            f"stdev={summary['stdev_score'][name]:.1f}, "
-            f"avg_strikes={summary['avg_strikes'][name]:.2f}, "
-            f"first_out_rate={summary['first_eliminated_rate'][name]:.3f}"
-        )
+            summary = simulate_many(
+                profiles=profiles,
+                category=category,
+                n_sims=10000,
+                seed=42,
+                stop_when_last_player_clinches=False,
+                two_player_alternate=True,
+            )
 
-    print(f"Last survivor but lost rate: {summary['last_survivor_but_lost_rate']:.3f}")
-    print(f"Solo started behind rate: {summary['solo_started_behind_rate']:.3f}")
-    print(f"Solo started behind and lost rate: {summary['solo_started_behind_and_lost_rate']:.3f}")
+            all_summaries.append((category, summary))
+            
+            
+            for name in [p.name for p in profiles]:
+                print(
+                    f"{name}: "
+                    f"win_rate={summary['win_rate'][name]:.3f}, "
+                    f"avg_score={summary['avg_score'][name]:.1f}, "
+                    f"median_score={summary['median_score'][name]:.1f}, "
+                    f"stdev={summary['stdev_score'][name]:.1f}, "
+                    f"avg_strikes={summary['avg_strikes'][name]:.2f}, "
+                    f"first_out_rate={summary['first_eliminated_rate'][name]:.3f}"
+                )
+
+            print(f"Last survivor but lost rate: {summary['last_survivor_but_lost_rate']:.3f}")
+            print(f"Solo started behind rate: {summary['solo_started_behind_rate']:.3f}")
+            print(f"Solo started behind and lost rate: {summary['solo_started_behind_and_lost_rate']:.3f}")
+        
+        # aggregate summary across categories
+        print("\n === Aggregate Summary Across Validation Suite ===")
+        
+        for name in [p.name for p in profiles]:
+            avg_win_rate = statistics.mean(s["win_rate"][name] for _, s in all_summaries)
+            avg_score = statistics.mean(s["avg_score"][name] for _, s in all_summaries)
+            avg_median_score = statistics.mean(s["median_score"][name] for _, s in all_summaries)
+            avg_stdev = statistics.mean(s["stdev_score"][name] for _, s in all_summaries)
+            avg_strikes = statistics.mean(s["avg_strikes"][name] for _, s in all_summaries)
+            avg_first_out_rate = statistics.mean(s["first_eliminated_rate"][name] for _, s in all_summaries)
+
+            print(
+                f"{name}: "
+                f"avg_win_rate={avg_win_rate:.3f}, "
+                f"avg_score={avg_score:.1f}, "
+                f"avg_median_score={avg_median_score:.1f}, "
+                f"avg_stdev={avg_stdev:.1f}, "
+                f"avg_strikes={avg_strikes:.2f}, "
+                f"avg_first_out_rate={avg_first_out_rate:.3f}"
+            )
+
+            avg_last_survivor_lost = statistics.mean(s["last_survivor_but_lost_rate"] for _, s in all_summaries)
+            avg_solo_started_behind = statistics.mean(s["solo_started_behind_rate"] for _, s in all_summaries)
+            avg_solo_started_behind_and_lost = statistics.mean(s["solo_started_behind_and_lost_rate"] for _, s in all_summaries)
+
+        print(f"Last survivor but lost rate: {avg_last_survivor_lost:.3f}")
+        print(f"Solo started behind rate: {avg_solo_started_behind:.3f}")
+        print(f"Solo started behind and lost rate: {avg_solo_started_behind_and_lost:.3f}")
+
+
+    run_validation_suite(profiles)
 
 if __name__ == "__main__":
     main()
