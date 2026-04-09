@@ -227,3 +227,6 @@ takeaway: multi category validation suite works, just need to do miilestones 3 (
 
 ## Limitations
 [not at this point yet either]
+
+## Conclusions
+[general remarks regarding v2]

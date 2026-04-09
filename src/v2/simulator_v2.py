@@ -104,6 +104,12 @@ class PlayerState:
     correct_guesses: int = 0
     wrong_guesses: int = 0
 
+    # M4: lightweight evolving board/table inference
+    board_read: float = 0.0 # positve: board seems deepr / more generous, negative: board seems harsher / tighter
+
+    # can keep this for now, unused in m4 but will probably be used in future versions
+    table_trust: float = 0.0 # positive: table reactions are somewhat useful, negative: table reactions have been misleading
+
 @dataclass
 class GuessResult:
     """
@@ -135,6 +141,10 @@ class SimulationResult:
     solo_start_deficit: Optional[int] = None
     solo_turns_taken: int = 0
     solo_had_winning_answer_at_start: bool = False
+    avg_final_board_read: float = 0.0
+    avg_abs_final_board_read: float = 0.0
+    strong_harsh_board_rate: float = 0.0
+    strong_generous_board_rate: float = 0.0
 
 #==============================
 # HELPERS
@@ -370,6 +380,7 @@ def decide_pick_mode(
     This is the default decision function outside of the solo endgame.
     """
     pressure = compute_social_pressure(player_state, all_states, recent_history, profile)
+    pressure += player_state.board_read * 0.15
 
     # score aware lead/trail adjustment
     other_scores = [s.score for n, s in all_states.items() if n != player_state.name]
@@ -398,6 +409,10 @@ def decide_pick_mode(
 
         # if clearly ahead, protect the lead instead of alternating freely
         if leader_gap >= 75:
+            return "safe"
+        
+        # if board feels harsh, be willing to take two safer wrap-around picks
+        if player_state.board_read <= -0.15:
             return "safe"
 
         mode = player_state.double_pick_toggle
@@ -777,8 +792,43 @@ class PinpointGameSimulator:
         
         return None
     
+    
+    def update_board_inference(self, guess_result: GuessResult) -> None:
+        """
+        Light M4 board inference update
 
-# DO THIS WHEN I COME BACK
+        board_read: 
+        - positive: board seems deeper / more generous
+        - negative: board seems harsher / tighter
+        """
+        for name, state in self.states.items():
+            if not state.alive:
+                continue
+
+            # correct low-value answer suggests the board is deeper / harsher than player might have expected
+            if guess_result.was_correct and guess_result.points_awarded <= 25:
+                state.board_read -= 0.04
+
+            elif guess_result.was_correct and guess_result.points_awarded >= 70:
+                state.board_read += 0.02
+            
+            # strike suggests the board may be harsher than expected
+            elif guess_result.strike_given and guess_result.guess is not None:
+                state.board_read -= 0.04
+            
+            # recent table mood can also lightly influence the read
+            last_few = self.history[-4:]
+            if last_few:
+                safe_hits = sum(1 for h in last_few if h.was_correct and h.style_used in {"safe", "chip_away"})
+                misses = sum(1 for h in last_few if h.strike_given)
+
+                if safe_hits >= 3:
+                    state.board_read += 0.01
+                if misses >= 3:
+                    state.board_read -= 0.03
+            
+            state.board_read = clamp(state.board_read, -0.30, 0.30)
+
     def handle_guess(
             self,
             player_name: str,
@@ -863,16 +913,19 @@ class PinpointGameSimulator:
             state.alive = False
             self.elimination_order.append(player_name)
 
-        self.history.append(
-            GuessResult(
-                player=player_name,
-                guess=guess,
-                was_correct=was_correct,
-                points_awarded=points_awarded,
-                strike_given=strike_given,
-                style_used=mode,
-            )
+        result = GuessResult(
+            player=player_name,
+            guess=guess,
+            was_correct=was_correct,
+            points_awarded=points_awarded,
+            strike_given=strike_given,
+            style_used=mode,
         )
+
+        self.history.append(result)
+
+        # M4: update each player's read of the board after the reveal
+        self.update_board_inference(result)
 
     def run(self) -> SimulationResult:
         """
@@ -961,6 +1014,16 @@ class PinpointGameSimulator:
         max_score = max(scores.values()) if scores else 0
         winner_names = [name for name, score in scores.items() if score == max_score]
 
+        # M4: compute board reads
+        final_board_reads = [state.board_read for state in self.states.values()]
+
+        avg_final_board_read = statistics.mean(final_board_reads) if final_board_reads else 0.0
+        avg_abs_final_board_read = (statistics.mean(abs(x) for x in final_board_reads) if final_board_reads else 0.0)
+
+        strong_harsh_board_rate = (sum(1 for x in final_board_reads if x <= -0.15) / len(final_board_reads) if final_board_reads else 0.0)
+        strong_generous_board_rate = (sum(1 for x in final_board_reads if x >= 0.15) / len(final_board_reads) if final_board_reads else 0.0)
+
+
         return SimulationResult(
             scores=scores,
             strikes=strikes,
@@ -972,6 +1035,10 @@ class PinpointGameSimulator:
             solo_start_deficit=self.solo_start_deficit,
             solo_turns_taken=self.solo_turns_taken,
             solo_had_winning_answer_at_start=self.solo_had_winning_answer_at_start,
+            avg_final_board_read=avg_final_board_read,
+            avg_abs_final_board_read=avg_abs_final_board_read,
+            strong_harsh_board_rate=strong_harsh_board_rate,
+            strong_generous_board_rate=strong_generous_board_rate,
         )
     
 #=============================
@@ -1010,6 +1077,10 @@ def simulate_many(
         "151-250": 0,
         "251_plus": 0,
     }
+    avg_final_board_reads = []
+    avg_abs_final_board_reads = []
+    strong_harsh_board_rates = []
+    strong_generous_board_rates = []
 
     for _ in range(n_sims):
         sim_seed = rng.randint(1, 10**9)
@@ -1044,7 +1115,7 @@ def simulate_many(
                     solo_deficit_bucket_counts["251_plus"] += 1
 
             solo_turn_counts.append(result.solo_turns_taken)
-            
+
             if result.solo_had_winning_answer_at_start:
                 solo_had_winning_answer_count += 1
 
@@ -1069,6 +1140,12 @@ def simulate_many(
             last_survivor= result.elimination_order[-1]
             if last_survivor not in result.winner_names:
                 last_survivor_but_lost += 1
+
+        # Board read metrics
+        avg_final_board_reads.append(result.avg_final_board_read)
+        avg_abs_final_board_reads.append(result.avg_abs_final_board_read)
+        strong_harsh_board_rates.append(result.strong_harsh_board_rate)
+        strong_generous_board_rates.append(result.strong_generous_board_rate)
     
     # Build the final summary object
     summary = {
@@ -1096,7 +1173,11 @@ def simulate_many(
         "solo_had_winning_answer_given_started_behind_rate": (solo_had_winning_answer_count / solo_started_behind_count if solo_started_behind_count > 0 else 0.0),
         "solo_deficit_bucket_rates": {
             bucket: (count / solo_started_behind_count if solo_started_behind_count > 0 else 0.0) for bucket, count in solo_deficit_bucket_counts.items()
-        }
+        },
+        "avg_final_board_read": statistics.mean(avg_final_board_reads) if avg_final_board_reads else 0.0,
+        "avg_abs_final_board_read": statistics.mean(avg_abs_final_board_reads) if avg_abs_final_board_reads else 0.0,
+        "strong_harsh_board_rate": statistics.mean(strong_harsh_board_rates) if strong_harsh_board_rates else 0.0,
+        "strong_generous_board_rate": statistics.mean(strong_generous_board_rates) if strong_generous_board_rates else 0.0,
     }
 
     return summary
@@ -1219,6 +1300,10 @@ def main() -> None:
                 f"151-250: {bucket_rates['151-250']:.3f}, "
                 f"251+: {bucket_rates['251_plus']:.3f}"
             )
+            print(f"Avg final board read: {summary['avg_final_board_read']:.3f}")
+            print(f"Avg absolute final board read: {summary['avg_abs_final_board_read']:.3f}")
+            print(f"Strong harsh board rate: {summary['strong_harsh_board_rate']:.3f}")
+            print(f"Strong generous board rate: {summary['strong_generous_board_rate']:.3f}")
         
         # aggregate summary across categories
         print("\n === Aggregate Summary Across Validation Suite ===")
@@ -1252,6 +1337,10 @@ def main() -> None:
         avg_bucket_76_150 = statistics.mean(s["solo_deficit_bucket_rates"]["76-150"] for _, s in all_summaries)
         avg_bucket_151_250 = statistics.mean(s["solo_deficit_bucket_rates"]["151-250"] for _, s in all_summaries)
         avg_bucket_251_plus = statistics.mean(s["solo_deficit_bucket_rates"]["251_plus"] for _, s in all_summaries)
+        avg_final_board_read = statistics.mean(s["avg_final_board_read"] for _, s in all_summaries)
+        avg_abs_final_board_read = statistics.mean(s["avg_abs_final_board_read"] for _, s in all_summaries)
+        avg_strong_harsh_board_rate = statistics.mean(s["strong_harsh_board_rate"] for _, s in all_summaries)
+        avg_strong_generous_board_rate = statistics.mean(s["strong_generous_board_rate"] for _, s in all_summaries)
 
         print(f"Last survivor but lost rate: {avg_last_survivor_lost:.3f}")
         print(f"Solo started behind rate: {avg_solo_started_behind:.3f}")
@@ -1267,6 +1356,10 @@ def main() -> None:
             f"151-250: {avg_bucket_151_250:.3f}, "
             f"251+: {avg_bucket_251_plus:.3f}"
         )
+        print(f"Avg final board read: {avg_final_board_read:.3f}")
+        print(f"Avg absolute final board read: {avg_abs_final_board_read:.3f}")
+        print(f"Avg strong harsh board rate: {avg_strong_harsh_board_rate:.3f}")
+        print(f"Avg strong generous board rate: {avg_strong_generous_board_rate:.3f}")
 
     run_validation_suite(profiles)
 
