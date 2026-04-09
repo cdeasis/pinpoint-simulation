@@ -32,6 +32,7 @@ class Category:
     name: str
     difficulty: float = 1.0 # >1 harder, <1 easier
     tags: Set[str] = field(default_factory=set)
+    precision_difficulty: float = 1.0 # how much precision matters for category
 
 @dataclass
 class PlayerProfile:
@@ -131,6 +132,9 @@ class SimulationResult:
     elimination_order: List[str]
     solo_player_name: Optional[str]
     solo_started_behind: bool
+    solo_start_deficit: Optional[int] = None
+    solo_turns_taken: int = 0
+    solo_had_winning_answer_at_start: bool = False
 
 #==============================
 # HELPERS
@@ -353,6 +357,7 @@ def decide_pick_mode(
         all_states: Dict[str, PlayerState],
         recent_history: List[GuessResult],
         is_part_of_double_pick_window: bool,
+        rng: random.Random,
 ) -> str:
     """
     Choose a generic pick mode for a normal turn.
@@ -366,12 +371,35 @@ def decide_pick_mode(
     """
     pressure = compute_social_pressure(player_state, all_states, recent_history, profile)
 
+    # score aware lead/trail adjustment
+    other_scores = [s.score for n, s in all_states.items() if n != player_state.name]
+    leader_gap = player_state.score - max(other_scores) if other_scores else 0
+
+    # if already aheady by a lot, lean safer
+    if leader_gap >= 100:
+        pressure -= 0.18
+    elif leader_gap >= 50:
+        pressure -= 0.10
+    
+    # if far behind, allow a bit more aggression
+    if leader_gap <= -100:
+        pressure += 0.08
+    elif leader_gap <= -50:
+        pressure += 0.04
+
     # Snake-end players can alternate risky/safe on their double-pick rhythm
     if (
         profile.alternate_safe_risky_on_double
         and is_part_of_double_pick_window
         and player_state.strikes <= 1
     ):
+        other_scores = [s.score for n, s in all_states.items() if n != player_state.name]
+        leader_gap = player_state.score - max(other_scores) if other_scores else 0
+
+        # if clearly ahead, protect the lead instead of alternating freely
+        if leader_gap >= 75:
+            return "safe"
+
         mode = player_state.double_pick_toggle
         player_state.double_pick_toggle = "safe" if mode == "risky" else "risky"
         return mode
@@ -397,7 +425,7 @@ def decide_pick_mode(
     blind_risk_chance = clamp(blind_risk_chance, 0.0, 0.50)
 
     # Blind risk only when not already in danger
-    if player_state.strikes <= 1 and random.random() < blind_risk_chance:
+    if player_state.strikes <= 1 and rng.random() < blind_risk_chance:
         return "blind_risk"
     
     return "risky" if risk_score >= 0.5 else "safe"
@@ -428,10 +456,10 @@ def choose_guess_for_mode(
     if mode == "safe":
         safe_pool = [
             answer for answer, ans in candidates.items()
-            if ans.recall >= 0.12 and ans.confidence >= 0.12
+            if ans.recall >= 0.14 and ans.confidence >= 0.14
         ]
         safe_pool.sort(reverse=True)
-        k = rng.randint(4, 10)
+        k = rng.randint(3, 6)
         return choose_from_bottom(safe_pool, n=k, rng=rng) if safe_pool else None
     
     # Risky: still recalled, but can include lower-confidence answers / higher-value answers
@@ -441,8 +469,15 @@ def choose_guess_for_mode(
             if ans.recall >= 0.07 and ans.confidence >= 0.07
         ]
         risky_pool.sort(reverse=True)
-        k = rng.randint(4, 10)
-        return choose_from_top(risky_pool, n=k, rng=rng) if risky_pool else None
+
+        if not risky_pool:
+            return None
+        
+        # mid-high slice instead of always the absolute top
+        top_slice = risky_pool[:min(12, len(risky_pool))]
+        if len(top_slice) > 4:
+            return rng.choice(top_slice[2:8])
+        return rng.choice(top_slice)
     
     # Blind risk: very low-confidence pool / basically speculative
     if mode == "blind_risk":
@@ -504,6 +539,11 @@ class PinpointGameSimulator:
         self.solo_started_behind: bool = False
         self.solo_phase_recorded: bool = False
 
+        # Milestone 3 solo metrics
+        self.solo_start_deficit: Optional[int] = None
+        self.solo_turns_taken: int = 0
+        self.solo_had_winning_answer_at_start: bool = False
+
     def alive_players(self) -> List[str]:
         """REturn players still alive in seating order"""
         return [name for name in self.player_order if self.states[name].alive]
@@ -525,39 +565,99 @@ class PinpointGameSimulator:
         """
         Decide how the solo player behaves once they are the only one left.
 
-        This is a verson-1 approximation of endgame logic:
-        - ahead: victory lap
-        - small deficit: mostly safe
-        - medium deficit: mixed
-        - large deficit: aggressive
+        V2 version (Milestone 3):
+        - Uses deficit size
+        - Uses current strikes
+        - Uses wehther direct winning answers are available
+        - Uses how many plausible answers remain
         """
         state = self.states[player_name]
         deficit = self.max_other_score(player_name) - state.score
+        remaining_count = len(self.remaining_answers)
 
-        # Already ahead: victory lap
+        # Build a quick view of currently plausible remaining answers
+        candidates = {
+            answer: ans
+            for answer, ans in state.answer_states.items()
+            if answer in self.remaining_answers
+        }
+
+        plausible_answers = [
+            answer for answer, ans in candidates.items()
+            if ans.recall >= 0.08 and ans.confidence >= 0.08
+        ]
+
+        safe_answers = [
+            answer for answer, ans in candidates.items()
+            if ans.recall >= 0.12 and ans.confidence >= 0.12
+        ]
+
+        winning_answers = [a for a in plausible_answers if a >= deficit]
+
+        plausible_count = len(plausible_answers)
+        safe_count = len(safe_answers)
+        winning_count = len(winning_answers)
+
+        # 1. Already ahead -> victory lap
         if deficit <= 0:
-            # mostly test fun / risky names once clinched
-            return "risky" if self.rng.random() < 0.85 else "safe"
+            return "victory_lap"
         
-        # Small deficit: chip away safely most of the time
-        if deficit <= 100:
-            if state.strikes == 2:
-                return "safe"
-            return "safe" if self.rng.random() < 0.8 else "risky"
+        # 2. If there are no plausible answers at all, this is desperation territory
+        if plausible_count == 0:
+            return "desperation"
         
-        # Medium deficit: roughly 50/50 split
-        if deficit <= 200:
-            return "safe" if self.rng.random() < 0.5 else "risky"
+        # board size awareness
+        if remaining_count <= 5:
+            if winning_count > 0:
+                return "exact_win"
+            if safe_count > 0 and deficit <= 100:
+                return "chip_away"
+            if plausible_count > 0 and deficit <= 150:
+                return "comeback"
+            return "desperation"
         
-        # Large deficit: need points fast
-        return "risky"
+        # 3. With 2 strikes, survival matters a lot more
+        if state.strikes == 2:
+            # If a winning answer exists, try to end it now
+            if winning_count > 0:
+                return "exact_win"
+            
+            # Small deficit and some safe answers -> chip away
+            if deficit <= 100 and safe_count > 0 and remaining_count > 1:
+                return "chip_away"
+
+            # Otherwise, forced into desperation / high upside
+            return "desperation"
+        
+        # 4. At 0 or 1 strike, use deficit size + board size
+        if deficit <= 75:
+            if winning_count:
+                return "exact_win"
+            return "chip_away"
+        
+        if deficit <= 175:
+            if winning_count > 0:
+                return "exact_win"
+            return "comeback"
+        
+        # Large deficit
+        if winning_count > 0:
+            return "high_upside"
+        
+        return "desperation"
     
     def choose_last_player_guess(self, player_name: str, mode: str) -> Optional[int]:
         """
-        might be bridge for now, but if not detailed comment here later
+        Choose a solo guess using richer candidate groups:
+        - safe: high recall/confidence, lower volatility
+        - winning: directly clears the deficit
+        - comeback: strong answers that materially reduce the deficit
+        - desperation: lower-confidence high-value guesses
+        - victory lap: when already ahead
         """
         state = self.states[player_name]
         deficit = self.max_other_score(player_name) - state.score
+        lead = state.score - self.max_other_score(player_name)
 
         candidates = {
             answer: ans
@@ -568,40 +668,117 @@ class PinpointGameSimulator:
         if not candidates:
             return None
         
-        # Answers the player is realistically willing to say
-        plausible = [
+        # Candidate groups
+        safe_candidates = [
             answer for answer, ans in candidates.items()
-            if ans.confidence >= 0.08
+            if ans.recall >= 0.12 and ans.confidence >= 0.12
         ]
 
-        if not plausible:
-            plausible = list(candidates.keys())
+        plausible_candidates = [
+            answer for answer, ans in candidates.items()
+            if ans.recall >= 0.08 and ans.confidence >= 0.08
+        ]
 
-        # already ahead: victory lap
-        if deficit <= 0:
-            plausible.sort(reverse=True)
-            return self.rng.choice(plausible[:min(6, len(plausible))])
-        
-        # answers that would immediately clear the deficit
-        winning = [a for a in plausible if a >= deficit]
-        below = [a for a in plausible if a < deficit]
+        desperation_candidates = [
+            answer for answer, ans in candidates.items()
+            if ans.recall >= 0.04 and ans.confidence >= 0.04
+        ]
 
-        if mode == "safe":
-            if winning:
-                return min(winning)
-            if below:
-                return max(below)
-            return min(plausible)
-        
-        if mode == "risky":
-            if winning:
-                # choose a winner, usually the smallest winning one
-                return min(winning) if self.rng.random() < 0.7 else max(winning)
-            return max(plausible)
-        
-        return max(plausible)
+        winning_candidates = [a for a in plausible_candidates if a >= deficit]
 
-# STEP 4: NON-BINARY GUESS RESOLUTION STARTS HERE
+        # Answers that don't win immediately but make a meaningful dent
+        comeback_candidates = [
+            a for a in plausible_candidates
+            if a < deficit and a >= max(1, int(0.5 * deficit))
+        ]
+
+        # Sort descending so higher point values come first
+        safe_candidates.sort(reverse=True)
+        plausible_candidates.sort(reverse=True)
+        desperation_candidates.sort(reverse=True)
+        winning_candidates.sort(reverse=True)
+        comeback_candidates.sort(reverse=True)
+
+        # Mode behaviors
+        if mode == "victory_lap":
+            # already ahead: choose from plausible high end answers for fun / upside, has lead-size awarness
+            # prefer safer options first to preserve lead
+            if lead < 75 and safe_candidates:
+                return max(safe_candidates) # just keep living
+            
+            if lead > 150 and plausible_candidates:
+                return self.rng.choice(plausible_candidates[:min(4, len(plausible_candidates))])
+            
+            if safe_candidates:
+                return self.rng.choice(safe_candidates[:min(6, len(safe_candidates))])
+            
+            return None
+        
+        if mode == "chip_away":
+            # on 2 strikes, be much stricter
+            if state.strikes == 2:
+                below_safe = [a for a in safe_candidates if a < deficit]
+                if below_safe:
+                    return max(below_safe)
+                
+                if winning_candidates:
+                    return min(winning_candidates)
+                
+                return None
+            
+            # at 0 or 1 strike, normal chip-away behavior
+            below_safe = [a for a in safe_candidates if a < deficit]
+            if below_safe:
+                return max(below_safe)
+            
+            if winning_candidates:
+                return min(winning_candidates)
+            
+            below_plausible = [a for a in plausible_candidates if a < deficit]
+            if below_plausible:
+                return max(below_plausible)
+            
+            return None
+        
+        if mode == "exact_win":
+            # prefer the smallest winner that clears the deficit
+            if winning_candidates:
+                return min(winning_candidates)
+            
+            # fallback: best comeback answer
+            if comeback_candidates:
+                return max(comeback_candidates)
+            
+            return None
+        
+        if mode == "comeback":
+            # prefer answers that make a large dent but are still plausible
+            if comeback_candidates:
+                return self.rng.choice(comeback_candidates[:min(5, len(comeback_candidates))])
+            
+            if winning_candidates:
+                return min(winning_candidates)
+            
+            return None
+        
+        if mode == "high_upside":
+            # prefer the biggest plausible answer available
+            if plausible_candidates:
+                return max(plausible_candidates)
+            
+            return None
+
+        if mode == "desperation":
+            # accept lower-confidence options when boxed in
+            if desperation_candidates:
+                return self.rng.choice(desperation_candidates[:min(8, len(desperation_candidates))])
+            
+            return None
+        
+        return None
+    
+
+# DO THIS WHEN I COME BACK
     def handle_guess(
             self,
             player_name: str,
@@ -618,20 +795,23 @@ class PinpointGameSimulator:
         if not state.alive:
             return
         
+        # Choose mode
         if forced_mode is not None:
             mode = forced_mode
-        else:
+        else: # might have to fix how it's called
             mode = decide_pick_mode(
                 player_state=state,
                 profile=profile,
                 all_states=self.states,
                 recent_history=self.history,
                 is_part_of_double_pick_window=is_part_of_double_pick_window,
+                rng=self.rng,
             )
         
+        # choose guess
         if forced_guess is not None:
             guess = forced_guess
-        else:
+        else: # might have to fix how it's called
             guess = choose_guess_for_mode(
                 mode=mode,
                 answer_states=state.answer_states,
@@ -643,20 +823,32 @@ class PinpointGameSimulator:
         points_awarded = 0
         strike_given = False
 
-        # resolution
+        # map solo modes onto existing resolution families
+        resolution_mode = mode
+        
+        if mode == "chip_away":
+            resolution_mode = "safe"
+        elif mode in {"exact_win", "comeback", "high_upside", "victory_lap"}:
+            resolution_mode = "risky"
+        elif mode == "desperation":
+            resolution_mode = "desperation"
+        # resolve guesses
 
         if guess is not None and guess in self.remaining_answers:
             ans = state.answer_states[guess]
 
-            if mode == "safe":
-                was_correct = ans.recall >= 0.12 and ans.confidence >= 0.12
-            elif mode == "risky":
+            if resolution_mode == "safe":
+                was_correct = ans.recall >= 0.14 and ans.confidence >= 0.14
+            elif resolution_mode == "risky":
                 was_correct = ans.recall >= 0.08 and ans.confidence >= 0.08
-            elif mode == "blind_risk":
+            elif resolution_mode == "desperation":
+                was_correct = ans.recall >= 0.03 and self.rng.random() < max(0.15, ans.confidence + 0.08)
+            elif resolution_mode == "blind_risk":
                 was_correct = self.rng.random() < max(0.03, ans.confidence)
             else:
                 was_correct = False
 
+        # apply result
         if was_correct:
             points_awarded = guess
             state.score += guess
@@ -701,12 +893,25 @@ class PinpointGameSimulator:
                     self.solo_started_behind = (
                         self.states[last_player].score < self.max_other_score(last_player)
                     )
+
+                    start_deficit = self.max_other_score(last_player) - self.states[last_player].score
+                    self.solo_start_deficit = start_deficit
+
+                    # check if plausible winning answer existed at solo start
+                    state = self.states[last_player]
+                    plausible_answers = [
+                        answer for answer, ans in state.answer_states.items()
+                        if answer in self.remaining_answers and ans.recall >= 0.08 and ans.confidence >= 0.08
+                    ]
+                    self.solo_had_winning_answer_at_start = any(a >= start_deficit for a in plausible_answers)
+
                     self.solo_phase_recorded = True
 
                 # Optional pure-competitive stop
                 if self.stop_when_last_player_clinches and self.is_last_player_clinched(last_player):
                     break
 
+                self.solo_turns_taken = 0
                 # Continue solo guesses until eliminated or optional clinch stop
                 while self.states[last_player].alive:
                     if self.stop_when_last_player_clinches and self.is_last_player_clinched(last_player):
@@ -721,10 +926,11 @@ class PinpointGameSimulator:
                         forced_mode=forced_mode,
                         forced_guess=forced_guess,
                     )
+                    self.solo_turns_taken += 1
 
                 break
 
-            # PULTI-PLAYER PHASE
+            # MULTI-PLAYER PHASE
             if len(alive) == 2 and self.two_player_alternate:
                 cycle = alternating_order(alive)
             else:
@@ -763,6 +969,9 @@ class PinpointGameSimulator:
             elimination_order=self.elimination_order,
             solo_player_name=self.solo_player_name,
             solo_started_behind=self.solo_started_behind,
+            solo_start_deficit=self.solo_start_deficit,
+            solo_turns_taken=self.solo_turns_taken,
+            solo_had_winning_answer_at_start=self.solo_had_winning_answer_at_start,
         )
     
 #=============================
@@ -792,6 +1001,15 @@ def simulate_many(
     last_survivor_but_lost = 0
     solo_started_behind_count = 0
     solo_started_behind_and_lost = 0
+    solo_started_deficits = []
+    solo_turn_counts = []
+    solo_had_winning_answer_count = 0
+    solo_deficit_bucket_counts = {
+        "1-75": 0,
+        "76-150": 0,
+        "151-250": 0,
+        "251_plus": 0,
+    }
 
     for _ in range(n_sims):
         sim_seed = rng.randint(1, 10**9)
@@ -811,6 +1029,24 @@ def simulate_many(
             solo_started_behind_count += 1
             if result.solo_player_name not in result.winner_names:
                 solo_started_behind_and_lost += 1
+
+            if result.solo_start_deficit is not None:
+                d = result.solo_start_deficit
+                solo_started_deficits.append(d)
+
+                if d <= 75:
+                    solo_deficit_bucket_counts["1-75"] += 1
+                elif d <= 150:
+                    solo_deficit_bucket_counts["76-150"] += 1
+                elif d <= 250:
+                    solo_deficit_bucket_counts["151-250"] += 1
+                else:
+                    solo_deficit_bucket_counts["251_plus"] += 1
+
+            solo_turn_counts.append(result.solo_turns_taken)
+            
+            if result.solo_had_winning_answer_at_start:
+                solo_had_winning_answer_count += 1
 
         # Split ties evenly across winners
         for winner in result.winner_names:
@@ -854,6 +1090,13 @@ def simulate_many(
             solo_started_behind_and_lost / solo_started_behind_count
             if solo_started_behind_count > 0 else 0.0
         ),
+        "solo_start_deficit_avg": statistics.mean(solo_started_deficits) if solo_started_deficits else 0.0,
+        "solo_turns_avg": statistics.mean(solo_turn_counts) if solo_turn_counts else 0.0,
+        "solo_had_winning_answer_rate": solo_had_winning_answer_count / n_sims,
+        "solo_had_winning_answer_given_started_behind_rate": (solo_had_winning_answer_count / solo_started_behind_count if solo_started_behind_count > 0 else 0.0),
+        "solo_deficit_bucket_rates": {
+            bucket: (count / solo_started_behind_count if solo_started_behind_count > 0 else 0.0) for bucket, count in solo_deficit_bucket_counts.items()
+        }
     }
 
     return summary
@@ -964,6 +1207,18 @@ def main() -> None:
             print(f"Last survivor but lost rate: {summary['last_survivor_but_lost_rate']:.3f}")
             print(f"Solo started behind rate: {summary['solo_started_behind_rate']:.3f}")
             print(f"Solo started behind and lost rate: {summary['solo_started_behind_and_lost_rate']:.3f}")
+            print(f"Avg solo start deficit: {summary['solo_start_deficit_avg']:.1f}")
+            print(f"Avg solo turns taken: {summary['solo_turns_avg']:.2f}")
+            print(f"Solo had winning answer rate: {summary['solo_had_winning_answer_rate']:.3f}")
+            print(f"Solo had winning answer given started behind rate: {summary['solo_had_winning_answer_given_started_behind_rate']:.3f}")
+            bucket_rates = summary["solo_deficit_bucket_rates"]
+            print(
+                "Solo start deficit buckets: "
+                f"1-75: {bucket_rates['1-75']:.3f}, "
+                f"76-150: {bucket_rates['76-150']:.3f}, "
+                f"151-250: {bucket_rates['151-250']:.3f}, "
+                f"251+: {bucket_rates['251_plus']:.3f}"
+            )
         
         # aggregate summary across categories
         print("\n === Aggregate Summary Across Validation Suite ===")
@@ -986,14 +1241,32 @@ def main() -> None:
                 f"avg_first_out_rate={avg_first_out_rate:.3f}"
             )
 
-            avg_last_survivor_lost = statistics.mean(s["last_survivor_but_lost_rate"] for _, s in all_summaries)
-            avg_solo_started_behind = statistics.mean(s["solo_started_behind_rate"] for _, s in all_summaries)
-            avg_solo_started_behind_and_lost = statistics.mean(s["solo_started_behind_and_lost_rate"] for _, s in all_summaries)
+        avg_last_survivor_lost = statistics.mean(s["last_survivor_but_lost_rate"] for _, s in all_summaries)
+        avg_solo_started_behind = statistics.mean(s["solo_started_behind_rate"] for _, s in all_summaries)
+        avg_solo_started_behind_and_lost = statistics.mean(s["solo_started_behind_and_lost_rate"] for _, s in all_summaries)
+        avg_solo_start_deficit = statistics.mean(s["solo_start_deficit_avg"] for _, s in all_summaries)
+        avg_solo_turns = statistics.mean(s["solo_turns_avg"] for _, s in all_summaries)
+        avg_solo_had_winning_answer = statistics.mean(s["solo_had_winning_answer_rate"] for _, s in all_summaries)
+        avg_solo_had_winning_answer_given_started_behind = statistics.mean(s["solo_had_winning_answer_given_started_behind_rate"] for _, s in all_summaries)
+        avg_bucket_1_75 = statistics.mean(s["solo_deficit_bucket_rates"]["1-75"] for _, s in all_summaries)
+        avg_bucket_76_150 = statistics.mean(s["solo_deficit_bucket_rates"]["76-150"] for _, s in all_summaries)
+        avg_bucket_151_250 = statistics.mean(s["solo_deficit_bucket_rates"]["151-250"] for _, s in all_summaries)
+        avg_bucket_251_plus = statistics.mean(s["solo_deficit_bucket_rates"]["251_plus"] for _, s in all_summaries)
 
         print(f"Last survivor but lost rate: {avg_last_survivor_lost:.3f}")
         print(f"Solo started behind rate: {avg_solo_started_behind:.3f}")
         print(f"Solo started behind and lost rate: {avg_solo_started_behind_and_lost:.3f}")
-
+        print(f"Avg solo start deficit: {avg_solo_start_deficit:.1f}")
+        print(f"Avg solo turns taken: {avg_solo_turns:.2f}")
+        print(f"Solo had winning answer rate: {avg_solo_had_winning_answer:.3f}")
+        print(f"Solo had winning answer given started behind rate: {avg_solo_had_winning_answer_given_started_behind:.3f}")
+        print(
+            "Solo start deficit buckets: "
+            f"1-75: {avg_bucket_1_75:.3f}, "
+            f"76-150: {avg_bucket_76_150:.3f}, "
+            f"151-250: {avg_bucket_151_250:.3f}, "
+            f"251+: {avg_bucket_251_plus:.3f}"
+        )
 
     run_validation_suite(profiles)
 
