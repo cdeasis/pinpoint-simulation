@@ -74,85 +74,254 @@ As a result, V2 was broken into incremental milestones.
 
 ---
 
-## Milestones and Core Components Implementation 
+## Milestones and Core Components 
 
-[high level purpose of each milestone, status, what each one was intended to achieve]
+V2 was developed incrementally through a series of milestones, each targeting a specific limitation of V1 while maintaining system stability and intrepretability.
 
 ### Milestone 1 - Non-Binary Knowledge System
 **Status:** Completed
 
-This milestone introduces a new logic system for what a guess is, thus moving off V1's binary knowledge system.
+#### Purpose
+To replace the "known vs unknown" system from V1 with a richer representation of player knowledge.
 
-(rewrite this part later)
-Changes include:
-- `Set[int]` in V1 to `Dict[int, AnswerState]`
-- new `AnswerState` dataclass
-- [add other changes here]
+#### Core Changes
+- Transitioned from `Set[int]` &rarr; `Dict[int, AnswerState]`
+- Introduced `AnswerState` dataclass:
+    - knowledge
+    - recall
+    - confidence
+- Added bridge logic to allow existing engine components to continue functioning
 
-[concluding statement goes here, also something about how there's a lot of bridges and such, and majority of the tests and results were to see if the engine still runs after implementing new knowledge system, the numbers themselves didn't matter]
+#### Key Outcome
+- Established foundation for probabilistic reasoning
+- Enbabled separation of:
+    - what a player knows
+    - what the can recall
+    - what they are willing to act on
+
+#### Notes
+- This milestone prioritized **system stability over realism**
+- Most testing focused on ensurinv the engine still ran correctly
+- Output metrics were not yet meaningful
 
 ### Milestone 2 - Probabilistic Guess Generation
 **Status:** Completed
 
-This milestone introduces [fill this out later, here the values actually start to matter again, but not entirely]
+#### Purpose
+To move from deterministic guessing to probabilistic decision-making based on answer states.
 
-Results from best run midway (find a way to reword this):
-```
-=== Summary ===
-Contestant 1: win_rate=0.613, avg_score=1669.7, median_score=1463.5, stdev=990.4, avg_strikes=3.00, first_out_rate=0.162
-Contestant 2: win_rate=0.211, avg_score=1057.0, median_score=838.0, stdev=771.9, avg_strikes=3.00, first_out_rate=0.426
-Contestant 3: win_rate=0.176, avg_score=940.1, median_score=823.0, stdev=561.0, avg_strikes=3.00, first_out_rate=0.412
-Last survivor but lost rate: 0.127
-Solo started behind rate: 0.273
-Solo started behind and lost rate: 0.464
-```
+#### Core Changes
+- Reworked guess selection:
+    - from binary eligibility to weighted candidate selection
+- Introduced:
+    - plausible guesses
+    - uncertain guesses
+    - blind risk behavior
+- Added noise and variance:
+    - recall noise
+    - confidence noise
+- Reworked:
+    - `choose_guess_for_mode()`
+    - `handle_guess()`
 
-At this point, the win rates are the closest to the final result of V1, however ongoing issues remain including:
-- `Solo started but behind rate` is still high at ~46%, but significant improvement from V1
-- Win rates are a bit spread for contestant 1 and 2
-- Standard deviation (probably biggest issue) is too high
+#### Key Outcome
+- Mid-game behavior became more realistic
+- Players could:
+    - take calculated risks
+    - make plausible but uncertain guesses
 
-Best overall run (concludes milestone 2, find better way to reword this):
-```
-=== Summary ===
-Contestant 1: win_rate=0.726, avg_score=1844.8, median_score=1859.0, stdev=235.4, avg_strikes=2.54, first_out_rate=0.071
-Contestant 2: win_rate=0.163, avg_score=1581.6, median_score=1605.0, stdev=192.7, avg_strikes=2.80, first_out_rate=0.213
-Contestant 3: win_rate=0.111, avg_score=1454.3, median_score=1450.0, stdev=217.1, avg_strikes=2.81, first_out_rate=0.667
-Last survivor but lost rate: 0.289
-Solo started behind rate: 0.315
-Solo started behind and lost rate: 0.918
-```
-
-[conclusions, tidy this part later]
-- stdev is much better
-- solo started behind but lost rate balloned (almost impossible now)
-- win rates elevated, gap wider between contestants 1 and 2
-- not concerned about solo started behind but lost, haven't addressed that fully yet
+#### Notes
+- Introduced significant instability:
+    - high variance
+    - inflated scores
+    - extreme solo failure rates
+- Revealed need for **system-level corrections (not just better guessing)**
 
 ### Milestone 3 - Solo / Endgame Rework
-[this is the most important one, or at least the major one, used to address the solo win rate issue, now just under the new knowledge system logic]
+**Status:** Completed
 
-**Status:** In progress
+#### Purpose
+To address unrealistic endgame behavior, particularly the extreme high solo failure rate
 
-[get to this after]
+#### Core Changes
+- Reworked:
+    - `decide_last_player_mode()`
+    - `choose_last_player_guess()`
+- Introduced dynamic solo modes:
+    - chip-away
+    - exact-win
+    - comeback
+    - desperation
+- Added:
+    - deficit-aware logic
+    - strike-aware behavior
+    - candidate-based decision paths
+
+#### Key Outcome
+- Significant reduction in:
+    - solo starting deficits
+    - solo failure rates
+- Increased:
+    - solo turns available
+    - comeback viability
+
+#### Key Insight
+> The main driver of poor solo performance was not endgame logic, but the distribution of game states leading into it.
+
+#### Notes
+- Required upstream changes:
+    - safer early play
+    - improved risk pacing
+- Marked a shift from:
+    - fixing isolated logic &rarr; improving full system dynamics
 
 ### Milestone 4 - Board Inference
-**Status:** Not Complete
+**Status:** Completed
 
-[fill this out later]
+#### Purpose
+To introduce adaptive behavior based on revealed board information and table dynamics
+
+#### Core Changes
+- Introduced `board_read` system:
+    - tracks percieved board difficulty
+- Updated based on:
+    - surprising results
+    - strikes on plausible answers
+    - density of safe answers
+- Applied to: 
+    - risk thresholds
+    - guess selection behavior
+- Added light table effects:
+    - reduced trust in reactions
+    - increased caution after surprises
+
+#### Key Outcome
+- Players no longer act purely on static profiles
+- Behavior adapts dynamically to:
+    - board state
+    - revealed information
+
+#### Notes
+- Inference is intentionally lightweight
+- Serves as foundation for future expansion
 
 ---
 
 ## Implementation Details
-[go into the specifiics of how things are implemented, specific elements, etc.]
-ex:
-- `AnswerState`
-- guess generation
-- guess resolution
-- mode selection
-- solo logic
-- inference logic
-- things like noise etc, variance, etc.
+This section outlines the core systems introduced in V2 and how they interact to produce simulation behavior.
+
+### Answer Representation
+The binary knowledge system from V1 is replaced with a structured per-answer state:
+- `AnswerState`:
+    - `knowledge`: likelihood the player knows the answer
+    - `recall`: likelihood they can retrieve it
+    - `confidence`: likelihood they are willing to guess
+
+These values are sampled and updated per simulation, allowing for probabilistic behavior.
+
+### Guess Generation System
+Guess selection is now based on weighted cnadidate evaluation rather than binary filtering.
+
+Key components:
+- Candidate scoring is based on:
+    - recall
+    - confidence
+    - contextual modifiers (pressure, mode)
+- Separate handling for:
+    - safe guesses
+    - risky guesses
+    - blind guesses
+
+Noise is introduced via:
+- recall inference
+- confidence variance
+
+This produces:
+- plausible uncertainty
+- non-deterministic outcomes
+
+### Guess Resolution
+Guess outcomes are determined probabilistically:
+- Success depends on:
+    - recall
+    - confidence
+    - contextual modifiers
+- Incorrect guesses result in:
+    - strikes
+    - removal from board
+
+This replaces deterministic correctness with **probabilistic execution**
+
+### Mode Selection System
+Players select behavior modes based on:
+- score deficit
+- strike count
+- board size
+- inferred difficulty
+
+Modes include:
+- safe
+- balanced
+- risky
+- desperation
+
+These modes influence:
+- candidate selection 
+- threshold adjustments
+
+### Solo / Endgame System
+The solo system introduces structured decision-making for the final player:
+- Modes:
+    - chip-away
+    - exact-win
+    - comeback
+    - desperation
+- Decisions are based on
+    - deficit size
+    - remaining strikes
+    - available candidates
+
+Additional tracking includes:
+- solo start deficit
+- solo turns taken
+- winning answer availability
+
+### Board Inference System
+Players maintain a lightweight belief about board difficulty:
+- `board_read` variable, which is updated based on:
+    - surprising strikes
+    - strike patterns
+    - safe answer density
+
+Effects:
+- modifies risk tolerance
+- influences guess selection
+
+### Variance and Noise
+To simulate human inconsistency:
+- recall noise
+- confidence noise
+- stochastic candidate selection
+
+This ensures:
+- non-deterministic outcomes
+- variablity across simulations
+
+### Validation Framework
+V2 introduces a multi-category validation suite:
+- Multiple category types
+- Varying difficulty levels
+- Aggregate performance tracking
+
+Metrics tracked include:
+- win rates
+- score distributions
+- solo performance
+- deficit distributions
+
+This ensures:
+- generalization across categories
+- detection of tuning bias
 
 ---
 
@@ -164,69 +333,190 @@ To avoid overfitting to a single category, V2 introduces a multi-category valida
 
 The purpose of this was to ensure generalization, validate behavioral consistency and to detect tuning bias.
 
-results for now (just place them here):
-
-```
-
-=== Category: All-Time OPS+ ===
-Contestant 1: win_rate=0.722, avg_score=1842.2, median_score=1852.0, stdev=234.6, avg_strikes=2.53, first_out_rate=0.073
-Contestant 2: win_rate=0.168, avg_score=1583.0, median_score=1607.0, stdev=192.2, avg_strikes=2.80, first_out_rate=0.210
-Contestant 3: win_rate=0.110, avg_score=1454.6, median_score=1450.0, stdev=217.3, avg_strikes=2.81, first_out_rate=0.667
-Last survivor but lost rate: 0.295
-Solo started behind rate: 0.320
-Solo started behind and lost rate: 0.922
-
-=== Category: All-Time bWAR ===
-Contestant 1: win_rate=0.795, avg_score=1850.1, median_score=1916.0, stdev=457.5, avg_strikes=3.00, first_out_rate=0.003
-Contestant 2: win_rate=0.093, avg_score=1180.6, median_score=1176.0, stdev=176.9, avg_strikes=3.00, first_out_rate=0.579
-Contestant 3: win_rate=0.113, avg_score=1167.1, median_score=1142.0, stdev=230.8, avg_strikes=3.00, first_out_rate=0.419
-Last survivor but lost rate: 0.208
-Solo started behind rate: 0.348
-Solo started behind and lost rate: 0.599
-
-=== Category: Home Runs since 2000 ===
-Contestant 1: win_rate=0.681, avg_score=1819.3, median_score=1766.0, stdev=159.9, avg_strikes=0.34, first_out_rate=0.000
-Contestant 2: win_rate=0.274, avg_score=1622.0, median_score=1677.0, stdev=137.3, avg_strikes=1.63, first_out_rate=0.112
-Contestant 3: win_rate=0.046, avg_score=1608.7, median_score=1652.0, stdev=166.9, avg_strikes=0.75, first_out_rate=0.157
-Last survivor but lost rate: 0.001
-Solo started behind rate: 0.001
-Solo started behind and lost rate: 0.800
-
-=== Category: Hits since 1900 ===
-Contestant 1: win_rate=0.744, avg_score=1857.9, median_score=1845.0, stdev=203.9, avg_strikes=1.06, first_out_rate=0.030
-Contestant 2: win_rate=0.154, avg_score=1587.6, median_score=1643.0, stdev=173.4, avg_strikes=2.14, first_out_rate=0.225
-Contestant 3: win_rate=0.102, avg_score=1577.9, median_score=1620.0, stdev=197.0, avg_strikes=1.83, first_out_rate=0.414
-Last survivor but lost rate: 0.109
-Solo started behind rate: 0.114
-Solo started behind and lost rate: 0.953
-
-=== Category: Every MVP Winner ===
-Contestant 1: win_rate=0.659, avg_score=1550.1, median_score=1484.0, stdev=378.5, avg_strikes=3.00, first_out_rate=0.019
-Contestant 2: win_rate=0.291, avg_score=1364.6, median_score=1311.0, stdev=301.9, avg_strikes=3.00, first_out_rate=0.030
-Contestant 3: win_rate=0.050, avg_score=901.6, median_score=873.5, stdev=232.3, avg_strikes=3.00, first_out_rate=0.951
-Last survivor but lost rate: 0.361
-Solo started behind rate: 0.403
-Solo started behind and lost rate: 0.897
-
- === Aggregate Summary Across Validation Suite ===
-Contestant 1: avg_win_rate=0.720, avg_score=1783.9, avg_median_score=1772.6, avg_stdev=286.9, avg_strikes=1.99, avg_first_out_rate=0.025
-Contestant 2: avg_win_rate=0.196, avg_score=1467.6, avg_median_score=1482.8, avg_stdev=196.3, avg_strikes=2.51, avg_first_out_rate=0.231
-Contestant 3: avg_win_rate=0.084, avg_score=1342.0, avg_median_score=1347.5, avg_stdev=208.8, avg_strikes=2.28, avg_first_out_rate=0.522
-Last survivor but lost rate: 0.195
-Solo started behind rate: 0.237
-Solo started behind and lost rate: 0.834
-```
-
-takeaway: multi category validation suite works, just need to do miilestones 3 (especially) and 4 to fix solo win rate.
 ---
 
 ## Results
-[results per milestone + validation strategy can go here, show evolution, obviously leave this blank for now, not at this point]
+V2 introduces significant changes to the simulation engine, making direct comparision with V1 non-trivial. However, several key trends emerge when evaulating preformance acorss milestones and the multi-category validation suite.
+
+### Evolution Across Milestones
+
+#### V2M2 - Probabalistic Guessing
+Early results after introducing probabilistic guess generation showed the following:
+- Improved realism in mid-game decision making
+- More varied outomes due to non-binary knowledge
+
+However, there are key metrics that also shifted:
+- **High volatility (stdev)**
+- **Extreme solo failure rates (~90%)**
+- Inflated scoring and unstable distributions
+
+This stage demonstrated that introducing uncertainty alone is insufficient without controlling game state dynamics.
+
+#### V2M3 - Solo / Endgame Rework
+After addressing both solo logic ***and upstream game issues***, results improved significantly:
+- **Reduced solo starting deficits**
+- **Increased solo turns available**
+- **Higher probability of having winning answers available**
+
+The largest drop in specific metrics were:
+- `solo started behind but lost rate`
+- `last survivor but lost rate`
+
+All of this confirms that the endgame logic is strongly dependent on earlier game dynamics, not just solo decision logic.
+
+#### V2M4 - Board Inference
+Introducing lightweight board inference further refined behavior:
+- Players adjusted risk based on perceived board difficulty
+- Simulation exhibits:
+    - category-dependent behavior shifts
+    - adaptive (non-static) decision making
+- Board-read metrics show:
+    - moderate variability
+    - no longer overwhelmingly biased towards "generous" boards
+
+### Final Validation Suite Results (Aggregate)
+Across all categories:
+- Contestant 1 win rate: ~0.69-0.71
+- Contestant 2 win rate: ~0.21-0.23
+- Contestant 3 win rate: ~0.07-0.09
+
+Solo Metrics:
+- `Last survivor but lost rate`: ~0.09
+- `Solo started behind but lost rate`: ~0.43-0.54
+- `Avg solo start deficit`: ~90-120
+- `Avg solo turns`: ~8-11
+- `Winning answer availability (given behind)`: ~0.48
+
+Deficit Distribution:
+- Majority of solo states fall within **1-150 points**
+- Extreme deficits (>250) are rare
+
+### Key Observations
+1. **Game states are significantly more realistic and stable**
+    - smaller deficits
+    - more comeback opportunities
+    - longer endamge sequences
+2. **Solo play is now viable**
+    - no longer a near-certain loss state
+    - outomce depends on both strategy and opportunity
+3. **Category differences are preserved**
+    - hard categories (e.g., WAR) remain punishing
+    - easier categories allow more balanced outcomes
+4. **Inference adds meaningful variation**
+    - behavior adapts to revealed information
+    - players no longer act purely on static profiles
+
+### Raw Results
+
+Full validation outputs and intermediate benchmark runs are available in: `docs/supplements/v2_raw_results.md`
 
 ---
 
 ## Limitations
-[not at this point yet either]
+While V2 represents a substantial improvement over V1, several limitations remain.
+
+1. **Category Calibration Imbalance**
+
+Contestants are overly favored in specific categories, while punished harshly in others:
+- WAR-heavy categories heavily favor Contestant 1
+- MVP-style categories heavily favor Contestant 2
+- Some categories nearly eliminate weaker contestants
+
+This suggests that category modifiers may be **over-amplifying strengths and weaknesses**, and further calibration is needed for consistent balance.
+
+2. **Board Inference Simplicity**
+
+The inference system is intentionally lightweight:
+- no opponent modeling
+- no memory of individual player tendencies 
+- no explicit cutoff estimation
+
+Thus, as a result:
+- `board_read` is **directional, not precise**
+- inference influences behavior but does not fully explain it
+
+3. **No Structured Answer Objects (Yet)**
+
+Despite being a stated goal:
+- answers are still represented as point values (1-100)
+- no real player/entity data
+- no semantic relationship between answers
+
+This, in turn, does limit realism of inference, category richness and interpretability.
+
+4. **Lack of Multi-Turn Planning**
+
+Players operate primarly on **single-turn decision logic**:
+- no planning sequences (e.g., setup &rarr; finish)
+- no optimal path selection over multiple turns.
+
+This particuarly affects comeback efficiency and endgame optimization.
+
+5. **Residual Variance and Distribution Spread**
+
+Although improved from early V2:
+- standard deviation remains higher than V1
+- some categories still produce volatile outcomes
+
+This is partly expected due to probabilistic modeling and increased system complexity.
+
+6. **Behavioral Simplifications**
+
+Player behavior is still simplified:
+- no personality modeling (aggressive vs cautious)
+- no fatigue, tilt, or psychological factors
+- no opponent-specific trust or adaptation
+
+---
 
 ## Conclusions
-[general remarks regarding v2]
+V2 represents major evolution of the simulation engine.
+
+### From V1 to V2
+V1 modeled:
+- binary knowledge
+- static behavior
+- deterministic decision rules
+
+V2 modeled:
+- probabilistic knowledge representation
+- uncertainty and confidence modeling
+- adaptive behavior through inference
+- improved endgame realism
+
+### Key Achievements
+- Succesesfully moved from **binary &rarr; probabilistic modeling**
+- Reduced unrealistic solo failure rates
+- Produced more **balanced and interpretable game states**
+- Introduced a funcitonal board inference system
+- Validated behavior across multiple category types
+
+### Most Important Insight
+The most significant finding from V2 was:
+> Endgame outcomes cannot be fixed in isolation, rather they are driven by the distribution of game states created earlier in the simulation.
+
+This shifted the focus from "fixing solo logic" to "improving the entire system's state evolution."
+
+### Position of V2 in the Project
+V2 establishes the foundation for:
+- richer answer modeling
+- deeper inference systems
+- more realistic player behavior
+
+It transforms the simulation from a rule-based model into a dynamic system capable of producing emergent gameplay patterns.
+
+### Looking Ahead
+Future versions (V3+) will focus on:
+- structured answer objects (real players, stats, metadata)
+- improved category modeling
+- deeper inference (cuttoff estimation, opponent modeling)
+- multi-turn planning and strategy
+
+### Final Assessment
+
+V2 is considered **complete and successful**:
+- It achieves its core goals
+- Introduces meaningful system complexity
+- Remains interpretable and extensible
+
+Remaing issues are no longer blockers, but **natural next steps for futher iteration.**
