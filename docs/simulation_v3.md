@@ -4,6 +4,8 @@
 The main purpose of V3 is to extend upon V2's rudimentary introduction of board inference. It addresses the question of:
 > "Can we model how contestants interpret and adapt to the board in real time, rather than just react to internal knowledge?"
 
+This version focuses on the modeling belief formation about the board, rather than just outcome-driven behavior.
+
 ---
 
 ## Goals
@@ -81,6 +83,32 @@ This ensures that the system remains stable, balanced, and introduces interpreta
 
 ---
 
+## V3 Current State Summary
+
+### At the end of M1
+- Board understanding decomposed into:
+    - `depth_read`, `precision_read`
+    - `cutoff_estimate`, `cutoff_uncertainty`
+- Replaces singular scalar `board_read` with multi-signal model
+- Signals are directional and coarse (not fully realisitic yet)
+
+### At the end of M2
+- Players estimate and update cutoff dynamically
+- Uncertainty evolves (high &rarr; partial convergence)
+- Safe / risky behavior now tied to cutoff + margin
+- Category-dependent behavior emerges
+- Solo dynamics improved
+
+#### Limitations
+- Board perception still skewed toward harsh outcomes
+- No modeling of anser density / culstering
+- No "board phase" behavior (cold &rarr; heating up)
+
+### At the end of M3
+- fill this part out later
+
+---
+
 ## Milestones and Core Components
 V3 is developed through a series of incremental milestones, each targeting a specific limitation of the V2 inference system while maintaining overall system stability.
 
@@ -89,7 +117,7 @@ The primary focus of these milestones is to evolve board inference from a simple
 Each milestone introduces new components while building on previous ones, ensuring that behavior remains interpretable and testable throughout development.
 
 ### Milestone 1 - Multi-Dimensional Board Inference (Foundation)
-**Status**: Not complete
+**Status**: Completed
 
 #### Purpose
 To replace the single `board_read` with a richer internal model of the board
@@ -107,20 +135,21 @@ Expand board updates to incorporate:
 - density of safe guesses
 
 #### Key Outcome
-[note: this can be subject to change depending on what actually happens]
-- Players no longer evaluate the board as simply “easy” or “hard”
-- Instead, they form a structured understanding of:
-    - how many answers exist
-    - how risky those answers are
-    - how accurate they must be
+- Players now maintain a structured internal model of the board using multiple signals instead of a singular scalar
+- Board depth understanding is decomposed into:
+    - depth (how many answers exist)
+    - precision (how tight the board is)
+    - cutoff estimate (where the line is)
+    - cutoff uncertainty (confidence in that estimate)
+
+This enables downstream systems (M2+) to operate on interpretable board beliefs rather than raw outcomes.
 
 #### Notes
-- This milestone prioritizes structure over accuracy
-- Initial implementations can be heuristic-based and approximate
-- This serves as the foundation for all subsequent milestones
+- The singals introduced in M1 are intentionally coarse and directional
+- They provide strucutre, not full behavioral realism
 
 ### Milestone 2 - Cutoff Estimation System
-**Status**: Not complete
+**Status**: Completed
 
 #### Purpose
 To allow players to estimate the minimum threshold required to make the board, and update that estimate dynamically.
@@ -132,6 +161,9 @@ Introduce heuristic-based cutoff estimation:
     - high-value answers appearing lower than expected
     - low-value answers making the board
     - misses guesses
+- selective update logic:
+    - only near-cutoff answers meaningfully adjsut estimates
+    - misses near the cutoff have stronger impact than distant misses
 
 Track uncertainty in the estimate:
 - early game: high uncertainty
@@ -142,67 +174,94 @@ Integrate cutoff intro decision making:
 - risky guesses may fall below it
 
 #### Key Outcome
-[note: this can be subject to change depending on what actually happens]
-Players begin to reason about the board explictly:
-- "this should be safe"
-- "this might not make it"
+- Players now explicitly estimate a cutoff threshold and adjust it dynamically based on revealed answers and misses
+- Uncertainty evolves over time:
+    - early game: high uncertainty
+    - mid/late game: partial convergence
+- Decision-making now meaningfully depends on:
+    - estimated cutoff
+    - uncertainty-adjusted safety margin
 
-Reduces unrealistic misses and improves decision quality
+This produces realistic safe vs risky behavior, improved solo dynamics, and category-dependent play patterns
 
 #### Notes
-[note: this can be subject to change depending on what actually happens]
-- This should remain lightweight and heuristic-based in V3
-- Full probabilistic modeling is reserved for future versions
+- Cutoff estimation stabilizes within a realistic range (~50-65), and safe-floor behavior aligns with expected gameplay
+- **Limitation**: The model captures where the line is, but not yet how easy it is to play around that line
 
 ### Milestone 3 - Precision and Category Shape Modeling
-**Status**: Not complete
+**Status**: In Progress
 
 #### Purpose
-model how forgiving the board is, not just how many answers exist
+To model how answers are distributed around the cutoff, not just where the cutoff is
 
 #### Core Changes
-[nothing to put here yet]
+Players should infer:
+- density: how many viable answers exist near the cutoff
+- spacing: whether answers are clustered or sparse 
+- consistency: whether similar guesses behave similarly
+
+New Concepts to Introduce:
+
+1. Local Density Signal
+    - track how many recent correct answers fall within a brand (e.g. +/- 15 of cutoff)
+    - high density &rarr; "board feels open"
+    - low density &rarr; "board feels tight"
+
+2. Volatility / Surprise Tracking
+    - track how often outcomes contradict expectations
+        - low is surprisingly safe &rarr; board is generous
+        - high value misses &rarr; board is harsh
+
+3. Precision Calibration
+    - Instead of `precision_read += 0.02`, use:
+        - repeated near-cutoff misses &rarr; high precision requirement
+        - repeated near-cutoff hits &rarr; low precision requirement
+
+4. Cutoff Confidence $\neq$ Board Forgiveness
+    - V3 currently has uncertainty and precision loosely tied, however it is possible to be:
+        - confident in cutoff BUT board is tight
+        - uncertain BUT board is forgiving
 
 #### Key Outcome
-[nothing to put here yet]
+[high level for now, edit once finished]
+- players no longer ask 'what is the line', they instead start asking 'how hard is it to land near the line?'
+
+This is the missing realism layer
 
 #### Notes
 [nothing to put here yet]
 
-### Milestone 4 - Contextual Risk and Strategy
+### Milestone 4 - Contextual Risk and Strategy & Multi-Turn Planning
 **Status**: Not complete
 
 #### Purpose
-make decisions depend on:
-- turn postion (wrap-around)
-- strike count
-- score state
-- board state (from M1-M3)
-
-Additions:
-1. wrap-around logic upgrade
-    - instead of simple alternating:
-        - evaluate 2 turn survival strategy
-        - allow:
-            - double-safe
-            - safe + risky combo
-            - desperation pair
-2. score-state awareness expansion
-    - refine as this already exists
-        - players 'give up and have fun'
-        - players press when behind
-        - players protect lead more intelligently
-3. strike psychology
-    - enhance:
-        - stricter filtering at 2 strikes
-        - increased hesitation
-        - reduced blind risk
+To make decisions depend on future survival, not just current turn
 
 #### Core Changes
-[nothing to put here yet]
+1. 2-turn planning (wrap-around awareness)
+    - evaluate survival across next two picks, instead of pick mode per turn
+2. Combo Logic
+    - allow for different 2-turn states:
+        - safe + safe (protect)
+        - safe + risky (balanced)
+        - risky + risky (desperation)
+3. Board-Aware Aggression:
+    - aggressive only when
+        - density is high (from M3)
+    - conservative when;
+        - precision is high
+4. Strike-state psychology (upgrade)
+    - not only just "2 strikes = safe" but also:
+        - "2 strikes + tight board = ultra conservative"
+        - "2 strikes + forgiving board = still take calculated risk"
 
 #### Key Outcome
-[nothing to put here yet]
+[high level for now, edit once finished]
+players start behaving like:
+- "i need to survive THIS turn AND set up the next one"
+
+instead of:
+- "what is the best guess right now?"
 
 #### Notes
 [nothing to put here yet]
@@ -268,7 +327,92 @@ focus metrics:
 ---
 
 ## Implementation Details
-[nothing to put here yet, but more in depth technical explaination of what changed and how, with examples]
+
+### Multi Signal Board Representation (M1)
+[small note here: not sure if i want to rewrite the set of inference signals again as i already did so under the core changes in m1 description earlier, maybe find a way to reword this:]
+
+V3 replaces the single `board_read` scalar with a structured set of inference signals:
+- `depth_read`: perceived number of viable answers
+- `precision_read`: perceived tightness near cutoff
+- `cutoff_estimate`: estimated threshold required to make the board
+- `cutoff_uncertainty`: confidence in the estimate
+
+These signals are updated independently and combined when needed for decision-making
+
+The key difference from V2 is that V2 used a signal directional signal, whereas V3 introduces separable dimensions of board understanding.
+
+#### Board Signal Composition
+
+A helper function (`get_board_signal`) combines inference signals:
+
+`board_signal = 0.6 * depth_read - 0.4 * precision_read`
+
+This allows dsepth and precision to act as opposing forces, and more stable and interpretable board perception.
+
+### Cutoff Estimation System (M2)
+
+Players maintain a dynamic estimate of the board cutoff using `state.cutoff_estimate` and `state.cutoff_uncertainty`.
+
+#### Update Rules
+
+Cutoff updates are event-driven, based on guess outcomes:
+- Correct answers near cutoff
+    - pull estimate toward revealed value
+    - reduce uncertainty
+- Misses near cutoff
+    - push estimate upward
+    - slightly reduce uncertainty
+- Distant events
+    - have reduced or no impact
+
+Updates are weighted, not absolute:
+
+`state.cutoff_estimate = (1 - weight) * old + weight * new`
+
+#### Selective Update Logic
+
+Not all events affect the cutoff equally:
+- Only answers within a band (e.g. `cutoff_estimate - 30`) influence updates
+- Near-boundary answers have stronger affects
+
+This prevents runaway drift and ovveraction to irrelevant data.
+
+#### Uncertainty Modeling
+
+`cutoff_uncertainty` tracks confidence in the estimate:
+- Starts high early game
+- Decays gradually as informative events occur
+- Decays faster on both near-cutoff hits and misses
+
+Uncertainty directly affects decision-making.
+
+#### Integration into Decision Logic
+
+Cutoff estimate influences guess selection via a safety margin:
+
+```
+margin = 10 + 6 * cutoff_uncertainty
+safe_floor = cutoff_estimate - margin
+```
+
+- high uncertainty &rarr; wider margin (more cautious)
+- low uncertainty &rarr; tighter margin (more precise play)
+
+This directly controls safe vs risky classification and candidate filtering.
+
+**note**: next two sections can be expanded when m3+ are finished, everything above is good for m1 and m2.
+#### Behavioral Impact
+
+As a result of M1 + M2:
+- players transition from static risk profiles (V2) to belief-driven behavior
+
+Decisions also now depend on estimated cutoff, uncertainty level, and board interpretion signals.
+
+#### Design Philosophy
+
+V3 prioritizes interpretability over complexity and stability over perfect realism.
+
+Inference is heuristic-based, intentionally lightweight, and designed to be extended in later milestones (M3+)
 
 ---
 

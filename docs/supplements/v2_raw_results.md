@@ -15,7 +15,6 @@ Notes:
 
 ## Summary of Progression
 
-
 | Stage | Avg Solo Deficit | Solo Loss Rate | Winning Answer Rate |
 | - | - | - | -| 
 | M2 Final | ~190 | ~0.91 | ~0.06 |
