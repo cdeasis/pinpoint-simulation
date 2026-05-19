@@ -1151,3 +1151,1588 @@ Avg final safe floor: 48.30
 ---
 
 ## Milestone 3 - Precision and Category Shape Modeling
+
+**Summary**:
+
+M3 introduced lightweight board-shape inference on top of the existing cutoff estimation from M2.
+
+The main goal was to begin separating where players think the line is and how forgiving the board feels around that line.
+
+M3 added tracking for:
+- local density near the cutoff
+- surprise / expectation mismatch
+- near-cutoff hits and misses
+
+The milestones did not dramatically change gameplay outcomes, because the new signals are mostly observational at this stage. However, the added metrics provide useful diagnostics for future strategy logic and reveal important limits of the current abstract 1–100 answer model.
+
+**Observed Progression:**
+- Runs 1 and 2:
+    - Initial M3 signals worked, but skewed heavily toward open/generous board interpretations
+    - Local density and surprise both trended positive
+    - Near-cutoff hits greatly outnumbered near-cutoff misses, causing density to overstate how open the board was
+- Run 3:
+    - Restored near-cutoff miss tracking
+    - This made the miss metric technically active again, but near-cutoff misses remained extremely rare
+    - Results were nearly identical to Run 2, showing that the issue was structural rather than a simple missing counter
+- Runs 4 and 5:
+    - Added an expected-hit-rate baseline and stronger density decay to reduce inflated local density readings
+    - Adjusted surprise logic to reduce over-positive surprise accumulation
+    - Final M3 state kept M2 behavior stable while producing more balanced board-shaped diagnostics
+
+**Key Insights:**
+1. M3 did not disrupt the M2 cutoff system
+- Across M3 tuning, cutoff estimate and safe floor stayed stable
+- Final M3 aggregate cutoff estimate remained around ~60
+- Final safe flooor remained around ~48
+
+2. Local density required a baseline correction
+- Raw near-cutoff hit/miss tracking made the board look too open
+- Near-cutoff hits greatly outmumbered near-cutoff misses
+- Using an exepcted-hit-rate baseline produced a more realistic density signal
+
+3. Surprise was intially too positive
+- Early M3 runs treated too many low correct answers are generous surprises
+- Later tuning reduced surprised accumulation without destabilizing gameplay
+- This made board perception less generous-skewed
+
+4. Near-cutoff misses remain structurally rare
+- Even after restoring miss tracking, near-cutoff misses stayed very low
+- This limits how much the current M3 system can infer about board tightness
+- This likely reflects the currect abstract answer model more than a tuning issue
+
+5. M3 is useful as a lightweight inference layer, not a full board-shape engine
+- The model now tracts density and surprise
+- However, true board-shape realism likely requires deeper candidate-generation, category-shape, or real-data modeling in a future version
+
+### Run 1:
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.643, avg_score=1776.6, median_score=1723.0, stdev=289.5, avg_strikes=2.95, first_out_rate=0.156
+Contestant 2: win_rate=0.165, avg_score=1575.4, median_score=1574.0, stdev=204.5, avg_strikes=2.98, first_out_rate=0.452
+Contestant 3: win_rate=0.192, avg_score=1385.5, median_score=1464.0, stdev=258.6, avg_strikes=2.96, first_out_rate=0.385
+Last survivor but lost rate: 0.256
+Solo started behind rate: 0.384
+Solo started behind and lost rate: 0.666
+Avg solo start deficit: 164.6
+Avg solo turns taken: 2.24
+Solo had winning answer rate: 0.102
+Solo had winning answer given started behind rate: 0.267
+Solo start deficit buckets: 1-75: 0.300, 76-150: 0.280, 151-250: 0.210, 251+: 0.210
+Avg final board read: 0.091
+Avg absolute final board read: 0.105
+Strong harsh board rate: 0.000
+Strong generous board rate: 0.251
+Avg final cutoff estimate: 62.91
+Avg final cutoff uncertainty: 0.355
+Low uncertainty rate: 0.006
+High cutoff rate: 0.190
+Avg final safe floor: 50.78
+Avg final local density read: 0.245
+Avg final surprise read: 0.354
+Avg final near-cutoff hits: 2.22
+Avg final near-cutoff misses: 0.01
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.941, avg_score=2469.3, median_score=2550.0, stdev=502.3, avg_strikes=3.00, first_out_rate=0.002
+Contestant 2: win_rate=0.010, avg_score=928.7, median_score=914.0, stdev=225.7, avg_strikes=3.00, first_out_rate=0.849
+Contestant 3: win_rate=0.049, avg_score=1009.2, median_score=989.0, stdev=271.0, avg_strikes=3.00, first_out_rate=0.148
+Last survivor but lost rate: 0.056
+Solo started behind rate: 0.132
+Solo started behind and lost rate: 0.428
+Avg solo start deficit: 119.6
+Avg solo turns taken: 9.86
+Solo had winning answer rate: 0.066
+Solo had winning answer given started behind rate: 0.504
+Solo start deficit buckets: 1-75: 0.431, 76-150: 0.259, 151-250: 0.199, 251+: 0.112
+Avg final board read: 0.048
+Avg absolute final board read: 0.063
+Strong harsh board rate: 0.000
+Strong generous board rate: 0.111
+Avg final cutoff estimate: 69.26
+Avg final cutoff uncertainty: 0.475
+Low uncertainty rate: 0.000
+High cutoff rate: 0.495
+Avg final safe floor: 56.41
+Avg final local density read: 0.234
+Avg final surprise read: 0.434
+Avg final near-cutoff hits: 1.31
+Avg final near-cutoff misses: 0.05
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.550, avg_score=1737.1, median_score=1730.0, stdev=91.3, avg_strikes=0.89, first_out_rate=0.001
+Contestant 2: win_rate=0.200, avg_score=1648.6, median_score=1664.0, stdev=96.9, avg_strikes=2.01, first_out_rate=0.364
+Contestant 3: win_rate=0.250, avg_score=1656.4, median_score=1673.0, stdev=115.5, avg_strikes=0.74, first_out_rate=0.087
+Last survivor but lost rate: 0.037
+Solo started behind rate: 0.058
+Solo started behind and lost rate: 0.641
+Avg solo start deficit: 105.1
+Avg solo turns taken: 1.81
+Solo had winning answer rate: 0.018
+Solo had winning answer given started behind rate: 0.314
+Solo start deficit buckets: 1-75: 0.357, 76-150: 0.447, 151-250: 0.158, 251+: 0.038
+Avg final board read: -0.033
+Avg absolute final board read: 0.055
+Strong harsh board rate: 0.011
+Strong generous board rate: 0.010
+Avg final cutoff estimate: 44.97
+Avg final cutoff uncertainty: 0.271
+Low uncertainty rate: 0.324
+High cutoff rate: 0.032
+Avg final safe floor: 33.35
+Avg final local density read: 0.356
+Avg final surprise read: 0.286
+Avg final near-cutoff hits: 2.81
+Avg final near-cutoff misses: 0.00
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.608, avg_score=1749.3, median_score=1742.0, stdev=159.0, avg_strikes=2.32, first_out_rate=0.133
+Contestant 2: win_rate=0.125, avg_score=1604.4, median_score=1624.0, stdev=144.2, avg_strikes=2.72, first_out_rate=0.613
+Contestant 3: win_rate=0.267, avg_score=1594.8, median_score=1641.0, stdev=184.9, avg_strikes=2.28, first_out_rate=0.134
+Last survivor but lost rate: 0.253
+Solo started behind rate: 0.340
+Solo started behind and lost rate: 0.745
+Avg solo start deficit: 154.2
+Avg solo turns taken: 1.84
+Solo had winning answer rate: 0.070
+Solo had winning answer given started behind rate: 0.207
+Solo start deficit buckets: 1-75: 0.341, 76-150: 0.327, 151-250: 0.175, 251+: 0.157
+Avg final board read: 0.021
+Avg absolute final board read: 0.066
+Strong harsh board rate: 0.001
+Strong generous board rate: 0.085
+Avg final cutoff estimate: 54.62
+Avg final cutoff uncertainty: 0.305
+Low uncertainty rate: 0.091
+High cutoff rate: 0.066
+Avg final safe floor: 42.79
+Avg final local density read: 0.291
+Avg final surprise read: 0.324
+Avg final near-cutoff hits: 2.46
+Avg final near-cutoff misses: 0.00
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.616, avg_score=1772.5, median_score=1938.5, stdev=759.9, avg_strikes=3.00, first_out_rate=0.032
+Contestant 2: win_rate=0.354, avg_score=1416.5, median_score=1094.0, stdev=695.3, avg_strikes=3.00, first_out_rate=0.071
+Contestant 3: win_rate=0.030, avg_score=691.0, median_score=659.0, stdev=251.7, avg_strikes=3.00, first_out_rate=0.897
+Last survivor but lost rate: 0.127
+Solo started behind rate: 0.337
+Solo started behind and lost rate: 0.376
+Avg solo start deficit: 108.0
+Avg solo turns taken: 14.94
+Solo had winning answer rate: 0.186
+Solo had winning answer given started behind rate: 0.552
+Solo start deficit buckets: 1-75: 0.453, 76-150: 0.293, 151-250: 0.174, 251+: 0.080
+Avg final board read: 0.004
+Avg absolute final board read: 0.040
+Strong harsh board rate: 0.006
+Strong generous board rate: 0.010
+Avg final cutoff estimate: 70.38
+Avg final cutoff uncertainty: 0.537
+Low uncertainty rate: 0.000
+High cutoff rate: 0.540
+Avg final safe floor: 57.16
+Avg final local density read: 0.218
+Avg final surprise read: 0.459
+Avg final near-cutoff hits: 0.88
+Avg final near-cutoff misses: 0.09
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.672, avg_score=1901.0, avg_median_score=1936.7, avg_stdev=360.4, avg_strikes=2.43, avg_first_out_rate=0.065
+Contestant 2: avg_win_rate=0.171, avg_score=1434.7, avg_median_score=1374.0, avg_stdev=273.3, avg_strikes=2.74, avg_first_out_rate=0.470
+Contestant 3: avg_win_rate=0.158, avg_score=1267.4, avg_median_score=1285.2, avg_stdev=216.3, avg_strikes=2.40, avg_first_out_rate=0.330
+Last survivor but lost rate: 0.146
+Solo started behind rate: 0.250
+Solo started behind and lost rate: 0.571
+Avg solo start deficit: 130.3
+Avg solo turns taken: 6.14
+Solo had winning answer rate: 0.089
+Solo had winning answer given started behind rate: 0.369
+Solo start deficit buckets: 1-75: 0.376, 76-150: 0.321, 151-250: 0.183, 251+: 0.119
+Avg final board read: 0.026
+Avg absolute final board read: 0.066
+Avg strong harsh board rate: 0.004
+Avg strong generous board rate: 0.093
+Avg final cutoff estimate: 60.43
+Avg final cutoff uncertainty: 0.389
+Avg low uncertainty rate: 0.084
+Avg high cutoff rate: 0.265
+Avg final safe floor: 48.10
+Avg final local density read: 0.269
+Avg final surprise read: 0.371
+Avg final near-cutoff hits: 1.94
+Avg final near-cutoff misses: 0.03
+```
+
+### Run 2:
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.649, avg_score=1778.2, median_score=1725.0, stdev=288.3, avg_strikes=2.95, first_out_rate=0.154
+Contestant 2: win_rate=0.163, avg_score=1576.0, median_score=1574.0, stdev=203.2, avg_strikes=2.97, first_out_rate=0.449
+Contestant 3: win_rate=0.187, avg_score=1383.2, median_score=1460.0, stdev=256.9, avg_strikes=2.96, first_out_rate=0.389
+Last survivor but lost rate: 0.256
+Solo started behind rate: 0.383
+Solo started behind and lost rate: 0.668
+Avg solo start deficit: 163.2
+Avg solo turns taken: 2.24
+Solo had winning answer rate: 0.101
+Solo had winning answer given started behind rate: 0.262
+Solo start deficit buckets: 1-75: 0.306, 76-150: 0.273, 151-250: 0.218, 251+: 0.202
+Avg final board read: 0.085
+Avg absolute final board read: 0.105
+Strong harsh board rate: 0.001
+Strong generous board rate: 0.236
+Avg final cutoff estimate: 63.15
+Avg final cutoff uncertainty: 0.356
+Low uncertainty rate: 0.006
+High cutoff rate: 0.193
+Avg final safe floor: 51.01
+Avg final local density read: 0.294
+Avg final surprise read: 0.338
+Avg final near-cutoff hits: 3.45
+Avg final near-cutoff misses: 0.00
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.946, avg_score=2480.5, median_score=2556.0, stdev=493.8, avg_strikes=3.00, first_out_rate=0.002
+Contestant 2: win_rate=0.009, avg_score=927.3, median_score=913.0, stdev=225.4, avg_strikes=3.00, first_out_rate=0.851
+Contestant 3: win_rate=0.045, avg_score=1003.3, median_score=981.0, stdev=266.2, avg_strikes=3.00, first_out_rate=0.147
+Last survivor but lost rate: 0.053
+Solo started behind rate: 0.124
+Solo started behind and lost rate: 0.426
+Avg solo start deficit: 119.1
+Avg solo turns taken: 9.83
+Solo had winning answer rate: 0.063
+Solo had winning answer given started behind rate: 0.508
+Solo start deficit buckets: 1-75: 0.436, 76-150: 0.267, 151-250: 0.182, 251+: 0.116
+Avg final board read: 0.029
+Avg absolute final board read: 0.072
+Strong harsh board rate: 0.010
+Strong generous board rate: 0.116
+Avg final cutoff estimate: 69.34
+Avg final cutoff uncertainty: 0.476
+Low uncertainty rate: 0.000
+High cutoff rate: 0.502
+Avg final safe floor: 56.49
+Avg final local density read: 0.270
+Avg final surprise read: 0.413
+Avg final near-cutoff hits: 2.12
+Avg final near-cutoff misses: 0.00
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.543, avg_score=1736.0, median_score=1728.0, stdev=91.8, avg_strikes=0.91, first_out_rate=0.001
+Contestant 2: win_rate=0.204, avg_score=1648.3, median_score=1664.0, stdev=96.7, avg_strikes=2.01, first_out_rate=0.369
+Contestant 3: win_rate=0.253, avg_score=1657.3, median_score=1674.0, stdev=115.1, avg_strikes=0.76, first_out_rate=0.082
+Last survivor but lost rate: 0.038
+Solo started behind rate: 0.061
+Solo started behind and lost rate: 0.621
+Avg solo start deficit: 100.3
+Avg solo turns taken: 1.89
+Solo had winning answer rate: 0.021
+Solo had winning answer given started behind rate: 0.333
+Solo start deficit buckets: 1-75: 0.392, 76-150: 0.444, 151-250: 0.130, 251+: 0.034
+Avg final board read: -0.054
+Avg absolute final board read: 0.076
+Strong harsh board rate: 0.050
+Strong generous board rate: 0.009
+Avg final cutoff estimate: 45.05
+Avg final cutoff uncertainty: 0.272
+Low uncertainty rate: 0.315
+High cutoff rate: 0.032
+Avg final safe floor: 33.42
+Avg final local density read: 0.413
+Avg final surprise read: 0.245
+Avg final near-cutoff hits: 4.19
+Avg final near-cutoff misses: 0.00
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.604, avg_score=1748.8, median_score=1741.0, stdev=158.2, avg_strikes=2.32, first_out_rate=0.132
+Contestant 2: win_rate=0.130, avg_score=1605.4, median_score=1624.0, stdev=143.6, avg_strikes=2.72, first_out_rate=0.611
+Contestant 3: win_rate=0.266, avg_score=1593.8, median_score=1639.0, stdev=184.3, avg_strikes=2.29, first_out_rate=0.137
+Last survivor but lost rate: 0.257
+Solo started behind rate: 0.347
+Solo started behind and lost rate: 0.740
+Avg solo start deficit: 152.7
+Avg solo turns taken: 1.85
+Solo had winning answer rate: 0.074
+Solo had winning answer given started behind rate: 0.213
+Solo start deficit buckets: 1-75: 0.337, 76-150: 0.334, 151-250: 0.177, 251+: 0.153
+Avg final board read: 0.009
+Avg absolute final board read: 0.078
+Strong harsh board rate: 0.011
+Strong generous board rate: 0.081
+Avg final cutoff estimate: 54.79
+Avg final cutoff uncertainty: 0.306
+Low uncertainty rate: 0.086
+High cutoff rate: 0.067
+Avg final safe floor: 42.95
+Avg final local density read: 0.367
+Avg final surprise read: 0.290
+Avg final near-cutoff hits: 3.82
+Avg final near-cutoff misses: 0.00
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.616, avg_score=1780.0, median_score=1969.0, stdev=767.0, avg_strikes=3.00, first_out_rate=0.029
+Contestant 2: win_rate=0.360, avg_score=1427.6, median_score=1092.0, stdev=705.9, avg_strikes=3.00, first_out_rate=0.070
+Contestant 3: win_rate=0.024, avg_score=675.6, median_score=647.0, stdev=242.9, avg_strikes=3.00, first_out_rate=0.900
+Last survivor but lost rate: 0.121
+Solo started behind rate: 0.331
+Solo started behind and lost rate: 0.365
+Avg solo start deficit: 107.6
+Avg solo turns taken: 15.51
+Solo had winning answer rate: 0.185
+Solo had winning answer given started behind rate: 0.559
+Solo start deficit buckets: 1-75: 0.456, 76-150: 0.297, 151-250: 0.164, 251+: 0.083
+Avg final board read: -0.029
+Avg absolute final board read: 0.064
+Strong harsh board rate: 0.063
+Strong generous board rate: 0.011
+Avg final cutoff estimate: 70.36
+Avg final cutoff uncertainty: 0.541
+Low uncertainty rate: 0.000
+High cutoff rate: 0.542
+Avg final safe floor: 57.11
+Avg final local density read: 0.249
+Avg final surprise read: 0.430
+Avg final near-cutoff hits: 1.59
+Avg final near-cutoff misses: 0.00
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.672, avg_score=1904.7, avg_median_score=1943.8, avg_stdev=359.8, avg_strikes=2.44, avg_first_out_rate=0.064
+Contestant 2: avg_win_rate=0.173, avg_score=1437.0, avg_median_score=1373.4, avg_stdev=275.0, avg_strikes=2.74, avg_first_out_rate=0.470
+Contestant 3: avg_win_rate=0.155, avg_score=1262.7, avg_median_score=1280.2, avg_stdev=213.1, avg_strikes=2.40, avg_first_out_rate=0.331
+Last survivor but lost rate: 0.145
+Solo started behind rate: 0.250
+Solo started behind and lost rate: 0.564
+Avg solo start deficit: 128.6
+Avg solo turns taken: 6.27
+Solo had winning answer rate: 0.089
+Solo had winning answer given started behind rate: 0.375
+Solo start deficit buckets: 1-75: 0.385, 76-150: 0.323, 151-250: 0.174, 251+: 0.118
+Avg final board read: 0.008
+Avg absolute final board read: 0.079
+Avg strong harsh board rate: 0.027
+Avg strong generous board rate: 0.091
+Avg final cutoff estimate: 60.54
+Avg final cutoff uncertainty: 0.390
+Avg low uncertainty rate: 0.081
+Avg high cutoff rate: 0.267
+Avg final safe floor: 48.20
+Avg final local density read: 0.319
+Avg final surprise read: 0.343
+Avg final near-cutoff hits: 3.03
+Avg final near-cutoff misses: 0.00
+```
+
+### Run 3:
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.649, avg_score=1778.2, median_score=1725.0, stdev=288.3, avg_strikes=2.95, first_out_rate=0.154
+Contestant 2: win_rate=0.163, avg_score=1576.0, median_score=1574.0, stdev=203.2, avg_strikes=2.97, first_out_rate=0.449
+Contestant 3: win_rate=0.187, avg_score=1383.2, median_score=1460.0, stdev=256.9, avg_strikes=2.96, first_out_rate=0.389
+Last survivor but lost rate: 0.256
+Solo started behind rate: 0.383
+Solo started behind and lost rate: 0.668
+Avg solo start deficit: 163.2
+Avg solo turns taken: 2.24
+Solo had winning answer rate: 0.101
+Solo had winning answer given started behind rate: 0.262
+Solo start deficit buckets: 1-75: 0.306, 76-150: 0.273, 151-250: 0.218, 251+: 0.202
+Avg final board read: 0.085
+Avg absolute final board read: 0.105
+Strong harsh board rate: 0.001
+Strong generous board rate: 0.236
+Avg final cutoff estimate: 63.15
+Avg final cutoff uncertainty: 0.356
+Low uncertainty rate: 0.006
+High cutoff rate: 0.193
+Avg final safe floor: 51.01
+Avg final local density read: 0.296
+Avg final surprise read: 0.338
+Avg final near-cutoff hits: 3.45
+Avg final near-cutoff misses: 0.02
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.946, avg_score=2480.5, median_score=2556.0, stdev=493.8, avg_strikes=3.00, first_out_rate=0.002
+Contestant 2: win_rate=0.009, avg_score=927.3, median_score=913.0, stdev=225.4, avg_strikes=3.00, first_out_rate=0.851
+Contestant 3: win_rate=0.045, avg_score=1003.3, median_score=981.0, stdev=266.2, avg_strikes=3.00, first_out_rate=0.147
+Last survivor but lost rate: 0.053
+Solo started behind rate: 0.124
+Solo started behind and lost rate: 0.426
+Avg solo start deficit: 119.1
+Avg solo turns taken: 9.83
+Solo had winning answer rate: 0.063
+Solo had winning answer given started behind rate: 0.508
+Solo start deficit buckets: 1-75: 0.436, 76-150: 0.267, 151-250: 0.182, 251+: 0.116
+Avg final board read: 0.029
+Avg absolute final board read: 0.072
+Strong harsh board rate: 0.010
+Strong generous board rate: 0.116
+Avg final cutoff estimate: 69.34
+Avg final cutoff uncertainty: 0.476
+Low uncertainty rate: 0.000
+High cutoff rate: 0.502
+Avg final safe floor: 56.49
+Avg final local density read: 0.264
+Avg final surprise read: 0.413
+Avg final near-cutoff hits: 2.12
+Avg final near-cutoff misses: 0.07
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.543, avg_score=1736.0, median_score=1728.0, stdev=91.8, avg_strikes=0.91, first_out_rate=0.001
+Contestant 2: win_rate=0.204, avg_score=1648.3, median_score=1664.0, stdev=96.7, avg_strikes=2.01, first_out_rate=0.369
+Contestant 3: win_rate=0.253, avg_score=1657.3, median_score=1674.0, stdev=115.1, avg_strikes=0.76, first_out_rate=0.082
+Last survivor but lost rate: 0.038
+Solo started behind rate: 0.061
+Solo started behind and lost rate: 0.621
+Avg solo start deficit: 100.3
+Avg solo turns taken: 1.89
+Solo had winning answer rate: 0.021
+Solo had winning answer given started behind rate: 0.333
+Solo start deficit buckets: 1-75: 0.392, 76-150: 0.444, 151-250: 0.130, 251+: 0.034
+Avg final board read: -0.054
+Avg absolute final board read: 0.076
+Strong harsh board rate: 0.050
+Strong generous board rate: 0.009
+Avg final cutoff estimate: 45.05
+Avg final cutoff uncertainty: 0.272
+Low uncertainty rate: 0.315
+High cutoff rate: 0.032
+Avg final safe floor: 33.42
+Avg final local density read: 0.413
+Avg final surprise read: 0.245
+Avg final near-cutoff hits: 4.19
+Avg final near-cutoff misses: 0.00
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.604, avg_score=1748.8, median_score=1741.0, stdev=158.2, avg_strikes=2.32, first_out_rate=0.132
+Contestant 2: win_rate=0.130, avg_score=1605.4, median_score=1624.0, stdev=143.6, avg_strikes=2.72, first_out_rate=0.611
+Contestant 3: win_rate=0.266, avg_score=1593.8, median_score=1639.0, stdev=184.3, avg_strikes=2.29, first_out_rate=0.137
+Last survivor but lost rate: 0.257
+Solo started behind rate: 0.347
+Solo started behind and lost rate: 0.740
+Avg solo start deficit: 152.7
+Avg solo turns taken: 1.85
+Solo had winning answer rate: 0.074
+Solo had winning answer given started behind rate: 0.213
+Solo start deficit buckets: 1-75: 0.337, 76-150: 0.334, 151-250: 0.177, 251+: 0.153
+Avg final board read: 0.009
+Avg absolute final board read: 0.078
+Strong harsh board rate: 0.011
+Strong generous board rate: 0.081
+Avg final cutoff estimate: 54.79
+Avg final cutoff uncertainty: 0.306
+Low uncertainty rate: 0.086
+High cutoff rate: 0.067
+Avg final safe floor: 42.95
+Avg final local density read: 0.367
+Avg final surprise read: 0.290
+Avg final near-cutoff hits: 3.82
+Avg final near-cutoff misses: 0.00
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.616, avg_score=1780.0, median_score=1969.0, stdev=767.0, avg_strikes=3.00, first_out_rate=0.029
+Contestant 2: win_rate=0.360, avg_score=1427.6, median_score=1092.0, stdev=705.9, avg_strikes=3.00, first_out_rate=0.070
+Contestant 3: win_rate=0.024, avg_score=675.6, median_score=647.0, stdev=242.9, avg_strikes=3.00, first_out_rate=0.900
+Last survivor but lost rate: 0.121
+Solo started behind rate: 0.331
+Solo started behind and lost rate: 0.365
+Avg solo start deficit: 107.6
+Avg solo turns taken: 15.51
+Solo had winning answer rate: 0.185
+Solo had winning answer given started behind rate: 0.559
+Solo start deficit buckets: 1-75: 0.456, 76-150: 0.297, 151-250: 0.164, 251+: 0.083
+Avg final board read: -0.029
+Avg absolute final board read: 0.064
+Strong harsh board rate: 0.063
+Strong generous board rate: 0.011
+Avg final cutoff estimate: 70.36
+Avg final cutoff uncertainty: 0.541
+Low uncertainty rate: 0.000
+High cutoff rate: 0.542
+Avg final safe floor: 57.11
+Avg final local density read: 0.239
+Avg final surprise read: 0.430
+Avg final near-cutoff hits: 1.59
+Avg final near-cutoff misses: 0.13
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.672, avg_score=1904.7, avg_median_score=1943.8, avg_stdev=359.8, avg_strikes=2.44, avg_first_out_rate=0.064
+Contestant 2: avg_win_rate=0.173, avg_score=1437.0, avg_median_score=1373.4, avg_stdev=275.0, avg_strikes=2.74, avg_first_out_rate=0.470
+Contestant 3: avg_win_rate=0.155, avg_score=1262.7, avg_median_score=1280.2, avg_stdev=213.1, avg_strikes=2.40, avg_first_out_rate=0.331
+Last survivor but lost rate: 0.145
+Solo started behind rate: 0.250
+Solo started behind and lost rate: 0.564
+Avg solo start deficit: 128.6
+Avg solo turns taken: 6.27
+Solo had winning answer rate: 0.089
+Solo had winning answer given started behind rate: 0.375
+Solo start deficit buckets: 1-75: 0.385, 76-150: 0.323, 151-250: 0.174, 251+: 0.118
+Avg final board read: 0.008
+Avg absolute final board read: 0.079
+Avg strong harsh board rate: 0.027
+Avg strong generous board rate: 0.091
+Avg final cutoff estimate: 60.54
+Avg final cutoff uncertainty: 0.390
+Avg low uncertainty rate: 0.081
+Avg high cutoff rate: 0.267
+Avg final safe floor: 48.20
+Avg final local density read: 0.316
+Avg final surprise read: 0.343
+Avg final near-cutoff hits: 3.03
+Avg final near-cutoff misses: 0.04
+```
+
+### Run 4:
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.649, avg_score=1778.2, median_score=1725.0, stdev=288.3, avg_strikes=2.95, first_out_rate=0.154
+Contestant 2: win_rate=0.163, avg_score=1576.0, median_score=1574.0, stdev=203.2, avg_strikes=2.97, first_out_rate=0.449
+Contestant 3: win_rate=0.187, avg_score=1383.2, median_score=1460.0, stdev=256.9, avg_strikes=2.96, first_out_rate=0.389
+Last survivor but lost rate: 0.256
+Solo started behind rate: 0.383
+Solo started behind and lost rate: 0.668
+Avg solo start deficit: 163.2
+Avg solo turns taken: 2.24
+Solo had winning answer rate: 0.101
+Solo had winning answer given started behind rate: 0.262
+Solo start deficit buckets: 1-75: 0.306, 76-150: 0.273, 151-250: 0.218, 251+: 0.202
+Avg final board read: 0.085
+Avg absolute final board read: 0.105
+Strong harsh board rate: 0.001
+Strong generous board rate: 0.236
+Avg final cutoff estimate: 63.15
+Avg final cutoff uncertainty: 0.356
+Low uncertainty rate: 0.006
+High cutoff rate: 0.193
+Avg final safe floor: 51.01
+Avg final local density read: 0.071
+Avg final surprise read: 0.338
+Avg final near-cutoff hits: 3.45
+Avg final near-cutoff misses: 0.02
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.946, avg_score=2480.5, median_score=2556.0, stdev=493.8, avg_strikes=3.00, first_out_rate=0.002
+Contestant 2: win_rate=0.009, avg_score=927.3, median_score=913.0, stdev=225.4, avg_strikes=3.00, first_out_rate=0.851
+Contestant 3: win_rate=0.045, avg_score=1003.3, median_score=981.0, stdev=266.2, avg_strikes=3.00, first_out_rate=0.147
+Last survivor but lost rate: 0.053
+Solo started behind rate: 0.124
+Solo started behind and lost rate: 0.426
+Avg solo start deficit: 119.1
+Avg solo turns taken: 9.83
+Solo had winning answer rate: 0.063
+Solo had winning answer given started behind rate: 0.508
+Solo start deficit buckets: 1-75: 0.436, 76-150: 0.267, 151-250: 0.182, 251+: 0.116
+Avg final board read: 0.029
+Avg absolute final board read: 0.072
+Strong harsh board rate: 0.010
+Strong generous board rate: 0.116
+Avg final cutoff estimate: 69.34
+Avg final cutoff uncertainty: 0.476
+Low uncertainty rate: 0.000
+High cutoff rate: 0.502
+Avg final safe floor: 56.49
+Avg final local density read: 0.052
+Avg final surprise read: 0.413
+Avg final near-cutoff hits: 2.12
+Avg final near-cutoff misses: 0.07
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.543, avg_score=1736.0, median_score=1728.0, stdev=91.8, avg_strikes=0.91, first_out_rate=0.001
+Contestant 2: win_rate=0.204, avg_score=1648.3, median_score=1664.0, stdev=96.7, avg_strikes=2.01, first_out_rate=0.369
+Contestant 3: win_rate=0.253, avg_score=1657.3, median_score=1674.0, stdev=115.1, avg_strikes=0.76, first_out_rate=0.082
+Last survivor but lost rate: 0.038
+Solo started behind rate: 0.061
+Solo started behind and lost rate: 0.621
+Avg solo start deficit: 100.3
+Avg solo turns taken: 1.89
+Solo had winning answer rate: 0.021
+Solo had winning answer given started behind rate: 0.333
+Solo start deficit buckets: 1-75: 0.392, 76-150: 0.444, 151-250: 0.130, 251+: 0.034
+Avg final board read: -0.054
+Avg absolute final board read: 0.076
+Strong harsh board rate: 0.050
+Strong generous board rate: 0.009
+Avg final cutoff estimate: 45.05
+Avg final cutoff uncertainty: 0.272
+Low uncertainty rate: 0.315
+High cutoff rate: 0.032
+Avg final safe floor: 33.42
+Avg final local density read: 0.127
+Avg final surprise read: 0.245
+Avg final near-cutoff hits: 4.19
+Avg final near-cutoff misses: 0.00
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.604, avg_score=1748.8, median_score=1741.0, stdev=158.2, avg_strikes=2.32, first_out_rate=0.132
+Contestant 2: win_rate=0.130, avg_score=1605.4, median_score=1624.0, stdev=143.6, avg_strikes=2.72, first_out_rate=0.611
+Contestant 3: win_rate=0.266, avg_score=1593.8, median_score=1639.0, stdev=184.3, avg_strikes=2.29, first_out_rate=0.137
+Last survivor but lost rate: 0.257
+Solo started behind rate: 0.347
+Solo started behind and lost rate: 0.740
+Avg solo start deficit: 152.7
+Avg solo turns taken: 1.85
+Solo had winning answer rate: 0.074
+Solo had winning answer given started behind rate: 0.213
+Solo start deficit buckets: 1-75: 0.337, 76-150: 0.334, 151-250: 0.177, 251+: 0.153
+Avg final board read: 0.009
+Avg absolute final board read: 0.078
+Strong harsh board rate: 0.011
+Strong generous board rate: 0.081
+Avg final cutoff estimate: 54.79
+Avg final cutoff uncertainty: 0.306
+Low uncertainty rate: 0.086
+High cutoff rate: 0.067
+Avg final safe floor: 42.95
+Avg final local density read: 0.102
+Avg final surprise read: 0.290
+Avg final near-cutoff hits: 3.82
+Avg final near-cutoff misses: 0.00
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.616, avg_score=1780.0, median_score=1969.0, stdev=767.0, avg_strikes=3.00, first_out_rate=0.029
+Contestant 2: win_rate=0.360, avg_score=1427.6, median_score=1092.0, stdev=705.9, avg_strikes=3.00, first_out_rate=0.070
+Contestant 3: win_rate=0.024, avg_score=675.6, median_score=647.0, stdev=242.9, avg_strikes=3.00, first_out_rate=0.900
+Last survivor but lost rate: 0.121
+Solo started behind rate: 0.331
+Solo started behind and lost rate: 0.365
+Avg solo start deficit: 107.6
+Avg solo turns taken: 15.51
+Solo had winning answer rate: 0.185
+Solo had winning answer given started behind rate: 0.559
+Solo start deficit buckets: 1-75: 0.456, 76-150: 0.297, 151-250: 0.164, 251+: 0.083
+Avg final board read: -0.029
+Avg absolute final board read: 0.064
+Strong harsh board rate: 0.063
+Strong generous board rate: 0.011
+Avg final cutoff estimate: 70.36
+Avg final cutoff uncertainty: 0.541
+Low uncertainty rate: 0.000
+High cutoff rate: 0.542
+Avg final safe floor: 57.11
+Avg final local density read: 0.043
+Avg final surprise read: 0.430
+Avg final near-cutoff hits: 1.59
+Avg final near-cutoff misses: 0.13
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.672, avg_score=1904.7, avg_median_score=1943.8, avg_stdev=359.8, avg_strikes=2.44, avg_first_out_rate=0.064
+Contestant 2: avg_win_rate=0.173, avg_score=1437.0, avg_median_score=1373.4, avg_stdev=275.0, avg_strikes=2.74, avg_first_out_rate=0.470
+Contestant 3: avg_win_rate=0.155, avg_score=1262.7, avg_median_score=1280.2, avg_stdev=213.1, avg_strikes=2.40, avg_first_out_rate=0.331
+Last survivor but lost rate: 0.145
+Solo started behind rate: 0.250
+Solo started behind and lost rate: 0.564
+Avg solo start deficit: 128.6
+Avg solo turns taken: 6.27
+Solo had winning answer rate: 0.089
+Solo had winning answer given started behind rate: 0.375
+Solo start deficit buckets: 1-75: 0.385, 76-150: 0.323, 151-250: 0.174, 251+: 0.118
+Avg final board read: 0.008
+Avg absolute final board read: 0.079
+Avg strong harsh board rate: 0.027
+Avg strong generous board rate: 0.091
+Avg final cutoff estimate: 60.54
+Avg final cutoff uncertainty: 0.390
+Avg low uncertainty rate: 0.081
+Avg high cutoff rate: 0.267
+Avg final safe floor: 48.20
+Avg final local density read: 0.079
+Avg final surprise read: 0.343
+Avg final near-cutoff hits: 3.03
+Avg final near-cutoff misses: 0.04
+```
+
+### Run 5:
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.651, avg_score=1778.8, median_score=1723.5, stdev=288.2, avg_strikes=2.95, first_out_rate=0.153
+Contestant 2: win_rate=0.163, avg_score=1577.1, median_score=1575.0, stdev=202.8, avg_strikes=2.97, first_out_rate=0.448
+Contestant 3: win_rate=0.186, avg_score=1381.5, median_score=1456.0, stdev=255.9, avg_strikes=2.96, first_out_rate=0.391
+Last survivor but lost rate: 0.259
+Solo started behind rate: 0.389
+Solo started behind and lost rate: 0.666
+Avg solo start deficit: 164.0
+Avg solo turns taken: 2.24
+Solo had winning answer rate: 0.101
+Solo had winning answer given started behind rate: 0.259
+Solo start deficit buckets: 1-75: 0.302, 76-150: 0.277, 151-250: 0.219, 251+: 0.203
+Avg final board read: 0.037
+Avg absolute final board read: 0.081
+Strong harsh board rate: 0.014
+Strong generous board rate: 0.094
+Avg final cutoff estimate: 63.39
+Avg final cutoff uncertainty: 0.357
+Low uncertainty rate: 0.006
+High cutoff rate: 0.198
+Avg final safe floor: 51.24
+Avg final local density read: 0.070
+Avg final surprise read: 0.123
+Avg final near-cutoff hits: 3.45
+Avg final near-cutoff misses: 0.02
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.949, avg_score=2487.0, median_score=2562.5, stdev=488.0, avg_strikes=3.00, first_out_rate=0.002
+Contestant 2: win_rate=0.009, avg_score=926.3, median_score=913.0, stdev=224.3, avg_strikes=3.00, first_out_rate=0.855
+Contestant 3: win_rate=0.042, avg_score=999.9, median_score=980.0, stdev=263.9, avg_strikes=3.00, first_out_rate=0.143
+Last survivor but lost rate: 0.051
+Solo started behind rate: 0.121
+Solo started behind and lost rate: 0.423
+Avg solo start deficit: 120.0
+Avg solo turns taken: 9.91
+Solo had winning answer rate: 0.061
+Solo had winning answer given started behind rate: 0.503
+Solo start deficit buckets: 1-75: 0.429, 76-150: 0.274, 151-250: 0.178, 251+: 0.119
+Avg final board read: -0.022
+Avg absolute final board read: 0.073
+Strong harsh board rate: 0.033
+Strong generous board rate: 0.033
+Avg final cutoff estimate: 69.40
+Avg final cutoff uncertainty: 0.477
+Low uncertainty rate: 0.000
+High cutoff rate: 0.502
+Avg final safe floor: 56.54
+Avg final local density read: 0.052
+Avg final surprise read: 0.181
+Avg final near-cutoff hits: 2.12
+Avg final near-cutoff misses: 0.07
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.514, avg_score=1732.0, median_score=1723.0, stdev=93.0, avg_strikes=0.98, first_out_rate=0.001
+Contestant 2: win_rate=0.222, avg_score=1649.9, median_score=1665.0, stdev=97.6, avg_strikes=2.01, first_out_rate=0.367
+Contestant 3: win_rate=0.264, avg_score=1657.5, median_score=1674.0, stdev=115.1, avg_strikes=0.83, first_out_rate=0.084
+Last survivor but lost rate: 0.041
+Solo started behind rate: 0.075
+Solo started behind and lost rate: 0.554
+Avg solo start deficit: 87.3
+Avg solo turns taken: 2.16
+Solo had winning answer rate: 0.030
+Solo had winning answer given started behind rate: 0.403
+Solo start deficit buckets: 1-75: 0.503, 76-150: 0.365, 151-250: 0.107, 251+: 0.025
+Avg final board read: -0.094
+Avg absolute final board read: 0.108
+Strong harsh board rate: 0.176
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 44.78
+Avg final cutoff uncertainty: 0.273
+Low uncertainty rate: 0.306
+High cutoff rate: 0.032
+Avg final safe floor: 33.14
+Avg final local density read: 0.126
+Avg final surprise read: 0.087
+Avg final near-cutoff hits: 4.22
+Avg final near-cutoff misses: 0.00
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.595, avg_score=1747.0, median_score=1736.0, stdev=157.8, avg_strikes=2.35, first_out_rate=0.128
+Contestant 2: win_rate=0.138, avg_score=1607.3, median_score=1625.0, stdev=142.7, avg_strikes=2.72, first_out_rate=0.611
+Contestant 3: win_rate=0.266, avg_score=1592.7, median_score=1639.0, stdev=183.4, avg_strikes=2.32, first_out_rate=0.139
+Last survivor but lost rate: 0.260
+Solo started behind rate: 0.357
+Solo started behind and lost rate: 0.727
+Avg solo start deficit: 148.6
+Avg solo turns taken: 1.91
+Solo had winning answer rate: 0.080
+Solo had winning answer given started behind rate: 0.223
+Solo start deficit buckets: 1-75: 0.360, 76-150: 0.323, 151-250: 0.174, 251+: 0.143
+Avg final board read: -0.035
+Avg absolute final board read: 0.087
+Strong harsh board rate: 0.068
+Strong generous board rate: 0.029
+Avg final cutoff estimate: 54.95
+Avg final cutoff uncertainty: 0.307
+Low uncertainty rate: 0.081
+High cutoff rate: 0.069
+Avg final safe floor: 43.11
+Avg final local density read: 0.101
+Avg final surprise read: 0.098
+Avg final near-cutoff hits: 3.83
+Avg final near-cutoff misses: 0.00
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.615, avg_score=1787.6, median_score=2006.0, stdev=771.0, avg_strikes=3.00, first_out_rate=0.030
+Contestant 2: win_rate=0.363, avg_score=1434.3, median_score=1093.0, stdev=712.3, avg_strikes=3.00, first_out_rate=0.062
+Contestant 3: win_rate=0.022, avg_score=664.2, median_score=636.0, stdev=233.3, avg_strikes=3.00, first_out_rate=0.907
+Last survivor but lost rate: 0.117
+Solo started behind rate: 0.329
+Solo started behind and lost rate: 0.355
+Avg solo start deficit: 105.2
+Avg solo turns taken: 15.87
+Solo had winning answer rate: 0.186
+Solo had winning answer given started behind rate: 0.566
+Solo start deficit buckets: 1-75: 0.462, 76-150: 0.298, 151-250: 0.164, 251+: 0.076
+Avg final board read: -0.075
+Avg absolute final board read: 0.086
+Strong harsh board rate: 0.129
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 70.37
+Avg final cutoff uncertainty: 0.544
+Low uncertainty rate: 0.000
+High cutoff rate: 0.542
+Avg final safe floor: 57.11
+Avg final local density read: 0.044
+Avg final surprise read: 0.202
+Avg final near-cutoff hits: 1.58
+Avg final near-cutoff misses: 0.12
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.665, avg_score=1906.5, avg_median_score=1950.2, avg_stdev=359.6, avg_strikes=2.46, avg_first_out_rate=0.063
+Contestant 2: avg_win_rate=0.179, avg_score=1439.0, avg_median_score=1374.2, avg_stdev=275.9, avg_strikes=2.74, avg_first_out_rate=0.468
+Contestant 3: avg_win_rate=0.156, avg_score=1259.2, avg_median_score=1277.0, avg_stdev=210.3, avg_strikes=2.42, avg_first_out_rate=0.333
+Last survivor but lost rate: 0.146
+Solo started behind rate: 0.254
+Solo started behind and lost rate: 0.545
+Avg solo start deficit: 125.0
+Avg solo turns taken: 6.42
+Solo had winning answer rate: 0.092
+Solo had winning answer given started behind rate: 0.391
+Solo start deficit buckets: 1-75: 0.411, 76-150: 0.307, 151-250: 0.168, 251+: 0.113
+Avg final board read: -0.038
+Avg absolute final board read: 0.087
+Avg strong harsh board rate: 0.084
+Avg strong generous board rate: 0.032
+Avg final cutoff estimate: 60.58
+Avg final cutoff uncertainty: 0.392
+Avg low uncertainty rate: 0.079
+Avg high cutoff rate: 0.269
+Avg final safe floor: 48.23
+Avg final local density read: 0.079
+Avg final surprise read: 0.138
+Avg final near-cutoff hits: 3.04
+Avg final near-cutoff misses: 0.04
+```
+
+**M3 Outcomes:**
+- Added local density tracking around the estimate cutoff
+- Added surprise tracking for outcomes that contradict expected board behavior
+- Added near-cutoff hits/miss metrics
+- Reduced inflated density readings through expected-hit-rate calibration
+- Reduced over-positive surprise readings through stricter surprise triggers and faster decay
+- Preserved the stable cutoff and safe-floor behavior achieved in M2
+
+**Final aggregate M3 state:**
+- Avg final cutoff estimate: ~60.5
+- Avg final cutoff uncertainty: ~0.39
+- Avg final safe floor: ~48.2
+- Avg final local density read: ~0.98
+- Avg final surprise read: ~0.14
+- Avg near-cutoff hits: ~3.0
+- Avg near-cutoff misses: ~0.04
+
+**Key Observations:**
+- M3 confirms that board-shape signals can be added without breaking existing behavior
+- The strongest finding is that the current simulator natrually produces many more near-cutoff  misses
+- Because of that, raw hit/miss density is biased unless corrected by an expected-hit baseline
+- The final M3 version produces more interpretable diagnostic signals, but those signals are not yet deeply integrated into strategy
+- A deeper M3 rework would likely require changing how answer candidates are generated or how categories represent true board shape
+- For now, M3 is a successful lightweight extension and a good foundation for M4
+
+---
+
+## Milestone 4 - Contextual Risk and Strategy & Multi-Turn Planning
+
+**Summary:**
+fill this out when complete
+
+**Observed Progression:**
+fill this out when complete
+
+**Key Insights:**
+fill this out when complete
+
+### Run 1
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.676, avg_score=1834.7, median_score=1792.0, stdev=316.1, avg_strikes=2.97, first_out_rate=0.088
+Contestant 2: win_rate=0.204, avg_score=1615.4, median_score=1601.0, stdev=224.5, avg_strikes=2.98, first_out_rate=0.398
+Contestant 3: win_rate=0.120, avg_score=1240.7, median_score=1179.0, stdev=266.4, avg_strikes=2.97, first_out_rate=0.503
+Last survivor but lost rate: 0.295
+Solo started behind rate: 0.407
+Solo started behind and lost rate: 0.723
+Avg solo start deficit: 308.7
+Avg solo turns taken: 2.50
+Solo had winning answer rate: 0.082
+Solo had winning answer given started behind rate: 0.202
+Solo start deficit buckets: 1-75: 0.186, 76-150: 0.200, 151-250: 0.152, 251+: 0.462
+Avg final board read: 0.071
+Avg absolute final board read: 0.122
+Strong harsh board rate: 0.113
+Strong generous board rate: 0.235
+Avg final cutoff estimate: 62.32
+Avg final cutoff uncertainty: 0.362
+Low uncertainty rate: 0.099
+High cutoff rate: 0.252
+Avg final safe floor: 50.15
+Avg final local density read: 0.087
+Avg final surprise read: 0.132
+Avg final near-cutoff hits: 4.02
+Avg final near-cutoff misses: 0.03
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.961, avg_score=2556.4, median_score=2636.5, stdev=478.9, avg_strikes=3.00, first_out_rate=0.002
+Contestant 2: win_rate=0.005, avg_score=910.1, median_score=899.0, stdev=216.4, avg_strikes=3.00, first_out_rate=0.887
+Contestant 3: win_rate=0.034, avg_score=944.0, median_score=896.0, stdev=273.2, avg_strikes=3.00, first_out_rate=0.112
+Last survivor but lost rate: 0.051
+Solo started behind rate: 0.133
+Solo started behind and lost rate: 0.387
+Avg solo start deficit: 175.6
+Avg solo turns taken: 12.15
+Solo had winning answer rate: 0.063
+Solo had winning answer given started behind rate: 0.473
+Solo start deficit buckets: 1-75: 0.385, 76-150: 0.240, 151-250: 0.118, 251+: 0.257
+Avg final board read: -0.016
+Avg absolute final board read: 0.072
+Strong harsh board rate: 0.039
+Strong generous board rate: 0.039
+Avg final cutoff estimate: 67.65
+Avg final cutoff uncertainty: 0.478
+Low uncertainty rate: 0.004
+High cutoff rate: 0.416
+Avg final safe floor: 54.78
+Avg final local density read: 0.069
+Avg final surprise read: 0.163
+Avg final near-cutoff hits: 2.52
+Avg final near-cutoff misses: 0.09
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.774, avg_score=1797.4, median_score=1782.0, stdev=98.0, avg_strikes=1.00, first_out_rate=0.002
+Contestant 2: win_rate=0.117, avg_score=1666.2, median_score=1670.0, stdev=105.4, avg_strikes=1.97, first_out_rate=0.299
+Contestant 3: win_rate=0.109, avg_score=1569.6, median_score=1615.0, stdev=156.3, avg_strikes=0.96, first_out_rate=0.054
+Last survivor but lost rate: 0.162
+Solo started behind rate: 0.204
+Solo started behind and lost rate: 0.791
+Avg solo start deficit: 214.2
+Avg solo turns taken: 2.36
+Solo had winning answer rate: 0.037
+Solo had winning answer given started behind rate: 0.181
+Solo start deficit buckets: 1-75: 0.121, 76-150: 0.439, 151-250: 0.150, 251+: 0.290
+Avg final board read: -0.091
+Avg absolute final board read: 0.135
+Strong harsh board rate: 0.572
+Strong generous board rate: 0.013
+Avg final cutoff estimate: 48.42
+Avg final cutoff uncertainty: 0.243
+Low uncertainty rate: 0.635
+High cutoff rate: 0.035
+Avg final safe floor: 36.96
+Avg final local density read: 0.117
+Avg final surprise read: 0.121
+Avg final near-cutoff hits: 2.97
+Avg final near-cutoff misses: 0.00
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.680, avg_score=1781.5, median_score=1778.0, stdev=177.4, avg_strikes=2.43, first_out_rate=0.111
+Contestant 2: win_rate=0.140, avg_score=1648.5, median_score=1656.0, stdev=148.8, avg_strikes=2.71, first_out_rate=0.565
+Contestant 3: win_rate=0.181, avg_score=1498.1, median_score=1524.0, stdev=218.8, avg_strikes=2.42, first_out_rate=0.146
+Last survivor but lost rate: 0.433
+Solo started behind rate: 0.517
+Solo started behind and lost rate: 0.837
+Avg solo start deficit: 304.3
+Avg solo turns taken: 2.03
+Solo had winning answer rate: 0.061
+Solo had winning answer given started behind rate: 0.117
+Solo start deficit buckets: 1-75: 0.146, 76-150: 0.225, 151-250: 0.156, 251+: 0.473
+Avg final board read: -0.013
+Avg absolute final board read: 0.125
+Strong harsh board rate: 0.326
+Strong generous board rate: 0.091
+Avg final cutoff estimate: 53.70
+Avg final cutoff uncertainty: 0.295
+Low uncertainty rate: 0.348
+High cutoff rate: 0.124
+Avg final safe floor: 41.93
+Avg final local density read: 0.109
+Avg final surprise read: 0.110
+Avg final near-cutoff hits: 4.02
+Avg final near-cutoff misses: 0.01
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.625, avg_score=1834.0, median_score=2170.0, stdev=836.3, avg_strikes=3.00, first_out_rate=0.010
+Contestant 2: win_rate=0.358, avg_score=1421.8, median_score=1052.0, stdev=749.9, avg_strikes=3.00, first_out_rate=0.032
+Contestant 3: win_rate=0.018, avg_score=578.6, median_score=527.0, stdev=237.5, avg_strikes=3.00, first_out_rate=0.958
+Last survivor but lost rate: 0.133
+Solo started behind rate: 0.356
+Solo started behind and lost rate: 0.374
+Avg solo start deficit: 122.6
+Avg solo turns taken: 17.50
+Solo had winning answer rate: 0.170
+Solo had winning answer given started behind rate: 0.478
+Solo start deficit buckets: 1-75: 0.381, 76-150: 0.306, 151-250: 0.212, 251+: 0.101
+Avg final board read: -0.064
+Avg absolute final board read: 0.079
+Strong harsh board rate: 0.090
+Strong generous board rate: 0.002
+Avg final cutoff estimate: 67.95
+Avg final cutoff uncertainty: 0.563
+Low uncertainty rate: 0.000
+High cutoff rate: 0.402
+Avg final safe floor: 54.57
+Avg final local density read: 0.053
+Avg final surprise read: 0.196
+Avg final near-cutoff hits: 1.79
+Avg final near-cutoff misses: 0.07
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.743, avg_score=1960.8, avg_median_score=2031.7, avg_stdev=381.3, avg_strikes=2.48, avg_first_out_rate=0.043
+Contestant 2: avg_win_rate=0.165, avg_score=1452.4, avg_median_score=1375.6, avg_stdev=289.0, avg_strikes=2.73, avg_first_out_rate=0.436
+Contestant 3: avg_win_rate=0.092, avg_score=1166.2, avg_median_score=1148.2, avg_stdev=230.4, avg_strikes=2.47, avg_first_out_rate=0.354
+Last survivor but lost rate: 0.215
+Solo started behind rate: 0.324
+Solo started behind and lost rate: 0.622
+Avg solo start deficit: 225.1
+Avg solo turns taken: 7.31
+Solo had winning answer rate: 0.083
+Solo had winning answer given started behind rate: 0.290
+Solo start deficit buckets: 1-75: 0.244, 76-150: 0.282, 151-250: 0.158, 251+: 0.317
+Avg final board read: -0.022
+Avg absolute final board read: 0.107
+Avg strong harsh board rate: 0.228
+Avg strong generous board rate: 0.076
+Avg final cutoff estimate: 60.01
+Avg final cutoff uncertainty: 0.388
+Avg low uncertainty rate: 0.217
+Avg high cutoff rate: 0.245
+Avg final safe floor: 47.68
+Avg final local density read: 0.087
+Avg final surprise read: 0.144
+Avg final near-cutoff hits: 3.06
+Avg final near-cutoff misses: 0.04
+```
+
+**Notes:**
+- Unofficial run, tuning mistake made C1 too strong and C3 too weak
+    - The following run, *Run 2* will address this issue
+
+### Run 2:
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.650, avg_score=1823.3, median_score=1763.0, stdev=326.9, avg_strikes=2.98, first_out_rate=0.089
+Contestant 2: win_rate=0.190, avg_score=1600.4, median_score=1584.0, stdev=227.7, avg_strikes=2.99, first_out_rate=0.427
+Contestant 3: win_rate=0.159, avg_score=1259.4, median_score=1179.0, stdev=282.1, avg_strikes=2.98, first_out_rate=0.478
+Last survivor but lost rate: 0.250
+Solo started behind rate: 0.382
+Solo started behind and lost rate: 0.654
+Avg solo start deficit: 269.4
+Avg solo turns taken: 2.57
+Solo had winning answer rate: 0.099
+Solo had winning answer given started behind rate: 0.258
+Solo start deficit buckets: 1-75: 0.264, 76-150: 0.216, 151-250: 0.130, 251+: 0.390
+Avg final board read: 0.041
+Avg absolute final board read: 0.098
+Strong harsh board rate: 0.057
+Strong generous board rate: 0.149
+Avg final cutoff estimate: 66.53
+Avg final cutoff uncertainty: 0.352
+Low uncertainty rate: 0.045
+High cutoff rate: 0.404
+Avg final safe floor: 54.42
+Avg final local density read: 0.056
+Avg final surprise read: 0.170
+Avg final near-cutoff hits: 2.83
+Avg final near-cutoff misses: 0.04
+Mode rates: safe=0.746, risky=0.207, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.032
+Double window mode rates: safe=0.765, risky=0.235, blind_risk=0.000
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.959, avg_score=2579.5, median_score=2662.0, stdev=481.4, avg_strikes=3.00, first_out_rate=0.001
+Contestant 2: win_rate=0.005, avg_score=892.3, median_score=883.0, stdev=219.3, avg_strikes=3.00, first_out_rate=0.879
+Contestant 3: win_rate=0.036, avg_score=941.0, median_score=895.0, stdev=266.1, avg_strikes=3.00, first_out_rate=0.120
+Last survivor but lost rate: 0.042
+Solo started behind rate: 0.129
+Solo started behind and lost rate: 0.326
+Avg solo start deficit: 134.6
+Avg solo turns taken: 13.30
+Solo had winning answer rate: 0.071
+Solo had winning answer given started behind rate: 0.553
+Solo start deficit buckets: 1-75: 0.471, 76-150: 0.238, 151-250: 0.126, 251+: 0.166
+Avg final board read: -0.034
+Avg absolute final board read: 0.079
+Strong harsh board rate: 0.046
+Strong generous board rate: 0.023
+Avg final cutoff estimate: 71.33
+Avg final cutoff uncertainty: 0.462
+Low uncertainty rate: 0.001
+High cutoff rate: 0.634
+Avg final safe floor: 58.56
+Avg final local density read: 0.059
+Avg final surprise read: 0.195
+Avg final near-cutoff hits: 1.92
+Avg final near-cutoff misses: 0.11
+Mode rates: safe=0.635, risky=0.146, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.208
+Double window mode rates: safe=0.818, risky=0.182, blind_risk=0.000
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.574, avg_score=1760.0, median_score=1744.0, stdev=100.9, avg_strikes=1.19, first_out_rate=0.002
+Contestant 2: win_rate=0.208, avg_score=1673.1, median_score=1677.0, stdev=112.0, avg_strikes=2.03, first_out_rate=0.332
+Contestant 3: win_rate=0.217, avg_score=1594.4, median_score=1642.0, stdev=158.0, avg_strikes=1.09, first_out_rate=0.059
+Last survivor but lost rate: 0.135
+Solo started behind rate: 0.204
+Solo started behind and lost rate: 0.663
+Avg solo start deficit: 187.9
+Avg solo turns taken: 2.44
+Solo had winning answer rate: 0.064
+Solo had winning answer given started behind rate: 0.315
+Solo start deficit buckets: 1-75: 0.339, 76-150: 0.261, 151-250: 0.113, 251+: 0.288
+Avg final board read: -0.080
+Avg absolute final board read: 0.107
+Strong harsh board rate: 0.257
+Strong generous board rate: 0.002
+Avg final cutoff estimate: 52.34
+Avg final cutoff uncertainty: 0.282
+Low uncertainty rate: 0.313
+High cutoff rate: 0.169
+Avg final safe floor: 40.65
+Avg final local density read: 0.080
+Avg final surprise read: 0.159
+Avg final near-cutoff hits: 2.57
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.495, risky=0.485, blind_risk=0.013, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.003
+Double window mode rates: safe=0.482, risky=0.518, blind_risk=0.000
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.563, avg_score=1763.5, median_score=1748.0, stdev=183.1, avg_strikes=2.58, first_out_rate=0.090
+Contestant 2: win_rate=0.165, avg_score=1648.4, median_score=1653.0, stdev=160.3, avg_strikes=2.78, first_out_rate=0.612
+Contestant 3: win_rate=0.272, avg_score=1503.4, median_score=1561.0, stdev=234.5, avg_strikes=2.56, first_out_rate=0.160
+Last survivor but lost rate: 0.362
+Solo started behind rate: 0.470
+Solo started behind and lost rate: 0.770
+Avg solo start deficit: 284.5
+Avg solo turns taken: 2.07
+Solo had winning answer rate: 0.084
+Solo had winning answer given started behind rate: 0.179
+Solo start deficit buckets: 1-75: 0.275, 76-150: 0.189, 151-250: 0.108, 251+: 0.427
+Avg final board read: -0.024
+Avg absolute final board read: 0.098
+Strong harsh board rate: 0.152
+Strong generous board rate: 0.041
+Avg final cutoff estimate: 58.76
+Avg final cutoff uncertainty: 0.308
+Low uncertainty rate: 0.168
+High cutoff rate: 0.258
+Avg final safe floor: 46.91
+Avg final local density read: 0.072
+Avg final surprise read: 0.151
+Avg final near-cutoff hits: 2.91
+Avg final near-cutoff misses: 0.02
+Mode rates: safe=0.641, risky=0.330, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.006, victory_lap=0.011
+Double window mode rates: safe=0.629, risky=0.371, blind_risk=0.000
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.601, avg_score=1823.1, median_score=2136.0, stdev=846.7, avg_strikes=3.00, first_out_rate=0.014
+Contestant 2: win_rate=0.379, avg_score=1453.3, median_score=1047.0, stdev=772.7, avg_strikes=3.00, first_out_rate=0.037
+Contestant 3: win_rate=0.020, avg_score=578.1, median_score=523.0, stdev=237.8, avg_strikes=3.00, first_out_rate=0.949
+Last survivor but lost rate: 0.105
+Solo started behind rate: 0.341
+Solo started behind and lost rate: 0.307
+Avg solo start deficit: 107.3
+Avg solo turns taken: 18.96
+Solo had winning answer rate: 0.190
+Solo had winning answer given started behind rate: 0.558
+Solo start deficit buckets: 1-75: 0.449, 76-150: 0.304, 151-250: 0.169, 251+: 0.079
+Avg final board read: -0.078
+Avg absolute final board read: 0.089
+Strong harsh board rate: 0.117
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 70.63
+Avg final cutoff uncertainty: 0.535
+Low uncertainty rate: 0.000
+High cutoff rate: 0.573
+Avg final safe floor: 57.42
+Avg final local density read: 0.055
+Avg final surprise read: 0.215
+Avg final near-cutoff hits: 1.42
+Avg final near-cutoff misses: 0.09
+Mode rates: safe=0.607, risky=0.121, blind_risk=0.009, chip_away=0.000, exact_win=0.002, comeback=0.000, high_upside=0.000, desperation=0.002, victory_lap=0.258
+Double window mode rates: safe=0.804, risky=0.196, blind_risk=0.000
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.669, avg_score=1949.9, avg_median_score=2010.6, avg_stdev=387.8, avg_strikes=2.55, avg_first_out_rate=0.039
+Contestant 2: avg_win_rate=0.190, avg_score=1453.5, avg_median_score=1368.8, avg_stdev=298.4, avg_strikes=2.76, avg_first_out_rate=0.458
+Contestant 3: avg_win_rate=0.141, avg_score=1175.3, avg_median_score=1160.0, avg_stdev=235.7, avg_strikes=2.53, avg_first_out_rate=0.353
+Last survivor but lost rate: 0.179
+Solo started behind rate: 0.305
+Solo started behind and lost rate: 0.544
+Avg solo start deficit: 196.7
+Avg solo turns taken: 7.87
+Solo had winning answer rate: 0.102
+Solo had winning answer given started behind rate: 0.373
+Solo start deficit buckets: 1-75: 0.360, 76-150: 0.241, 151-250: 0.129, 251+: 0.270
+Avg final board read: -0.035
+Avg absolute final board read: 0.094
+Avg strong harsh board rate: 0.126
+Avg strong generous board rate: 0.043
+Avg final cutoff estimate: 63.92
+Avg final cutoff uncertainty: 0.388
+Avg low uncertainty rate: 0.105
+Avg high cutoff rate: 0.407
+Avg final safe floor: 51.59
+Avg final local density read: 0.064
+Avg final surprise read: 0.178
+Avg final near-cutoff hits: 2.33
+Avg final near-cutoff misses: 0.05
+Mode rates: safe=0.625, risky=0.261, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.099
+Double window mode rates: safe=0.679, risky=0.321, blind_risk=0.000
+```
+
+**Notes:**
+
+Comparing Runs 1 and 2, C1 dominance returned to normal:
+
+| Metric | M4 Run 1 | M4 Run 2 | 
+| - | - | - | 
+| C1 WR | 0.743 | 0.669 |
+| C2 WR | 0.165 | 0.190 |
+| C3 WR | 0.092 | 0.141 |
+| Last survivor but lost | 0.215 | 0.179 |
+| Solo started behind rate | 0.324 | 0.305 |
+| Solo Started behind / lost | 0.622 | 0.544 |
+| Avg solo deficit | 255.1 | 196.7 |
+
+Overall, Run 2 produces the first healthy M4 state. While comparable to the final run of M3, it does change in behavior but does not blow up the system. A full comparision is shown below:
+
+| Metric | V3M3 Final | V3M4 Run 2 | Read |
+| - | - | - | - |
+| C1 WR | 0.665 | 0.669 | Basically stable |
+| C2 WR | 0.179 | 0.190 | Slight gain |
+| C3 WR | 0.156 | 0.145 | Slight loss |
+| Last survivor but lost | 0.146 | 0.179 | Worse, but not catastrophic |
+| Solo started behind / lost | 0.545 | 0.544 | Identicial |
+| Avg solo deficit | 125.0 | 196.7 | Noticeably higher |
+| Cutoff estimate | 60.58 | 63.92 | Higher |
+| Safe floor | 48.23 | 51.59 | Higher |
+| Local density | 0.079 | 0.064 | Lower |
+| Surprise | 0.138 | 0.178 | Higher |
+
+**Takeaway:**
+- M4 thusfar did not destabilize win rates, but it changed the strategic environment:
+    - Players are more playing more conservatively/contextually, cutoff estimates rise, safe floors rise, and solo deficits get larger when someone starts behind
+
+**Conclusions:**
+
+1. **Contestant balance is preserved**
+
+M4 Run 2 is very close to M3 Final in overall win distribution, which suggests that M4 did not accidentally rewrite the enitre simulator, but rather it is influencing behavior wihtout erasing the existing player/category structure.
+
+2. **M4 made the board feel higher/tighter**
+
+Aggregate cutoff estimate rose from 60.58 to 63.92, high-cutoff rate rose from 0.269 to 0.407, and safe floor rose from 48.23 to 51.59
+
+The main behavioral shift is that players are effectively playing around a more demanding perceived board.
+- This makes sense if M4 is causing more conservative/double-window-aware behavior and reducing lower-risk exploratory guesses
+- This also is not automatically bad, it just means that M4 pushes the game toward *'survive and manage around the line'* rather than *'take the best immediate guess'*, which is the milestone goal
+
+3. **Solo deficits are the main thing to watch**
+
+Average solo start deficit jumped from 125.0 to 196.7, and the 251+ deficit bucket jumped from 0.113 to 0.270. *However*, the solo started behind and lost rate stayed almost identicial, with 0.545 vs. 0.544.
+
+M4 is thus creating larger deficits, but the solo player's actual failure rate given behind start is not worse, which suggests bigger deficits may be category / flow-driven rather than broken solo logic issue.
+
+However, this is still something to monitor.
+
+4. New mode metrics are already valuable
+
+New aggregate M4 mode rates:
+- `safe` = 0.625
+- `risky` = 0.261
+- `blind_risk` = 0.011
+- `victory_lap` = 0.099
+- `double-window safe` = 0.679
+- `double-window risky` = 0.321
+
+This gives clear pictures of what M4 is doing. Looking deeper, category-level mode rates already look sensible:
+- HR since 2000 is aggressive: `risky`: 0.485, `double-window risky`: 0.518
+- bWAR is conservative: `risky`: 0.146, `double-window risky`: 0.182
+- MVP is conservative and victory-lap heavy: `victory_lap`: 0.258, `double-window risky`: 0.196
+
+In conclusion, M4 Run 2 restored stability after the initial double-window aggression issue. Overall win distribution returned close to the final M3 baseline, while mode-rate diagnostics showed meaningful category-sensitive strategy behavior. The main remaining concern is that M4 raises perceived cutoff and safe-floor issues, creating larger solo deficits even though solo failure rate remains stable.
+
+### Run 3
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.650, avg_score=1823.3, median_score=1763.0, stdev=326.9, avg_strikes=2.98, first_out_rate=0.089
+Contestant 2: win_rate=0.190, avg_score=1600.4, median_score=1584.0, stdev=227.7, avg_strikes=2.99, first_out_rate=0.427
+Contestant 3: win_rate=0.159, avg_score=1259.4, median_score=1179.0, stdev=282.1, avg_strikes=2.98, first_out_rate=0.478
+Last survivor but lost rate: 0.250
+Solo started behind rate: 0.382
+Solo started behind and lost rate: 0.654
+Avg solo start deficit: 269.4
+Avg solo turns taken: 2.57
+Solo had winning answer rate: 0.099
+Solo had winning answer given started behind rate: 0.258
+Solo start deficit buckets: 1-75: 0.264, 76-150: 0.216, 151-250: 0.130, 251+: 0.390
+Avg final board read: 0.041
+Avg absolute final board read: 0.098
+Strong harsh board rate: 0.057
+Strong generous board rate: 0.149
+Avg final cutoff estimate: 66.53
+Avg final cutoff uncertainty: 0.352
+Low uncertainty rate: 0.045
+High cutoff rate: 0.404
+Avg final safe floor: 54.42
+Avg final local density read: 0.056
+Avg final surprise read: 0.170
+Avg final near-cutoff hits: 2.83
+Avg final near-cutoff misses: 0.04
+Mode rates: safe=0.746, risky=0.207, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.032
+Double window mode rates: safe=0.765, risky=0.235, blind_risk=0.000
+Context rates: open=0.795, tight=0.094, uncertain=0.370, 
+Context-action rates: risky_on_open=0.173, safe_on_tight=0.872, risky_on_uncertain=0.350, safe_on_uncertain=0.638, risky_on_double_window=0.235, safe_on_double_window=0.765
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.959, avg_score=2579.5, median_score=2662.0, stdev=481.4, avg_strikes=3.00, first_out_rate=0.001
+Contestant 2: win_rate=0.005, avg_score=892.3, median_score=883.0, stdev=219.3, avg_strikes=3.00, first_out_rate=0.879
+Contestant 3: win_rate=0.036, avg_score=941.0, median_score=895.0, stdev=266.1, avg_strikes=3.00, first_out_rate=0.120
+Last survivor but lost rate: 0.042
+Solo started behind rate: 0.129
+Solo started behind and lost rate: 0.326
+Avg solo start deficit: 134.6
+Avg solo turns taken: 13.30
+Solo had winning answer rate: 0.071
+Solo had winning answer given started behind rate: 0.553
+Solo start deficit buckets: 1-75: 0.471, 76-150: 0.238, 151-250: 0.126, 251+: 0.166
+Avg final board read: -0.034
+Avg absolute final board read: 0.079
+Strong harsh board rate: 0.046
+Strong generous board rate: 0.023
+Avg final cutoff estimate: 71.33
+Avg final cutoff uncertainty: 0.462
+Low uncertainty rate: 0.001
+High cutoff rate: 0.634
+Avg final safe floor: 58.56
+Avg final local density read: 0.059
+Avg final surprise read: 0.195
+Avg final near-cutoff hits: 1.92
+Avg final near-cutoff misses: 0.11
+Mode rates: safe=0.635, risky=0.146, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.208
+Double window mode rates: safe=0.818, risky=0.182, blind_risk=0.000
+Context rates: open=0.751, tight=0.205, uncertain=0.697, 
+Context-action rates: risky_on_open=0.107, safe_on_tight=0.947, risky_on_uncertain=0.184, safe_on_uncertain=0.773, risky_on_double_window=0.182, safe_on_double_window=0.818
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.574, avg_score=1760.0, median_score=1744.0, stdev=100.9, avg_strikes=1.19, first_out_rate=0.002
+Contestant 2: win_rate=0.208, avg_score=1673.1, median_score=1677.0, stdev=112.0, avg_strikes=2.03, first_out_rate=0.332
+Contestant 3: win_rate=0.217, avg_score=1594.4, median_score=1642.0, stdev=158.0, avg_strikes=1.09, first_out_rate=0.059
+Last survivor but lost rate: 0.135
+Solo started behind rate: 0.204
+Solo started behind and lost rate: 0.663
+Avg solo start deficit: 187.9
+Avg solo turns taken: 2.44
+Solo had winning answer rate: 0.064
+Solo had winning answer given started behind rate: 0.315
+Solo start deficit buckets: 1-75: 0.339, 76-150: 0.261, 151-250: 0.113, 251+: 0.288
+Avg final board read: -0.080
+Avg absolute final board read: 0.107
+Strong harsh board rate: 0.257
+Strong generous board rate: 0.002
+Avg final cutoff estimate: 52.34
+Avg final cutoff uncertainty: 0.282
+Low uncertainty rate: 0.313
+High cutoff rate: 0.169
+Avg final safe floor: 40.65
+Avg final local density read: 0.080
+Avg final surprise read: 0.159
+Avg final near-cutoff hits: 2.57
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.495, risky=0.485, blind_risk=0.013, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.003
+Double window mode rates: safe=0.482, risky=0.518, blind_risk=0.000
+Context rates: open=0.806, tight=0.100, uncertain=0.323, 
+Context-action rates: risky_on_open=0.499, safe_on_tight=0.708, risky_on_uncertain=0.583, safe_on_uncertain=0.402, risky_on_double_window=0.518, safe_on_double_window=0.482
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.563, avg_score=1763.5, median_score=1748.0, stdev=183.1, avg_strikes=2.58, first_out_rate=0.090
+Contestant 2: win_rate=0.165, avg_score=1648.4, median_score=1653.0, stdev=160.3, avg_strikes=2.78, first_out_rate=0.612
+Contestant 3: win_rate=0.272, avg_score=1503.4, median_score=1561.0, stdev=234.5, avg_strikes=2.56, first_out_rate=0.160
+Last survivor but lost rate: 0.362
+Solo started behind rate: 0.470
+Solo started behind and lost rate: 0.770
+Avg solo start deficit: 284.5
+Avg solo turns taken: 2.07
+Solo had winning answer rate: 0.084
+Solo had winning answer given started behind rate: 0.179
+Solo start deficit buckets: 1-75: 0.275, 76-150: 0.189, 151-250: 0.108, 251+: 0.427
+Avg final board read: -0.024
+Avg absolute final board read: 0.098
+Strong harsh board rate: 0.152
+Strong generous board rate: 0.041
+Avg final cutoff estimate: 58.76
+Avg final cutoff uncertainty: 0.308
+Low uncertainty rate: 0.168
+High cutoff rate: 0.258
+Avg final safe floor: 46.91
+Avg final local density read: 0.072
+Avg final surprise read: 0.151
+Avg final near-cutoff hits: 2.91
+Avg final near-cutoff misses: 0.02
+Mode rates: safe=0.641, risky=0.330, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.006, victory_lap=0.011
+Double window mode rates: safe=0.629, risky=0.371, blind_risk=0.000
+Context rates: open=0.802, tight=0.110, uncertain=0.329, 
+Context-action rates: risky_on_open=0.318, safe_on_tight=0.778, risky_on_uncertain=0.475, safe_on_uncertain=0.511, risky_on_double_window=0.371, safe_on_double_window=0.629
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.601, avg_score=1823.1, median_score=2136.0, stdev=846.7, avg_strikes=3.00, first_out_rate=0.014
+Contestant 2: win_rate=0.379, avg_score=1453.3, median_score=1047.0, stdev=772.7, avg_strikes=3.00, first_out_rate=0.037
+Contestant 3: win_rate=0.020, avg_score=578.1, median_score=523.0, stdev=237.8, avg_strikes=3.00, first_out_rate=0.949
+Last survivor but lost rate: 0.105
+Solo started behind rate: 0.341
+Solo started behind and lost rate: 0.307
+Avg solo start deficit: 107.3
+Avg solo turns taken: 18.96
+Solo had winning answer rate: 0.190
+Solo had winning answer given started behind rate: 0.558
+Solo start deficit buckets: 1-75: 0.449, 76-150: 0.304, 151-250: 0.169, 251+: 0.079
+Avg final board read: -0.078
+Avg absolute final board read: 0.089
+Strong harsh board rate: 0.117
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 70.63
+Avg final cutoff uncertainty: 0.535
+Low uncertainty rate: 0.000
+High cutoff rate: 0.573
+Avg final safe floor: 57.42
+Avg final local density read: 0.055
+Avg final surprise read: 0.215
+Avg final near-cutoff hits: 1.42
+Avg final near-cutoff misses: 0.09
+Mode rates: safe=0.607, risky=0.121, blind_risk=0.009, chip_away=0.000, exact_win=0.002, comeback=0.000, high_upside=0.000, desperation=0.002, victory_lap=0.258
+Double window mode rates: safe=0.804, risky=0.196, blind_risk=0.000
+Context rates: open=0.744, tight=0.250, uncertain=0.784, 
+Context-action rates: risky_on_open=0.072, safe_on_tight=0.937, risky_on_uncertain=0.150, safe_on_uncertain=0.748, risky_on_double_window=0.196, safe_on_double_window=0.804
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.669, avg_score=1949.9, avg_median_score=2010.6, avg_stdev=387.8, avg_strikes=2.55, avg_first_out_rate=0.039
+Contestant 2: avg_win_rate=0.190, avg_score=1453.5, avg_median_score=1368.8, avg_stdev=298.4, avg_strikes=2.76, avg_first_out_rate=0.458
+Contestant 3: avg_win_rate=0.141, avg_score=1175.3, avg_median_score=1160.0, avg_stdev=235.7, avg_strikes=2.53, avg_first_out_rate=0.353
+Last survivor but lost rate: 0.179
+Solo started behind rate: 0.305
+Solo started behind and lost rate: 0.544
+Avg solo start deficit: 196.7
+Avg solo turns taken: 7.87
+Solo had winning answer rate: 0.102
+Solo had winning answer given started behind rate: 0.373
+Solo start deficit buckets: 1-75: 0.360, 76-150: 0.241, 151-250: 0.129, 251+: 0.270
+Avg final board read: -0.035
+Avg absolute final board read: 0.094
+Avg strong harsh board rate: 0.126
+Avg strong generous board rate: 0.043
+Avg final cutoff estimate: 63.92
+Avg final cutoff uncertainty: 0.388
+Avg low uncertainty rate: 0.105
+Avg high cutoff rate: 0.407
+Avg final safe floor: 51.59
+Avg final local density read: 0.064
+Avg final surprise read: 0.178
+Avg final near-cutoff hits: 2.33
+Avg final near-cutoff misses: 0.05
+Mode rates: safe=0.625, risky=0.261, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.099
+Double window mode rates: safe=0.679, risky=0.321, blind_risk=0.000
+Context rates: open=0.781, tight=0.150, uncertain=0.493, 
+Context-action rates: risky_on_open=0.242, safe_on_tight=0.876, risky_on_uncertain=0.293, safe_on_uncertain=0.659, risky_on_double_window=0.321, safe_on_double_window=0.679
+```
+
+**Notes:**
+
+Run 3 is a diagnostic-only run. No gameplay logic was changed from Run 2, only new context metrics were added.
+
+The main output metrics remained identical to Run 2, confirming the new diagnostic layer was non-invasive and did not alter simluation behavior.
+
+The new context metrics provided a clear view of how M4's strategy layer is behaving internally:
+
+- `tight` contexts are rare but highly meaningful
+    - Aggregate `tight_context_rate`: 0.150
+    - Aggregate `safe_on_tight`: 0.876
+
+When the board is identified as tight, players strongly shift toward survival-oriented safe play.
+
+- `uncertain` contexts appear frequently:
+    - Aggregate `uncertain_context_rate`: 0.493
+    - Aggregate `safe_on_uncertain`: 0.659
+    - Aggregate `risky_on_uncertain`: 0.293
+
+Uncertainty generally suppresses risk, but does not eliminate aggression entirely.
+
+- Double-window behavior appears well-tracked and category-sensitive:
+    - Aggregate `risky_on_double_window`: 0.321
+    - Aggregate `safe_on_double_window`: 0.679
+
+For example, HR since 2000 was much more aggressive in double-window spots (`risky_on_double_window`: 0.518), while bWAR and MVP remained much more conservative.
+
+- Main issue - `open` context appears too broad:
+    - Aggregate `open_context_rate`: 0.781
+    - Every category had an open-context rate above 0.740
+
+Suggests that the current open-context definition is triggering too often, likely because `surprise_read` contributes heavily to the open flag.
+
+**Takeaway:**
+
+Overall, Run 3 confirmed that M4's diagnostic layer is working. The simulator now shows not only on which modes players choose, but also which board contexts are influencing those choices. The main target for the next run is tuning the open-context definition so that open states become rarer and more strategically meaningful.
+
+**Conclusion:**
+
+Run 3 successfully completed the diagnostic phase of M4. The added context metrics did not change simulation behavior, but they revealed that M4 is already producing meaningful context-aware strategy.
+
+Tight boards push players strongly toward safe chooices, uncertainty generally reduces risk, and double-window behavior varies sensibly by category. The primary tuning target for Run 4 is the overly broad `open` context, which currently fires across nearly all categories at a high rate.
+
+### Run 4
+
+**M4 Outcomes:**
+fill out when complete
+
+**Final aggregate M4 state:**
+fill out when complete
+
+**Key Observations:**
+fill out when complete
+
+
+---
+
+## Milestone 5
+
+**Summary:**
+fill out when complete
+
+**Observed Progression:**
+fill out when complete
+
+**Key Insights:**
+fill out when complete
+
+### Run 1
+
+**M5 Outcomes:**
+fill out when complete
+
+**Final aggregate M5 state:**
+fill out when complete
+
+**Key Observations:**
+fill out when complete
+
+---
+
+## Milestone 6
+
+**Summary:**
+fill out when complete
+
+**Observed Progression:**
+fill out when complete
+
+**Key Insights:**
+fill out when complete
+
+### Run 1
+
+**M6 Outcomes:**
+fill out when complete
+
+**Final aggregate M6 state:**
+fill out when complete
+
+**Key Observations:**
+fill out when complete

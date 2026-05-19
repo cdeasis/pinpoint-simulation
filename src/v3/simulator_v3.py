@@ -103,12 +103,20 @@ class PlayerState:
     wrong_guesses: int = 0
 
     # new v3 inference variables
+
+    # m1 + m2
     depth_read: float = 0.0 # how deep/generous the board feels
     precision_read: float = 0.0 # how tight/compressed the board feels
     cutoff_estimate: float = 50.0 # rough midpoint startiing assumption
     cutoff_uncertainty: float = 1.0 #very uncertain, shrinks overtime
 
-    # can keep this for now, unused in m4 but will probably be used in future versions
+    # m3
+    local_density_read: float = 0.0 # how many viable answers seem to exist near the cutoff (open vs sparse board)
+    surprise_read: float = 0.0 # how often outcomes contradict expectations (generous vs harsh surprises)
+    near_cutoff_hits: float = 0.0 # recent count of correct answers near estimated cutoff
+    near_cutoff_misses: float = 0.0 # recent count of misses near estimated cutoff
+
+    # can keep this for now, unused but will come in later
     table_trust: float = 0.0 # positive: table reactions are somewhat useful, negative: table reactions have been misleading
 
 @dataclass
@@ -151,6 +159,14 @@ class SimulationResult:
     low_uncertainty_rate: float = 0.0 # how often players finiish pretty confident (ex: uncertainty <= 0.25)
     high_cutoff_rate: float = 0.0 # how often players finish thinking the board line is high (ex: estimate >= 70)
     avg_final_safe_floor: float = 0.0 # average of players' final "safe floor" (cutoff estimate - uncertainty margin)
+    avg_final_local_density_read: float = 0.0 # average of players' final local density read
+    avg_final_surprise_read: float = 0.0 # average of players' final surprise read
+    avg_final_near_cutoff_hits: float = 0.0 # average of players' final near-cutoff hit count
+    avg_final_near_cutoff_misses: float = 0.0 # average of players' final near-cutoff miss count
+    mode_counts: Dict[str, int] = field(default_factory=dict)
+    double_window_mode_counts: Dict[str, int] = field(default_factory=dict)
+    context_counts: Dict[str, int] = field(default_factory=dict)
+    context_action_counts: Dict[str, int] = field(default_factory=dict)
 
 #==============================
 # HELPERS
@@ -187,6 +203,25 @@ def get_board_signal(state: PlayerState) -> float:
     Combines multiple board inference components into a single signal so existing V2 logic can continue working
     """
     return (0.6 * state.depth_read - 0.4 * state.precision_read)
+
+# m4 helper
+def get_board_context(state: PlayerState) -> Dict[str, bool]:
+    """
+    Lightweight M4 board context helper
+
+    Converts numeric inference signals into strategic labels.
+    Used by mode selection and safe-floor logic
+    """
+    board_signal = get_board_signal(state)
+
+    return {
+        "open": state.local_density_read >= 0.08 or state.surprise_read >= 0.12,
+        "tight": state.precision_read >= 0.12 or board_signal  <= -0.12,
+        "uncertain": state.cutoff_uncertainty >= 0.50,
+        "confident": state.cutoff_uncertainty <= 0.30,
+        "high_cutoff": state.cutoff_estimate >= 70.0,
+        "low_cutoff": state.cutoff_estimate <= 45.0,
+    }
 
 
 def choose_from_top(values: List[int], n: int, rng: random.Random) -> Optional[int]:
@@ -396,6 +431,21 @@ def decide_pick_mode(
     pressure = compute_social_pressure(player_state, all_states, recent_history, profile)
     pressure += get_board_signal(player_state) * 0.15
 
+    # m4 stuff, fix comment later
+    ctx = get_board_context(player_state)
+
+    if ctx["open"] and player_state.strikes == 0:
+        pressure += 0.06
+    
+    if ctx["tight"]:
+        pressure -= 0.08
+    
+    if ctx["uncertain"]:
+        pressure -= 0.04
+    
+    if player_state.strikes == 1 and ctx["tight"]:
+        pressure -= 0.08
+
     # score aware lead/trail adjustment
     other_scores = [s.score for n, s in all_states.items() if n != player_state.name]
     leader_gap = player_state.score - max(other_scores) if other_scores else 0
@@ -418,20 +468,30 @@ def decide_pick_mode(
         and is_part_of_double_pick_window
         and player_state.strikes <= 1
     ):
+        ctx = get_board_context(player_state)
+        
         other_scores = [s.score for n, s in all_states.items() if n != player_state.name]
         leader_gap = player_state.score - max(other_scores) if other_scores else 0
 
-        # if clearly ahead, protect the lead instead of alternating freely
+        # protect meaningful lead
         if leader_gap >= 75:
             return "safe"
         
-        # if board feels harsh, be willing to take two safer wrap-around picks
-        if get_board_signal(player_state) <= -0.15:
+        # if player already has a strike and the board is tight/uncertain, avoid forcing risk
+        if player_state.strikes >= 1 and (ctx["tight"] or ctx["uncertain"]):
             return "safe"
 
-        mode = player_state.double_pick_toggle
-        player_state.double_pick_toggle = "safe" if mode == "risky" else "risky"
-        return mode
+        # if behind and board does not feel tight, allow aggression
+        if player_state.strikes == 0 and leader_gap <= -75 and not ctx["tight"]:
+            return "risky"
+        
+        # if board feels open and player is clean, allow the old risky/safe rhythm
+        if player_state.strikes == 0 and ctx["open"]:
+            mode = player_state.double_pick_toggle
+            player_state.double_pick_toggle = "safe" if mode == "risky" else "risky"
+            return mode
+        
+        return "safe"
     
     # At 2 strikes, generic play becomes conservative
     if player_state.strikes >= 2:
@@ -581,10 +641,46 @@ class PinpointGameSimulator:
         self.solo_turns_taken: int = 0
         self.solo_had_winning_answer_at_start: bool = False
 
+        # V3M4 metrics
+        self.mode_counts = {
+            "safe": 0,
+            "risky": 0,
+            "blind_risk": 0,
+            "chip_away": 0,
+            "exact_win": 0,
+            "comeback": 0,
+            "high_upside": 0,
+            "desperation": 0,
+            "victory_lap": 0,
+        }
+
+        self.double_window_mode_counts = {
+            "safe": 0,
+            "risky": 0,
+            "blind_risk": 0,
+        }
+
+        self.context_counts = {
+            "open": 0,
+            "tight": 0,
+            "uncertain": 0,
+            "double_window": 0,
+            "total_decisions": 0,
+        }
+
+        self.context_action_counts = {
+            "risky_on_open": 0,
+            "safe_on_tight": 0,
+            "risky_on_uncertain": 0,
+            "safe_on_uncertain": 0,
+            "risky_on_double_window": 0,
+            "safe_on_double_window": 0,
+        }
+        
     def alive_players(self) -> List[str]:
         """REturn players still alive in seating order"""
         return [name for name in self.player_order if self.states[name].alive]
-    
+
     def max_other_score(self, player_name: str) -> int:
         """Return the highest score among everyone except the named player"""
         others = [s.score for n, s in self.states.items() if n != player_name]
@@ -839,9 +935,17 @@ class PinpointGameSimulator:
         - strikes nudge the estimated cutoff upward
         - repeated safe hits / misses continue to share broad board perception
         """
-        for name, state in self.states.items():
+        for state in self.states.values():
             if not state.alive:
                 continue
+
+            revealed_value = guess_result.points_awarded if guess_result.was_correct else guess_result.guess
+
+            if revealed_value is None:
+                continue
+
+            NEAR_BAND = 12
+            MID_BAND = 25 # reserved for broader near-cutoff / board-shape logic later
 
             # correct low-value answer suggests the board is deeper / harsher than player might have expected
             if guess_result.was_correct and guess_result.points_awarded <= 25:
@@ -902,10 +1006,58 @@ class PinpointGameSimulator:
                     state.cutoff_estimate += 1.0
                     state.cutoff_uncertainty *= 0.997
 
+            # M3: board shape inference
+
+            distance = revealed_value - state.cutoff_estimate
+            abs_distance = abs(distance)
+
+            # near-cutoff tracking
+            if abs_distance <= NEAR_BAND:
+                if guess_result.was_correct:
+                    state.near_cutoff_hits += 1.0
+                elif guess_result.strike_given:
+                    state.near_cutoff_misses += 1.0
+            elif abs_distance <= NEAR_BAND + 8:
+                if guess_result.was_correct:
+                    state.near_cutoff_hits += 0.5
+                elif guess_result.strike_given:
+                    state.near_cutoff_misses += 0.5
+
+            # local density signal
+            recent_total = state.near_cutoff_hits + state.near_cutoff_misses
+
+            if recent_total >= 3:
+                observed_hit_rate = state.near_cutoff_hits / recent_total
+                expected_hit_rate = 0.75
+                density_signal = observed_hit_rate - expected_hit_rate
+                state.local_density_read += 0.05 * density_signal
+
+            # surprise signal
+            # case a: low value hit -> generous surprise
+            if guess_result.was_correct and revealed_value < state.cutoff_estimate - 30:
+                state.surprise_read += 0.025
+            
+            # case b: high miss -> harsh surprise
+            elif guess_result.strike_given and revealed_value >= state.cutoff_estimate - 10:
+                state.surprise_read -= 0.05
+
+            # use surprise to adjust precision
+            state.precision_read += -0.02 * state.surprise_read
+
+            # decay
+            state.local_density_read *= 0.94
+            state.surprise_read *= 0.94
+
+            state.near_cutoff_hits *= 0.9
+            state.near_cutoff_misses *= 0.9
+
+            # clamps
             state.depth_read = clamp(state.depth_read, -0.30, 0.30)
             state.precision_read = clamp(state.precision_read, -0.30, 0.30)
             state.cutoff_estimate = clamp(state.cutoff_estimate, 20.0, 80.0)
             state.cutoff_uncertainty = clamp(state.cutoff_uncertainty, 0.10, 1.0)
+            state.local_density_read = clamp(state.local_density_read, -0.5, 0.5)
+            state.surprise_read = clamp(state.surprise_read, -0.5, 0.5)
 
     def handle_guess(
             self,
@@ -935,6 +1087,39 @@ class PinpointGameSimulator:
                 is_part_of_double_pick_window=is_part_of_double_pick_window,
                 rng=self.rng,
             )
+
+        self.mode_counts[mode] = self.mode_counts.get(mode, 0) + 1
+
+        if is_part_of_double_pick_window:
+            self.double_window_mode_counts[mode] = self.double_window_mode_counts.get(mode, 0) + 1
+
+        ctx = get_board_context(state)
+
+        self.context_counts["total_decisions"] += 1
+
+        if ctx["open"]:
+            self.context_counts["open"] += 1
+            if mode in {"risky", "blind_risk"}:
+                self.context_action_counts["risky_on_open"] += 1
+        
+        if ctx["tight"]:
+            self.context_counts["tight"] += 1
+            if mode == "safe":
+                self.context_action_counts["safe_on_tight"] += 1
+        
+        if ctx["uncertain"]:
+            self.context_counts["uncertain"] += 1
+            if mode == "risky":
+                self.context_action_counts["risky_on_uncertain"] += 1
+            if mode == "safe":
+                self.context_action_counts["safe_on_uncertain"] += 1
+        
+        if is_part_of_double_pick_window:
+            self.context_counts["double_window"] += 1
+            if mode == "risky":
+                self.context_action_counts["risky_on_double_window"] += 1
+            if mode == "safe":
+                self.context_action_counts["safe_on_double_window"] += 1
         
         # choose guess
         if forced_guess is not None:
@@ -1101,7 +1286,7 @@ class PinpointGameSimulator:
         strong_harsh_board_rate = (sum(1 for x in final_board_reads if x <= -0.15) / len(final_board_reads) if final_board_reads else 0.0)
         strong_generous_board_rate = (sum(1 for x in final_board_reads if x >= 0.15) / len(final_board_reads) if final_board_reads else 0.0)
 
-        # compute estimate and uncertainty metrics
+        # compute estimate and uncertainty metrics (m2)
         final_cutoff_estimates = [state.cutoff_estimate for state in self.states.values()]
         final_cutoff_uncertainties = [state.cutoff_uncertainty for state in self.states.values()]
 
@@ -1115,6 +1300,23 @@ class PinpointGameSimulator:
         final_safe_floors = [state.cutoff_estimate - (10 + 6 * state.cutoff_uncertainty) for state in self.states.values()]
 
         avg_final_safe_floor = (statistics.mean(final_safe_floors) if final_safe_floors else 0.0)
+
+        # compute local density read metrics (m3)
+        final_local_density_reads = [state.local_density_read for state in self.states.values()]
+        final_surprise_reads = [state.surprise_read for state in self.states.values()]
+        final_near_cutoff_hits = [state.near_cutoff_hits for state in self.states.values()]
+        final_near_cutoff_misses = [state.near_cutoff_misses for state in self.states.values()]
+
+        avg_final_local_density_read = (statistics.mean(final_local_density_reads) if final_local_density_reads else 0.0)
+        avg_final_surprise_read = (statistics.mean(final_surprise_reads) if final_surprise_reads else 0.0)
+        avg_final_near_cutoff_hits = (statistics.mean(final_near_cutoff_hits) if final_near_cutoff_hits else 0.0)
+        avg_final_near_cutoff_misses = (statistics.mean(final_near_cutoff_misses) if final_near_cutoff_misses else 0.0)
+
+        # m4 mode counts:
+        mode_counts = self.mode_counts
+        double_window_mode_counts = self.double_window_mode_counts
+        context_counts = self.context_counts
+        context_action_counts = self.context_action_counts
 
         return SimulationResult(
             scores=scores,
@@ -1136,6 +1338,14 @@ class PinpointGameSimulator:
             low_uncertainty_rate=low_uncertainty_rate,
             high_cutoff_rate=high_cutoff_rate,
             avg_final_safe_floor=avg_final_safe_floor,
+            avg_final_local_density_read=avg_final_local_density_read,
+            avg_final_surprise_read=avg_final_surprise_read,
+            avg_final_near_cutoff_hits=avg_final_near_cutoff_hits,
+            avg_final_near_cutoff_misses=avg_final_near_cutoff_misses,
+            mode_counts=mode_counts,
+            double_window_mode_counts=double_window_mode_counts,
+            context_counts=context_counts,
+            context_action_counts=context_action_counts,
         )
     
 #=============================
@@ -1183,6 +1393,31 @@ def simulate_many(
     low_uncertainty_rates = []
     high_cutoff_rates = []
     avg_final_safe_floors = []
+    avg_final_local_density_reads = []
+    avg_final_surprise_reads = []
+    avg_final_near_cutoff_hits = []
+    avg_final_near_cutoff_misses = []
+    mode_counts = {mode: 0 for mode in [
+        "safe", "risky", "blind_risk", "chip_away", "exact_win", "comeback", "high_upside", "desperation", "victory_lap"
+    ]}
+    double_window_mode_counts = {mode: 0 for mode in [
+        "safe", "risky", "blind_risk"
+    ]}
+    context_counts = {
+        "open": 0,
+        "tight": 0,
+        "uncertain": 0,
+        "double_window": 0,
+        "total_decisions": 0,
+    }
+    context_action_counts = {
+        "risky_on_open": 0,
+        "safe_on_tight": 0,
+        "risky_on_uncertain": 0,
+        "safe_on_uncertain": 0,
+        "risky_on_double_window": 0,
+        "safe_on_double_window": 0,
+    }
 
     for _ in range(n_sims):
         sim_seed = rng.randint(1, 10**9)
@@ -1253,6 +1488,49 @@ def simulate_many(
         low_uncertainty_rates.append(result.low_uncertainty_rate)
         high_cutoff_rates.append(result.high_cutoff_rate)
         avg_final_safe_floors.append(result.avg_final_safe_floor)
+        avg_final_local_density_reads.append(result.avg_final_local_density_read)
+        avg_final_surprise_reads.append(result.avg_final_surprise_read)
+        avg_final_near_cutoff_hits.append(result.avg_final_near_cutoff_hits)
+        avg_final_near_cutoff_misses.append(result.avg_final_near_cutoff_misses)
+        # Mode counts
+        for mode, count in result.mode_counts.items():
+            mode_counts[mode] = mode_counts.get(mode, 0) + count
+        for mode, count in result.double_window_mode_counts.items():
+            double_window_mode_counts[mode] = double_window_mode_counts.get(mode, 0) + count
+        for key, count in result.context_counts.items():
+            context_counts[key] = context_counts.get(key, 0) + count
+        for key, count in result.context_action_counts.items():
+            context_action_counts[key] = context_action_counts.get(key, 0) + count
+
+    total_modes = sum(mode_counts.values())
+    total_double_window_modes = sum(double_window_mode_counts.values())
+
+    mode_rates = {
+        mode: (count / total_modes if total_modes > 0 else 0.0) for mode, count in mode_counts.items()
+    }
+
+    double_window_mode_rates = {
+        mode: (count / total_double_window_modes if total_double_window_modes > 0 else 0.0) for mode, count in double_window_mode_counts.items()
+    }
+
+    total_decisions = context_counts.get("total_decisions", 0)
+    open_count = context_counts.get("open", 0)
+    tight_count = context_counts.get("tight", 0)
+    uncertain_count = context_counts.get("uncertain", 0)
+    double_window_count = context_counts.get("double_window", 0)
+
+    context_rates = {
+        "open_context_rate": open_count / total_decisions if total_decisions > 0 else 0.0,
+        "tight_context_rate": tight_count / total_decisions if total_decisions > 0 else 0.0,
+        "uncertain_context_rate": uncertain_count / total_decisions if total_decisions > 0 else 0.0,
+        "double_window_context_rate": double_window_count / total_decisions if total_decisions > 0 else 0.0,
+        "risky_on_open_rate": context_action_counts.get("risky_on_open", 0) / open_count if open_count > 0 else 0.0,
+        "safe_on_tight_rate": context_action_counts.get("safe_on_tight", 0) / tight_count if tight_count > 0 else 0.0,
+        "risky_on_uncertain_rate": context_action_counts.get("risky_on_uncertain", 0) / uncertain_count if uncertain_count > 0 else 0.0,
+        "safe_on_uncertain_rate": context_action_counts.get("safe_on_uncertain", 0) / uncertain_count if uncertain_count > 0 else 0.0,
+        "risky_on_double_window_rate": context_action_counts.get("risky_on_double_window", 0) / double_window_count if double_window_count > 0 else 0.0,
+        "safe_on_double_window_rate": context_action_counts.get("safe_on_double_window", 0) / double_window_count if double_window_count > 0 else 0.0,
+    }
 
     # Build the final summary object
     summary = {
@@ -1290,6 +1568,17 @@ def simulate_many(
         "low_uncertainty_rate": statistics.mean(low_uncertainty_rates) if low_uncertainty_rates else 0.0,
         "high_cutoff_rate": statistics.mean(high_cutoff_rates) if high_cutoff_rates else 0.0,
         "avg_final_safe_floor": statistics.mean(avg_final_safe_floors) if avg_final_safe_floors else 0.0,
+        "avg_final_local_density_read": statistics.mean(avg_final_local_density_reads) if avg_final_local_density_reads else 0.0,
+        "avg_final_surprise_read": statistics.mean(avg_final_surprise_reads) if avg_final_surprise_reads else 0.0,
+        "avg_final_near_cutoff_hits": statistics.mean(avg_final_near_cutoff_hits) if avg_final_near_cutoff_hits else 0.0,
+        "avg_final_near_cutoff_misses": statistics.mean(avg_final_near_cutoff_misses) if avg_final_near_cutoff_misses else 0.0,
+        "mode_counts": mode_counts,
+        "mode_rates": mode_rates,
+        "double_window_mode_counts": double_window_mode_counts,
+        "double_window_mode_rates": double_window_mode_rates,
+        "context_counts": context_counts,
+        "context_action_counts": context_action_counts,
+        "context_rates": context_rates,
     }
 
     return summary
@@ -1421,6 +1710,53 @@ def main() -> None:
             print(f"Low uncertainty rate: {summary['low_uncertainty_rate']:.3f}")
             print(f"High cutoff rate: {summary['high_cutoff_rate']:.3f}")
             print(f"Avg final safe floor: {summary['avg_final_safe_floor']:.2f}")
+            print(f"Avg final local density read: {summary['avg_final_local_density_read']:.3f}")
+            print(f"Avg final surprise read: {summary['avg_final_surprise_read']:.3f}")
+            print(f"Avg final near-cutoff hits: {summary['avg_final_near_cutoff_hits']:.2f}")
+            print(f"Avg final near-cutoff misses: {summary['avg_final_near_cutoff_misses']:.2f}")
+
+            mode_rates = summary["mode_rates"]
+            double_window_mode_rates = summary["double_window_mode_rates"]
+            
+            print(
+                "Mode rates: "
+                f"safe={mode_rates.get('safe', 0.0):.3f}, "
+                f"risky={mode_rates.get('risky', 0.0):.3f}, "
+                f"blind_risk={mode_rates.get('blind_risk', 0.0):.3f}, "
+                f"chip_away={mode_rates.get('chip_away', 0.0):.3f}, "
+                f"exact_win={mode_rates.get('exact_win', 0.0):.3f}, "
+                f"comeback={mode_rates.get('comeback', 0.0):.3f}, "
+                f"high_upside={mode_rates.get('high_upside', 0.0):.3f}, "
+                f"desperation={mode_rates.get('desperation', 0.0):.3f}, "
+                f"victory_lap={mode_rates.get('victory_lap', 0.0):.3f}"
+            )
+
+            print(
+                "Double window mode rates: "
+                f"safe={double_window_mode_rates.get('safe', 0.0):.3f}, "
+                f"risky={double_window_mode_rates.get('risky', 0.0):.3f}, "
+                f"blind_risk={double_window_mode_rates.get('blind_risk', 0.0):.3f}"
+            )
+
+            context_rates = summary["context_rates"]
+
+            print(
+                "Context rates: "
+                f"open={context_rates.get('open_context_rate', 0.0):.3f}, "
+                f"tight={context_rates.get('tight_context_rate', 0.0):.3f}, "
+                f"uncertain={context_rates.get('uncertain_context_rate', 0.0):.3f}, "
+            )
+
+            print(
+                "Context-action rates: "
+                f"risky_on_open={context_rates.get('risky_on_open_rate', 0.0):.3f}, "
+                f"safe_on_tight={context_rates.get('safe_on_tight_rate', 0.0):.3f}, "
+                f"risky_on_uncertain={context_rates.get('risky_on_uncertain_rate', 0.0):.3f}, "
+                f"safe_on_uncertain={context_rates.get('safe_on_uncertain_rate', 0.0):.3f}, "
+                f"risky_on_double_window={context_rates.get('risky_on_double_window_rate', 0.0):.3f}, "
+                f"safe_on_double_window={context_rates.get('safe_on_double_window_rate', 0.0):.3f}"
+            )
+
         
         # aggregate summary across categories
         print("\n === Aggregate Summary Across Validation Suite ===")
@@ -1463,6 +1799,77 @@ def main() -> None:
         avg_low_uncertainty_rate = statistics.mean(s["low_uncertainty_rate"] for _, s in all_summaries)
         avg_high_cutoff_rate = statistics.mean(s["high_cutoff_rate"] for _, s in all_summaries)
         avg_safe_floor = statistics.mean(s["avg_final_safe_floor"] for _, s in all_summaries)
+        avg_local_density_read = statistics.mean(s["avg_final_local_density_read"] for _, s in all_summaries)
+        avg_surprise_read = statistics.mean(s["avg_final_surprise_read"] for _, s in all_summaries)
+        avg_near_cutoff_hits = statistics.mean(s["avg_final_near_cutoff_hits"] for _, s in all_summaries)
+        avg_near_cutoff_misses = statistics.mean(s["avg_final_near_cutoff_misses"] for _, s in all_summaries)
+
+        aggregate_mode_counts = {mode: 0 for mode in [
+            "safe", "risky", "blind_risk", "chip_away", "exact_win", "comeback", "high_upside", "desperation", "victory_lap"
+        ]}
+
+        aggregate_double_window_mode_counts = {mode: 0 for mode in [
+            "safe", "risky", "blind_risk"
+        ]}
+
+        for _, s in all_summaries:
+            for mode, count in s["mode_counts"].items():
+                aggregate_mode_counts[mode] = aggregate_mode_counts.get(mode, 0) + count
+            
+            for mode, count in s["double_window_mode_counts"].items():
+                aggregate_double_window_mode_counts[mode] = aggregate_double_window_mode_counts.get(mode, 0) + count
+
+        total_aggregate_modes = sum(aggregate_mode_counts.values())
+        total_aggregate_double_modes = sum(aggregate_double_window_mode_counts.values())
+
+        aggregate_mode_rates = {
+            mode: (count / total_aggregate_modes if total_aggregate_modes > 0 else 0.0) for mode, count in aggregate_mode_counts.items()
+        }
+
+        aggregate_double_window_mode_rates = {
+            mode: (count / total_aggregate_double_modes if total_aggregate_double_modes > 0 else 0.0) for mode, count in aggregate_double_window_mode_counts.items()
+        }
+
+        aggregate_context_counts = {
+            "open": 0,
+            "tight": 0,
+            "uncertain": 0,
+            "double_window": 0,
+            "total_decisions": 0,
+        }
+
+        aggregate_context_action_counts = {
+            "risky_on_open": 0,
+            "safe_on_tight": 0,
+            "risky_on_uncertain": 0,
+            "safe_on_uncertain": 0,
+            "risky_on_double_window": 0,
+            "safe_on_double_window": 0,
+        }
+
+        for _, s in all_summaries:
+            for key, count in s["context_counts"].items():
+                aggregate_context_counts[key] = aggregate_context_counts.get(key, 0) + count
+            for key, count in s["context_action_counts"].items():
+                aggregate_context_action_counts[key] = aggregate_context_action_counts.get(key, 0) + count
+
+        total_decisions = aggregate_context_counts.get("total_decisions", 0)
+        open_count = aggregate_context_counts.get("open", 0)
+        tight_count = aggregate_context_counts.get("tight", 0)
+        uncertain_count = aggregate_context_counts.get("uncertain", 0)
+        double_window_count = aggregate_context_counts.get("double_window", 0)
+
+        aggregate_context_rates = {
+            "open_context_rate": open_count / total_decisions if total_decisions > 0 else 0.0,
+            "tight_context_rate": tight_count / total_decisions if total_decisions > 0 else 0.0,
+            "uncertain_context_rate": uncertain_count / total_decisions if total_decisions > 0 else 0.0,
+            "risky_on_open_rate": aggregate_context_action_counts.get("risky_on_open", 0) / open_count if open_count > 0 else 0.0,
+            "safe_on_tight_rate": aggregate_context_action_counts.get("safe_on_tight", 0) / tight_count if tight_count > 0 else 0.0,
+            "risky_on_uncertain_rate": aggregate_context_action_counts.get("risky_on_uncertain", 0) / uncertain_count if uncertain_count > 0 else 0.0,
+            "safe_on_uncertain_rate": aggregate_context_action_counts.get("safe_on_uncertain", 0) / uncertain_count if uncertain_count > 0 else 0.0,
+            "risky_on_double_window_rate": aggregate_context_action_counts.get("risky_on_double_window", 0) / double_window_count if double_window_count > 0 else 0.0,
+            "safe_on_double_window_rate": aggregate_context_action_counts.get("safe_on_double_window", 0) / double_window_count if double_window_count > 0 else 0.0,
+        }
 
         print(f"Last survivor but lost rate: {avg_last_survivor_lost:.3f}")
         print(f"Solo started behind rate: {avg_solo_started_behind:.3f}")
@@ -1487,6 +1894,43 @@ def main() -> None:
         print(f"Avg low uncertainty rate: {avg_low_uncertainty_rate:.3f}")
         print(f"Avg high cutoff rate: {avg_high_cutoff_rate:.3f}")
         print(f"Avg final safe floor: {avg_safe_floor:.2f}")
+        print(f"Avg final local density read: {avg_local_density_read:.3f}")
+        print(f"Avg final surprise read: {avg_surprise_read:.3f}")
+        print(f"Avg final near-cutoff hits: {avg_near_cutoff_hits:.2f}")
+        print(f"Avg final near-cutoff misses: {avg_near_cutoff_misses:.2f}")
+        print(
+            "Mode rates: "
+            f"safe={aggregate_mode_rates.get('safe', 0.0):.3f}, "
+            f"risky={aggregate_mode_rates.get('risky', 0.0):.3f}, "
+            f"blind_risk={aggregate_mode_rates.get('blind_risk', 0.0):.3f}, "
+            f"chip_away={aggregate_mode_rates.get('chip_away', 0.0):.3f}, "
+            f"exact_win={aggregate_mode_rates.get('exact_win', 0.0):.3f}, "
+            f"comeback={aggregate_mode_rates.get('comeback', 0.0):.3f}, "
+            f"high_upside={aggregate_mode_rates.get('high_upside', 0.0):.3f}, "
+            f"desperation={aggregate_mode_rates.get('desperation', 0.0):.3f}, "
+            f"victory_lap={aggregate_mode_rates.get('victory_lap', 0.0):.3f}"
+        )
+        print(
+            "Double window mode rates: "
+            f"safe={aggregate_double_window_mode_rates.get('safe', 0.0):.3f}, "
+            f"risky={aggregate_double_window_mode_rates.get('risky', 0.0):.3f}, "
+            f"blind_risk={aggregate_double_window_mode_rates.get('blind_risk', 0.0):.3f}"
+        )
+        print(
+            "Context rates: "
+            f"open={aggregate_context_rates.get('open_context_rate', 0.0):.3f}, "
+            f"tight={aggregate_context_rates.get('tight_context_rate', 0.0):.3f}, "
+            f"uncertain={aggregate_context_rates.get('uncertain_context_rate', 0.0):.3f}, "
+        )
+        print(
+            "Context-action rates: "
+            f"risky_on_open={aggregate_context_rates.get('risky_on_open_rate', 0.0):.3f}, "
+            f"safe_on_tight={aggregate_context_rates.get('safe_on_tight_rate', 0.0):.3f}, "
+            f"risky_on_uncertain={aggregate_context_rates.get('risky_on_uncertain_rate', 0.0):.3f}, "
+            f"safe_on_uncertain={aggregate_context_rates.get('safe_on_uncertain_rate', 0.0):.3f}, "
+            f"risky_on_double_window={aggregate_context_rates.get('risky_on_double_window_rate', 0.0):.3f}, "
+            f"safe_on_double_window={aggregate_context_rates.get('safe_on_double_window_rate', 0.0):.3f}"
+        )
 
     run_validation_suite(profiles)
 

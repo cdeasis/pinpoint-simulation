@@ -189,7 +189,7 @@ This produces realistic safe vs risky behavior, improved solo dynamics, and cate
 - **Limitation**: The model captures where the line is, but not yet how easy it is to play around that line
 
 ### Milestone 3 - Precision and Category Shape Modeling
-**Status**: In Progress
+**Status**: Completed
 
 #### Purpose
 To model how answers are distributed around the cutoff, not just where the cutoff is
@@ -203,7 +203,8 @@ Players should infer:
 New Concepts to Introduce:
 
 1. Local Density Signal
-    - track how many recent correct answers fall within a brand (e.g. +/- 15 of cutoff)
+    - track recent near-cutoff hits and misses
+    - compare observed hit rate against an expected hit-rate baseline
     - high density &rarr; "board feels open"
     - low density &rarr; "board feels tight"
 
@@ -223,16 +224,31 @@ New Concepts to Introduce:
         - uncertain BUT board is forgiving
 
 #### Key Outcome
-[high level for now, edit once finished]
-- players no longer ask 'what is the line', they instead start asking 'how hard is it to land near the line?'
+- Added first lightweight model of board game
+- Players no longer only track "where is the line?", they now also begin tracking:
+    - "does the area around the line feel dense or sparse?"
+    - "are outcomes matching expectatioons?"
+    - "does the boaord feel forgiving or precise?"
 
-This is the missing realism layer
+M3 preserves the stable cutoff behavior from M2 while adding diagnostic signals for local density and surprise.
+
+The main outcome is not a major gameplay shift yet. Instead, M3 creates interpretable board-shape signals that can be used by later strategy systems, especially M4.
 
 #### Notes
-[nothing to put here yet]
+M3 was successful as a lightweight inference layer, but not as a full board-shape engine.
+
+The final tuning stabilized local density and surprise readings without disrupting the M2 cutoff system. However, the current abstract answer model still produces very few near-cutoff misses, which limits how much the system can infer about true board tightness.
+
+This suggests that deeper board-shape realism will likely require future structural changes, such as:
+- richer category modeling
+- better candidate-generation behavior
+- hidden board-shape parameters
+- eventual real-data integration
+
+For V3, M3 is considered complete enough to support M4, where the next step is to let strategy respond to board-shape signals.
 
 ### Milestone 4 - Contextual Risk and Strategy & Multi-Turn Planning
-**Status**: Not complete
+**Status**: In Progress
 
 #### Purpose
 To make decisions depend on future survival, not just current turn
