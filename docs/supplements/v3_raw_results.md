@@ -2034,13 +2034,33 @@ Avg final near-cutoff misses: 0.04
 ## Milestone 4 - Contextual Risk and Strategy & Multi-Turn Planning
 
 **Summary:**
-fill this out when complete
+
+Milestone 4 introduced contextual strategy on top of the board-shape signals created in M3. The goal was to move beyond single-turn safe/risky selection and allow player decisions to respond to score position, strike state, double-window rhythm, and inferred board context.
+
+The final M4 state uses board context labels such as `open`, `dense`, `generous`, `tight`, and `uncertain` to influence player strategy. Dense boards act as the strongest aggression signal, generous boards act as a softer looseness signal, and tight boards suppress risky behavior. Double-window behavior was also updated so that risky/safe alternation depends on whether the board is actually attackable rather than simply “open.”
+
+Across the full milestone, M4 remained stable while becoming more interpretable. The final run preserved category-sensitive behavior, with HR-style categories staying aggressive while bWAR/MVP-style categories remained more conservative.
 
 **Observed Progression:**
-fill this out when complete
+
+M4 developed through several tuning and diagnostic stages:
+
+- Run 1 introduced the first contextual risk behavior, but the initial tuning made C1 too dominant and C3 too weak.
+- Run 2 restored stability and created the first healthy M4 baseline.
+- Run 3 added context-action diagnostics without changing gameplay, confirming that the diagnostic layer was non-invasive.
+- Run 4 tightened the `open` context definition after diagnostics showed it was triggering too broadly.
+- Run 5 decomposed `open` into `dense` and `generous`, showing that open was a composite signal rather than one single board state.
+- Run 6 made the dense/generous split behaviorally meaningful in normal decision pressure.
+- Run 7 extended the same dense/generous/tight logic into double-window behavior and became the final M4 behavior state.
 
 **Key Insights:**
-fill this out when complete
+
+- `open` was too broad when treated as a single aggression signal.
+- `dense` is the clearest attackability signal and is much more predictive of risky behavior.
+- `generous` indicates board looseness or surprising outcomes, but does not necessarily imply that players should become aggressive.
+- `tight` contexts are highly meaningful and should override risky rhythm, especially in double-window spots.
+- Double-window behavior works best when it preserves human-like risky/safe rhythm but filters that rhythm through board context.
+- M4 increased strategic interpretability without destabilizing overall win distribution.
 
 ### Run 1
 
@@ -2679,19 +2699,1121 @@ Tight boards push players strongly toward safe chooices, uncertainty generally r
 
 ### Run 4
 
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.643, avg_score=1818.4, median_score=1751.0, stdev=325.6, avg_strikes=2.98, first_out_rate=0.086
+Contestant 2: win_rate=0.193, avg_score=1595.4, median_score=1581.0, stdev=225.7, avg_strikes=2.99, first_out_rate=0.442
+Contestant 3: win_rate=0.164, avg_score=1262.5, median_score=1183.0, stdev=281.2, avg_strikes=2.98, first_out_rate=0.466
+Last survivor but lost rate: 0.251
+Solo started behind rate: 0.391
+Solo started behind and lost rate: 0.642
+Avg solo start deficit: 270.1
+Avg solo turns taken: 2.57
+Solo had winning answer rate: 0.106
+Solo had winning answer given started behind rate: 0.270
+Solo start deficit buckets: 1-75: 0.272, 76-150: 0.209, 151-250: 0.132, 251+: 0.387
+Avg final board read: 0.040
+Avg absolute final board read: 0.097
+Strong harsh board rate: 0.050
+Strong generous board rate: 0.149
+Avg final cutoff estimate: 66.84
+Avg final cutoff uncertainty: 0.351
+Low uncertainty rate: 0.043
+High cutoff rate: 0.425
+Avg final safe floor: 54.73
+Avg final local density read: 0.054
+Avg final surprise read: 0.174
+Avg final near-cutoff hits: 2.74
+Avg final near-cutoff misses: 0.04
+Mode rates: safe=0.750, risky=0.203, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.032
+Double window mode rates: safe=0.770, risky=0.230, blind_risk=0.000
+Context rates: open=0.699, tight=0.093, uncertain=0.370, 
+Context-action rates: risky_on_open=0.174, safe_on_tight=0.877, risky_on_uncertain=0.339, safe_on_uncertain=0.648, risky_on_double_window=0.230, safe_on_double_window=0.770
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.963, avg_score=2586.9, median_score=2663.0, stdev=472.2, avg_strikes=3.00, first_out_rate=0.001
+Contestant 2: win_rate=0.004, avg_score=889.0, median_score=881.0, stdev=216.2, avg_strikes=3.00, first_out_rate=0.881
+Contestant 3: win_rate=0.033, avg_score=940.0, median_score=895.0, stdev=263.1, avg_strikes=3.00, first_out_rate=0.118
+Last survivor but lost rate: 0.041
+Solo started behind rate: 0.127
+Solo started behind and lost rate: 0.325
+Avg solo start deficit: 136.1
+Avg solo turns taken: 13.26
+Solo had winning answer rate: 0.070
+Solo had winning answer given started behind rate: 0.555
+Solo start deficit buckets: 1-75: 0.484, 76-150: 0.217, 151-250: 0.121, 251+: 0.178
+Avg final board read: -0.032
+Avg absolute final board read: 0.079
+Strong harsh board rate: 0.044
+Strong generous board rate: 0.024
+Avg final cutoff estimate: 71.60
+Avg final cutoff uncertainty: 0.462
+Low uncertainty rate: 0.001
+High cutoff rate: 0.648
+Avg final safe floor: 58.83
+Avg final local density read: 0.059
+Avg final surprise read: 0.197
+Avg final near-cutoff hits: 1.90
+Avg final near-cutoff misses: 0.12
+Mode rates: safe=0.637, risky=0.142, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.210
+Double window mode rates: safe=0.824, risky=0.176, blind_risk=0.000
+Context rates: open=0.603, tight=0.200, uncertain=0.696, 
+Context-action rates: risky_on_open=0.110, safe_on_tight=0.944, risky_on_uncertain=0.180, safe_on_uncertain=0.777, risky_on_double_window=0.176, safe_on_double_window=0.824
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.546, avg_score=1756.0, median_score=1739.0, stdev=99.9, avg_strikes=1.30, first_out_rate=0.002
+Contestant 2: win_rate=0.225, avg_score=1674.3, median_score=1679.0, stdev=112.0, avg_strikes=2.08, first_out_rate=0.355
+Contestant 3: win_rate=0.229, avg_score=1595.3, median_score=1643.0, stdev=158.0, avg_strikes=1.19, first_out_rate=0.069
+Last survivor but lost rate: 0.144
+Solo started behind rate: 0.232
+Solo started behind and lost rate: 0.621
+Avg solo start deficit: 179.2
+Avg solo turns taken: 2.50
+Solo had winning answer rate: 0.082
+Solo had winning answer given started behind rate: 0.353
+Solo start deficit buckets: 1-75: 0.392, 76-150: 0.242, 151-250: 0.104, 251+: 0.262
+Avg final board read: -0.079
+Avg absolute final board read: 0.103
+Strong harsh board rate: 0.254
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 52.66
+Avg final cutoff uncertainty: 0.283
+Low uncertainty rate: 0.298
+High cutoff rate: 0.179
+Avg final safe floor: 40.96
+Avg final local density read: 0.077
+Avg final surprise read: 0.163
+Avg final near-cutoff hits: 2.54
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.504, risky=0.475, blind_risk=0.013, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.004
+Double window mode rates: safe=0.494, risky=0.506, blind_risk=0.000
+Context rates: open=0.740, tight=0.100, uncertain=0.323, 
+Context-action rates: risky_on_open=0.501, safe_on_tight=0.723, risky_on_uncertain=0.570, safe_on_uncertain=0.414, risky_on_double_window=0.506, safe_on_double_window=0.494
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.548, avg_score=1759.4, median_score=1742.0, stdev=182.9, avg_strikes=2.64, first_out_rate=0.091
+Contestant 2: win_rate=0.175, avg_score=1647.9, median_score=1653.0, stdev=161.1, avg_strikes=2.81, first_out_rate=0.622
+Contestant 3: win_rate=0.277, avg_score=1504.5, median_score=1573.0, stdev=233.3, avg_strikes=2.62, first_out_rate=0.167
+Last survivor but lost rate: 0.362
+Solo started behind rate: 0.485
+Solo started behind and lost rate: 0.747
+Avg solo start deficit: 276.9
+Avg solo turns taken: 2.12
+Solo had winning answer rate: 0.099
+Solo had winning answer given started behind rate: 0.205
+Solo start deficit buckets: 1-75: 0.296, 76-150: 0.187, 151-250: 0.100, 251+: 0.417
+Avg final board read: -0.023
+Avg absolute final board read: 0.096
+Strong harsh board rate: 0.142
+Strong generous board rate: 0.043
+Avg final cutoff estimate: 58.94
+Avg final cutoff uncertainty: 0.308
+Low uncertainty rate: 0.164
+High cutoff rate: 0.274
+Avg final safe floor: 47.09
+Avg final local density read: 0.069
+Avg final surprise read: 0.156
+Avg final near-cutoff hits: 2.86
+Avg final near-cutoff misses: 0.02
+Mode rates: safe=0.648, risky=0.321, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.006, victory_lap=0.012
+Double window mode rates: safe=0.639, risky=0.361, blind_risk=0.000
+Context rates: open=0.720, tight=0.107, uncertain=0.329, 
+Context-action rates: risky_on_open=0.320, safe_on_tight=0.789, risky_on_uncertain=0.461, safe_on_uncertain=0.525, risky_on_double_window=0.361, safe_on_double_window=0.639
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.606, avg_score=1831.5, median_score=2165.0, stdev=849.6, avg_strikes=3.00, first_out_rate=0.014
+Contestant 2: win_rate=0.375, avg_score=1444.4, median_score=1041.0, stdev=770.5, avg_strikes=3.00, first_out_rate=0.041
+Contestant 3: win_rate=0.020, avg_score=574.9, median_score=522.0, stdev=233.6, avg_strikes=3.00, first_out_rate=0.945
+Last survivor but lost rate: 0.105
+Solo started behind rate: 0.338
+Solo started behind and lost rate: 0.311
+Avg solo start deficit: 104.2
+Avg solo turns taken: 18.76
+Solo had winning answer rate: 0.189
+Solo had winning answer given started behind rate: 0.559
+Solo start deficit buckets: 1-75: 0.463, 76-150: 0.297, 151-250: 0.167, 251+: 0.073
+Avg final board read: -0.077
+Avg absolute final board read: 0.088
+Strong harsh board rate: 0.118
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 70.73
+Avg final cutoff uncertainty: 0.536
+Low uncertainty rate: 0.000
+High cutoff rate: 0.578
+Avg final safe floor: 57.52
+Avg final local density read: 0.055
+Avg final surprise read: 0.214
+Avg final near-cutoff hits: 1.44
+Avg final near-cutoff misses: 0.10
+Mode rates: safe=0.609, risky=0.119, blind_risk=0.009, chip_away=0.000, exact_win=0.002, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.259
+Double window mode rates: safe=0.808, risky=0.192, blind_risk=0.000
+Context rates: open=0.587, tight=0.249, uncertain=0.785, 
+Context-action rates: risky_on_open=0.075, safe_on_tight=0.931, risky_on_uncertain=0.147, safe_on_uncertain=0.750, risky_on_double_window=0.192, safe_on_double_window=0.808
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.661, avg_score=1950.4, avg_median_score=2012.0, avg_stdev=386.0, avg_strikes=2.58, avg_first_out_rate=0.039
+Contestant 2: avg_win_rate=0.194, avg_score=1450.2, avg_median_score=1367.0, avg_stdev=297.1, avg_strikes=2.78, avg_first_out_rate=0.468
+Contestant 3: avg_win_rate=0.144, avg_score=1175.5, avg_median_score=1163.2, avg_stdev=233.9, avg_strikes=2.56, avg_first_out_rate=0.353
+Last survivor but lost rate: 0.181
+Solo started behind rate: 0.314
+Solo started behind and lost rate: 0.529
+Avg solo start deficit: 193.3
+Avg solo turns taken: 7.84
+Solo had winning answer rate: 0.109
+Solo had winning answer given started behind rate: 0.388
+Solo start deficit buckets: 1-75: 0.381, 76-150: 0.231, 151-250: 0.125, 251+: 0.263
+Avg final board read: -0.034
+Avg absolute final board read: 0.093
+Avg strong harsh board rate: 0.122
+Avg strong generous board rate: 0.044
+Avg final cutoff estimate: 64.15
+Avg final cutoff uncertainty: 0.388
+Avg low uncertainty rate: 0.101
+Avg high cutoff rate: 0.421
+Avg final safe floor: 51.83
+Avg final local density read: 0.063
+Avg final surprise read: 0.181
+Avg final near-cutoff hits: 2.30
+Avg final near-cutoff misses: 0.06
+Mode rates: safe=0.630, risky=0.255, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.099
+Double window mode rates: safe=0.687, risky=0.313, blind_risk=0.000
+Context rates: open=0.672, tight=0.148, uncertain=0.493, 
+Context-action rates: risky_on_open=0.252, safe_on_tight=0.877, risky_on_uncertain=0.286, safe_on_uncertain=0.666, risky_on_double_window=0.313, safe_on_double_window=0.687
+```
+
+**Notes:**
+
+**Run 3 &rarr; Run 4 Aggregate Comparison**
+
+| Metric | Run 3 | Run 4 | Read | 
+| - | - | - | - |
+| C1 WR | 0.669 | 0.661 | Stable/slightly lower
+| C2 WR | 0.190 | 0.194 | Stable/slightly lower
+| C3 WR | 0.141 | 0.144 | Stable/slightly lower
+| Last survivor but lost | 0.179 | 0.181 | Basically unchanged
+| Solo started behind/lost | 0.544 | 0.529 | Slightly better
+| Avg solo deficit | 196.7 | 193.3 | Slightly better
+| Avg cutoff estimate | 63.92 | 64.15 | Basically unchanged
+| Avg safe floor | 51.59 | 51.83 | Basically unchanged
+| Safe mode rate | 0.625 | 0.630 | Slightly safer
+| Risky mode rate | 0.261 | 0.255 | Slightly less risky
+| Double-window risky | 0.321 | 0.313 | Slightly less risky
+| Open context rate | 0.781 | 0.672 | Clearly improved
+| Risky-on-open | 0.242 | 0.252 | Slightly more meaningful
+| Safe-on-tight | 0.876 | 0.877 | Basically unchanged
+
+This is idea lfor a one-line turning run, as the main target metric moved a lot while the gameplay ecosystem barely moved.
+
+The aggregate `open_context_rate` drop from 0.781 to 0.672 shows meaningful improvement. It did not become rare but it no longer is firing on nearly 80% of all decisions.
+
+Looking at a per-category level:
+
+| Category | Run 3 Risky-on-open | Run 4 Risky on Open 
+| - | - | -
+| OPS+ | 0.173 | 0.174
+| bWAR | 0.107 | 0.110
+| HR since 2000 | 0.499 | 0.501
+| Hits since 1900 | 0.318 | 0.320
+| MVP | 0.072 | 0.075
+
+These barely moved, but that's important because the tuning **changed which states count as open** but did not change how much "open" affects decision pressure. As such, risk-on-open only nudged upward since the pressure effect stayed the same.
+- This is not a problem, it just means that Run 4 mostly improved interpretability, not behavior.
+
+**Takeaway:**
+
+The single open-threshold change made `open` rarer without destabilizing the simulation.
+
+The earlier diagnosis was correct in which the old `open` definition was too permissive, and tightening the thresholds improved the label's usefulness.
+
+**Conclusions:**
+
+1. **Tight and uncertainty remained stable**
+
+Tight boards still create safe decisions:
+
+- `safe_on_tight`: Run 3: 0.876 vs Run 4: 0.877
+
+This is very important as the strongest healthy M4 behavior stayed intact.
+
+Simiarly, uncertainty also basically stayed the same:
+
+- `uncertainty_context_rate`: Run 3: 0.493 vs Run 4: 0.493
+- `safe_on_uncertain`: Run 3: 0.659 vs Run 4: 0.666
+- `risky_on_uncertain`: Run 3: 0.293 vs Run 4: 0.286
+
+The open-threshold tuning did not accidentially disrupt the rest of the context system.
+
+2. **Gameplay stability is very good**
+
+The win rates barely shifted:
+- Run 3 C1/C2/C3: 0.669/0.190/0.141
+- Run 4 C1/C2/C3: 0.661/0.194/0.144
+
+Though marginal, still positive movement because C1 came down a little and C2/C3 came up a little, all without creating a new imbalance.
+
+Solo metrics also did not woren, in fact, they slightly improved:
+- `solo started behind/lost`: Run 3: 0.544 vs Run 4: 0.529
+- `avg solo deficit`: Run 3: 196.7 vs Run 4: 193.3
+
+Run 4 did not harm the main system.
+
+In conclusion, Run 4 applied a single tuning change to the `open` context definition, raising the local-density and surprise thresholds from `0.08 / 0.12` to `0.10 / 0.18`. The goal was to make open-context states rarer and more meaningful without changing broader strategy logic.
+
+The run succeeded as a first tuning pass. Aggregate `open_context_rate` dropped from 0.781 to 0.672, while overall win rates, solo metrics, cutoff estimates, and safe-floor behavior remained stable. Category-level results also improved: harder categories such as bWAR and MVP saw larger reductions in open-context rate, while Home Runs since 2000 remained the most open category.
+
+The main behavioral structure of M4 remained intact. `safe_on_tight` stayed very high at 0.877, uncertainty behavior remained stable, and double-window risky rate only moved slightly from 0.321 to 0.313. This suggests the tuning improved the interpretability of the open label without destabilizing the simulator.
+
+The remaining insight is that `open` still appears to be a composite signal. It captures both answer-density and generosity/surprise, which may not always imply the same strategic behavior. A future diagnostic run should consider splitting open into sub-signals such as `dense` and `generous` to better understand what is driving open-context decisions.
+
+### Run 5
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.643, avg_score=1818.4, median_score=1751.0, stdev=325.6, avg_strikes=2.98, first_out_rate=0.086
+Contestant 2: win_rate=0.193, avg_score=1595.4, median_score=1581.0, stdev=225.7, avg_strikes=2.99, first_out_rate=0.442
+Contestant 3: win_rate=0.164, avg_score=1262.5, median_score=1183.0, stdev=281.2, avg_strikes=2.98, first_out_rate=0.466
+Last survivor but lost rate: 0.251
+Solo started behind rate: 0.391
+Solo started behind and lost rate: 0.642
+Avg solo start deficit: 270.1
+Avg solo turns taken: 2.57
+Solo had winning answer rate: 0.106
+Solo had winning answer given started behind rate: 0.270
+Solo start deficit buckets: 1-75: 0.272, 76-150: 0.209, 151-250: 0.132, 251+: 0.387
+Avg final board read: 0.040
+Avg absolute final board read: 0.097
+Strong harsh board rate: 0.050
+Strong generous board rate: 0.149
+Avg final cutoff estimate: 66.84
+Avg final cutoff uncertainty: 0.351
+Low uncertainty rate: 0.043
+High cutoff rate: 0.425
+Avg final safe floor: 54.73
+Avg final local density read: 0.054
+Avg final surprise read: 0.174
+Avg final near-cutoff hits: 2.74
+Avg final near-cutoff misses: 0.04
+Mode rates: safe=0.750, risky=0.203, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.032
+Double window mode rates: safe=0.770, risky=0.230, blind_risk=0.000
+Context rates: open=0.699, dense=0.405, generous=0.349, dense_and_generous=0.055, tight=0.093, uncertain=0.370, 
+Context-action rates: risky_on_open=0.174, risky_on_dense=0.256, risky_on_generous=0.062, risky_on_dense_and_generous=0.066, safe_on_tight=0.877, risky_on_uncertain=0.339, safe_on_uncertain=0.648, risky_on_double_window=0.230, safe_on_double_window=0.770
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.963, avg_score=2586.9, median_score=2663.0, stdev=472.2, avg_strikes=3.00, first_out_rate=0.001
+Contestant 2: win_rate=0.004, avg_score=889.0, median_score=881.0, stdev=216.2, avg_strikes=3.00, first_out_rate=0.881
+Contestant 3: win_rate=0.033, avg_score=940.0, median_score=895.0, stdev=263.1, avg_strikes=3.00, first_out_rate=0.118
+Last survivor but lost rate: 0.041
+Solo started behind rate: 0.127
+Solo started behind and lost rate: 0.325
+Avg solo start deficit: 136.1
+Avg solo turns taken: 13.26
+Solo had winning answer rate: 0.070
+Solo had winning answer given started behind rate: 0.555
+Solo start deficit buckets: 1-75: 0.484, 76-150: 0.217, 151-250: 0.121, 251+: 0.178
+Avg final board read: -0.032
+Avg absolute final board read: 0.079
+Strong harsh board rate: 0.044
+Strong generous board rate: 0.024
+Avg final cutoff estimate: 71.60
+Avg final cutoff uncertainty: 0.462
+Low uncertainty rate: 0.001
+High cutoff rate: 0.648
+Avg final safe floor: 58.83
+Avg final local density read: 0.059
+Avg final surprise read: 0.197
+Avg final near-cutoff hits: 1.90
+Avg final near-cutoff misses: 0.12
+Mode rates: safe=0.637, risky=0.142, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.210
+Double window mode rates: safe=0.824, risky=0.176, blind_risk=0.000
+Context rates: open=0.603, dense=0.281, generous=0.358, dense_and_generous=0.037, tight=0.200, uncertain=0.696, 
+Context-action rates: risky_on_open=0.110, risky_on_dense=0.163, risky_on_generous=0.065, risky_on_dense_and_generous=0.076, safe_on_tight=0.944, risky_on_uncertain=0.180, safe_on_uncertain=0.777, risky_on_double_window=0.176, safe_on_double_window=0.824
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.546, avg_score=1756.0, median_score=1739.0, stdev=99.9, avg_strikes=1.30, first_out_rate=0.002
+Contestant 2: win_rate=0.225, avg_score=1674.3, median_score=1679.0, stdev=112.0, avg_strikes=2.08, first_out_rate=0.355
+Contestant 3: win_rate=0.229, avg_score=1595.3, median_score=1643.0, stdev=158.0, avg_strikes=1.19, first_out_rate=0.069
+Last survivor but lost rate: 0.144
+Solo started behind rate: 0.232
+Solo started behind and lost rate: 0.621
+Avg solo start deficit: 179.2
+Avg solo turns taken: 2.50
+Solo had winning answer rate: 0.082
+Solo had winning answer given started behind rate: 0.353
+Solo start deficit buckets: 1-75: 0.392, 76-150: 0.242, 151-250: 0.104, 251+: 0.262
+Avg final board read: -0.079
+Avg absolute final board read: 0.103
+Strong harsh board rate: 0.254
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 52.66
+Avg final cutoff uncertainty: 0.283
+Low uncertainty rate: 0.298
+High cutoff rate: 0.179
+Avg final safe floor: 40.96
+Avg final local density read: 0.077
+Avg final surprise read: 0.163
+Avg final near-cutoff hits: 2.54
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.504, risky=0.475, blind_risk=0.013, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.004
+Double window mode rates: safe=0.494, risky=0.506, blind_risk=0.000
+Context rates: open=0.740, dense=0.566, generous=0.199, dense_and_generous=0.024, tight=0.100, uncertain=0.323, 
+Context-action rates: risky_on_open=0.501, risky_on_dense=0.583, risky_on_generous=0.231, risky_on_dense_and_generous=0.193, safe_on_tight=0.723, risky_on_uncertain=0.570, safe_on_uncertain=0.414, risky_on_double_window=0.506, safe_on_double_window=0.494
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.548, avg_score=1759.4, median_score=1742.0, stdev=182.9, avg_strikes=2.64, first_out_rate=0.091
+Contestant 2: win_rate=0.175, avg_score=1647.9, median_score=1653.0, stdev=161.1, avg_strikes=2.81, first_out_rate=0.622
+Contestant 3: win_rate=0.277, avg_score=1504.5, median_score=1573.0, stdev=233.3, avg_strikes=2.62, first_out_rate=0.167
+Last survivor but lost rate: 0.362
+Solo started behind rate: 0.485
+Solo started behind and lost rate: 0.747
+Avg solo start deficit: 276.9
+Avg solo turns taken: 2.12
+Solo had winning answer rate: 0.099
+Solo had winning answer given started behind rate: 0.205
+Solo start deficit buckets: 1-75: 0.296, 76-150: 0.187, 151-250: 0.100, 251+: 0.417
+Avg final board read: -0.023
+Avg absolute final board read: 0.096
+Strong harsh board rate: 0.142
+Strong generous board rate: 0.043
+Avg final cutoff estimate: 58.94
+Avg final cutoff uncertainty: 0.308
+Low uncertainty rate: 0.164
+High cutoff rate: 0.274
+Avg final safe floor: 47.09
+Avg final local density read: 0.069
+Avg final surprise read: 0.156
+Avg final near-cutoff hits: 2.86
+Avg final near-cutoff misses: 0.02
+Mode rates: safe=0.648, risky=0.321, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.006, victory_lap=0.012
+Double window mode rates: safe=0.639, risky=0.361, blind_risk=0.000
+Context rates: open=0.720, dense=0.489, generous=0.272, dense_and_generous=0.041, tight=0.107, uncertain=0.329, 
+Context-action rates: risky_on_open=0.320, risky_on_dense=0.415, risky_on_generous=0.118, risky_on_dense_and_generous=0.119, safe_on_tight=0.789, risky_on_uncertain=0.461, safe_on_uncertain=0.525, risky_on_double_window=0.361, safe_on_double_window=0.639
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.606, avg_score=1831.5, median_score=2165.0, stdev=849.6, avg_strikes=3.00, first_out_rate=0.014
+Contestant 2: win_rate=0.375, avg_score=1444.4, median_score=1041.0, stdev=770.5, avg_strikes=3.00, first_out_rate=0.041
+Contestant 3: win_rate=0.020, avg_score=574.9, median_score=522.0, stdev=233.6, avg_strikes=3.00, first_out_rate=0.945
+Last survivor but lost rate: 0.105
+Solo started behind rate: 0.338
+Solo started behind and lost rate: 0.311
+Avg solo start deficit: 104.2
+Avg solo turns taken: 18.76
+Solo had winning answer rate: 0.189
+Solo had winning answer given started behind rate: 0.559
+Solo start deficit buckets: 1-75: 0.463, 76-150: 0.297, 151-250: 0.167, 251+: 0.073
+Avg final board read: -0.077
+Avg absolute final board read: 0.088
+Strong harsh board rate: 0.118
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 70.73
+Avg final cutoff uncertainty: 0.536
+Low uncertainty rate: 0.000
+High cutoff rate: 0.578
+Avg final safe floor: 57.52
+Avg final local density read: 0.055
+Avg final surprise read: 0.214
+Avg final near-cutoff hits: 1.44
+Avg final near-cutoff misses: 0.10
+Mode rates: safe=0.609, risky=0.119, blind_risk=0.009, chip_away=0.000, exact_win=0.002, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.259
+Double window mode rates: safe=0.808, risky=0.192, blind_risk=0.000
+Context rates: open=0.587, dense=0.236, generous=0.371, dense_and_generous=0.019, tight=0.249, uncertain=0.785, 
+Context-action rates: risky_on_open=0.075, risky_on_dense=0.126, risky_on_generous=0.045, risky_on_dense_and_generous=0.106, safe_on_tight=0.931, risky_on_uncertain=0.147, safe_on_uncertain=0.750, risky_on_double_window=0.192, safe_on_double_window=0.808
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.661, avg_score=1950.4, avg_median_score=2012.0, avg_stdev=386.0, avg_strikes=2.58, avg_first_out_rate=0.039
+Contestant 2: avg_win_rate=0.194, avg_score=1450.2, avg_median_score=1367.0, avg_stdev=297.1, avg_strikes=2.78, avg_first_out_rate=0.468
+Contestant 3: avg_win_rate=0.144, avg_score=1175.5, avg_median_score=1163.2, avg_stdev=233.9, avg_strikes=2.56, avg_first_out_rate=0.353
+Last survivor but lost rate: 0.181
+Solo started behind rate: 0.314
+Solo started behind and lost rate: 0.529
+Avg solo start deficit: 193.3
+Avg solo turns taken: 7.84
+Solo had winning answer rate: 0.109
+Solo had winning answer given started behind rate: 0.388
+Solo start deficit buckets: 1-75: 0.381, 76-150: 0.231, 151-250: 0.125, 251+: 0.263
+Avg final board read: -0.034
+Avg absolute final board read: 0.093
+Avg strong harsh board rate: 0.122
+Avg strong generous board rate: 0.044
+Avg final cutoff estimate: 64.15
+Avg final cutoff uncertainty: 0.388
+Avg low uncertainty rate: 0.101
+Avg high cutoff rate: 0.421
+Avg final safe floor: 51.83
+Avg final local density read: 0.063
+Avg final surprise read: 0.181
+Avg final near-cutoff hits: 2.30
+Avg final near-cutoff misses: 0.06
+Mode rates: safe=0.630, risky=0.255, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.099
+Double window mode rates: safe=0.687, risky=0.313, blind_risk=0.000
+Context rates: open=0.672, dense=0.399, generous=0.308, dense_and_generous=0.036, tight=0.148, uncertain=0.493, 
+Context-action rates: risky_on_open=0.252, risky_on_dense=0.363, risky_on_generous=0.091, risky_on_dense_and_generous=0.102, safe_on_tight=0.877, risky_on_uncertain=0.286, safe_on_uncertain=0.666, risky_on_double_window=0.313, safe_on_double_window=0.687
+```
+
+**Notes:**
+
+Run 5 worked as intended as a diagnostic run as the gameplay stayed identical to run 4, while the new metrics exposed what is actually driving `open`:
+
+| Metric | Run 4 | Run 5 
+| - | - | -
+| C1 WR | 0.611 | 0.611
+| C2 WR | 0.194 | 0.194
+| C3 WR | 0.144 | 0.144
+| Solo started behind/lost | 0.529 | 0.529
+| Avg solo deficit | 193.3 | 193.3
+| Mode safe | 0.630 | 0.630
+| Mode risky | 0.255 | 0.255
+| Double-window risky | 0.313 | 0.313
+| Open context rate | 0.672 | 0.672
+
+Run 5 only added visibility, `open = dense or generous` preserved Run 4 logic.
+
+**Takeaway:**
+
+`open` is mostly density-driven, but category-dependent:
+- open = 0.672
+- dense = 0.399
+- generous = 0.308
+- dense_and_generous = 0.036
+
+This means that `open` is not one monolithic thing. It is usually either **dense** or **generous**, but rarely both at the same time, as the overlap is only 0.036.
+
+In other words: Open is composite, and the two components are behaving differently.
+
+**Density is the real aggression signal:**
+- `risky_on_open` = 0.252
+- `risky_on_dense` = 0.363
+- `risky_on_generous` = 0.091
+- `risky_on_dense_and_generous` = 0.102
+
+This shows that density is much more predicitive of risk than generosity.
+
+To put it plainly: When the board feels answer-rich near the line, players are more willing to attack. When the board merely feels generous or surprising, they are actually still conservative.
+
+**Category-level results:**
+
+The split also makes the categories make more sense:
+
+| Category | Open | Dense | Generous | Dense + Generous | Read
+| - | - | - | - | - | -
+| OPS+ | 0.699 | 0.405 | 0.349 | 0.055 | Mixed open
+| bWAR | 0.603 | 0.281 | 0.358 | 0.037 | More generous/uncertain than dense
+| HR since 2000 | 0.740 | 0.566 | 0.199 | 0.024 | Strongly density-driven
+| Hits since 1900 | 0.720 | 0.489 | 0.272 | 0.041 | Density-driven
+| MVP | 0.587 | 0.236 | 0.371 | 0.019 | Generosity-driven, not attackable
+
+HR and Hits are exactly where they're expected, as they are more `dense`, and their risky-on-dense rates are high:
+- HR `risky_on_dense` = 0.583
+- Hits `risky_on_dense` = 0.415
+
+On the other hand, bWAR and MVP have more generous than dense signal, but their risky-on-generous rates are tiny:
+- bWAR `risky_on_generous` = 0.065
+- MVP `risky_on_generous` = 0.045
+
+As a result categories can "feel open" because surprisng/generous outcomes happen, but the players still don't treat them as attackable, which is a very good distinction. 
+
+In regards to the still-high open rate, Run 5 explains why it is high, despite in the previous run of Run 4, `open` did improve from 0.781 to 0.672. Because the system still uses `open = dense or generous`, any decision that is either density-positive or generosity-positive becomes open.
+- Since dense is 0.399 and generous is 0.308, their union naturally gets up to 0.672
+- The key is the low overlap of 0.036, as the `OR` condition adds them together more than it consolidates them
+
+This means that the high open rate is not necessarily a bug, rather it means that `open` is currently a broad umbrella state.
+
+
+**Conclusion:**
+Run 5 is successful because it shows that `open` is not too high because one single signal is broken, rather it is high because `open` is a union of two mostly separate board signals.
+
+The real strategic insight is that density creates attackability, while generosity creates board loosness/forgiveness, but not necessarily aggression.
+
+### Run 6
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.643, avg_score=1818.1, median_score=1751.0, stdev=325.5, avg_strikes=2.98, first_out_rate=0.087
+Contestant 2: win_rate=0.194, avg_score=1595.3, median_score=1581.0, stdev=225.6, avg_strikes=2.99, first_out_rate=0.440
+Contestant 3: win_rate=0.163, avg_score=1262.4, median_score=1183.0, stdev=280.9, avg_strikes=2.98, first_out_rate=0.467
+Last survivor but lost rate: 0.252
+Solo started behind rate: 0.392
+Solo started behind and lost rate: 0.643
+Avg solo start deficit: 269.7
+Avg solo turns taken: 2.57
+Solo had winning answer rate: 0.105
+Solo had winning answer given started behind rate: 0.269
+Solo start deficit buckets: 1-75: 0.270, 76-150: 0.209, 151-250: 0.135, 251+: 0.386
+Avg final board read: 0.040
+Avg absolute final board read: 0.097
+Strong harsh board rate: 0.050
+Strong generous board rate: 0.150
+Avg final cutoff estimate: 66.85
+Avg final cutoff uncertainty: 0.351
+Low uncertainty rate: 0.043
+High cutoff rate: 0.426
+Avg final safe floor: 54.74
+Avg final local density read: 0.054
+Avg final surprise read: 0.174
+Avg final near-cutoff hits: 2.74
+Avg final near-cutoff misses: 0.04
+Mode rates: safe=0.750, risky=0.203, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.032
+Double window mode rates: safe=0.770, risky=0.230, blind_risk=0.000
+Context rates: open=0.699, dense=0.405, generous=0.349, dense_and_generous=0.055, tight=0.093, uncertain=0.370, 
+Context-action rates: risky_on_open=0.174, risky_on_dense=0.256, risky_on_generous=0.061, risky_on_dense_and_generous=0.066, safe_on_tight=0.877, risky_on_uncertain=0.339, safe_on_uncertain=0.648, risky_on_double_window=0.230, safe_on_double_window=0.770
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.964, avg_score=2587.5, median_score=2663.0, stdev=471.4, avg_strikes=3.00, first_out_rate=0.001
+Contestant 2: win_rate=0.004, avg_score=888.8, median_score=881.0, stdev=215.9, avg_strikes=3.00, first_out_rate=0.881
+Contestant 3: win_rate=0.032, avg_score=939.6, median_score=895.0, stdev=262.4, avg_strikes=3.00, first_out_rate=0.118
+Last survivor but lost rate: 0.041
+Solo started behind rate: 0.125
+Solo started behind and lost rate: 0.326
+Avg solo start deficit: 136.8
+Avg solo turns taken: 13.26
+Solo had winning answer rate: 0.069
+Solo had winning answer given started behind rate: 0.551
+Solo start deficit buckets: 1-75: 0.480, 76-150: 0.217, 151-250: 0.125, 251+: 0.178
+Avg final board read: -0.032
+Avg absolute final board read: 0.079
+Strong harsh board rate: 0.044
+Strong generous board rate: 0.024
+Avg final cutoff estimate: 71.60
+Avg final cutoff uncertainty: 0.462
+Low uncertainty rate: 0.001
+High cutoff rate: 0.649
+Avg final safe floor: 58.82
+Avg final local density read: 0.059
+Avg final surprise read: 0.197
+Avg final near-cutoff hits: 1.90
+Avg final near-cutoff misses: 0.12
+Mode rates: safe=0.637, risky=0.142, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.210
+Double window mode rates: safe=0.824, risky=0.176, blind_risk=0.000
+Context rates: open=0.603, dense=0.281, generous=0.358, dense_and_generous=0.037, tight=0.200, uncertain=0.696, 
+Context-action rates: risky_on_open=0.109, risky_on_dense=0.163, risky_on_generous=0.064, risky_on_dense_and_generous=0.077, safe_on_tight=0.944, risky_on_uncertain=0.180, safe_on_uncertain=0.777, risky_on_double_window=0.176, safe_on_double_window=0.824
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.548, avg_score=1756.0, median_score=1739.0, stdev=99.8, avg_strikes=1.30, first_out_rate=0.002
+Contestant 2: win_rate=0.222, avg_score=1674.0, median_score=1679.0, stdev=111.8, avg_strikes=2.08, first_out_rate=0.355
+Contestant 3: win_rate=0.230, avg_score=1595.5, median_score=1643.0, stdev=157.9, avg_strikes=1.19, first_out_rate=0.070
+Last survivor but lost rate: 0.146
+Solo started behind rate: 0.234
+Solo started behind and lost rate: 0.624
+Avg solo start deficit: 178.1
+Avg solo turns taken: 2.50
+Solo had winning answer rate: 0.081
+Solo had winning answer given started behind rate: 0.348
+Solo start deficit buckets: 1-75: 0.388, 76-150: 0.249, 151-250: 0.104, 251+: 0.259
+Avg final board read: -0.078
+Avg absolute final board read: 0.104
+Strong harsh board rate: 0.254
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 52.69
+Avg final cutoff uncertainty: 0.283
+Low uncertainty rate: 0.298
+High cutoff rate: 0.179
+Avg final safe floor: 40.99
+Avg final local density read: 0.077
+Avg final surprise read: 0.163
+Avg final near-cutoff hits: 2.54
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.505, risky=0.474, blind_risk=0.013, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.004
+Double window mode rates: safe=0.494, risky=0.506, blind_risk=0.000
+Context rates: open=0.741, dense=0.566, generous=0.199, dense_and_generous=0.024, tight=0.100, uncertain=0.323, 
+Context-action rates: risky_on_open=0.500, risky_on_dense=0.583, risky_on_generous=0.227, risky_on_dense_and_generous=0.193, safe_on_tight=0.725, risky_on_uncertain=0.570, safe_on_uncertain=0.414, risky_on_double_window=0.506, safe_on_double_window=0.494
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.550, avg_score=1759.8, median_score=1742.0, stdev=183.0, avg_strikes=2.63, first_out_rate=0.091
+Contestant 2: win_rate=0.173, avg_score=1647.8, median_score=1653.0, stdev=161.1, avg_strikes=2.81, first_out_rate=0.621
+Contestant 3: win_rate=0.277, avg_score=1504.6, median_score=1572.5, stdev=233.3, avg_strikes=2.62, first_out_rate=0.167
+Last survivor but lost rate: 0.361
+Solo started behind rate: 0.485
+Solo started behind and lost rate: 0.746
+Avg solo start deficit: 276.2
+Avg solo turns taken: 2.12
+Solo had winning answer rate: 0.098
+Solo had winning answer given started behind rate: 0.202
+Solo start deficit buckets: 1-75: 0.292, 76-150: 0.193, 151-250: 0.100, 251+: 0.415
+Avg final board read: -0.022
+Avg absolute final board read: 0.096
+Strong harsh board rate: 0.142
+Strong generous board rate: 0.043
+Avg final cutoff estimate: 59.00
+Avg final cutoff uncertainty: 0.309
+Low uncertainty rate: 0.164
+High cutoff rate: 0.274
+Avg final safe floor: 47.15
+Avg final local density read: 0.069
+Avg final surprise read: 0.156
+Avg final near-cutoff hits: 2.86
+Avg final near-cutoff misses: 0.02
+Mode rates: safe=0.649, risky=0.321, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.006, victory_lap=0.012
+Double window mode rates: safe=0.639, risky=0.361, blind_risk=0.000
+Context rates: open=0.721, dense=0.489, generous=0.272, dense_and_generous=0.041, tight=0.107, uncertain=0.329, 
+Context-action rates: risky_on_open=0.319, risky_on_dense=0.415, risky_on_generous=0.116, risky_on_dense_and_generous=0.119, safe_on_tight=0.789, risky_on_uncertain=0.461, safe_on_uncertain=0.525, risky_on_double_window=0.361, safe_on_double_window=0.639
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.607, avg_score=1833.3, median_score=2168.5, stdev=850.4, avg_strikes=3.00, first_out_rate=0.014
+Contestant 2: win_rate=0.374, avg_score=1443.1, median_score=1039.0, stdev=770.3, avg_strikes=3.00, first_out_rate=0.041
+Contestant 3: win_rate=0.019, avg_score=574.6, median_score=522.0, stdev=233.1, avg_strikes=3.00, first_out_rate=0.945
+Last survivor but lost rate: 0.105
+Solo started behind rate: 0.337
+Solo started behind and lost rate: 0.312
+Avg solo start deficit: 104.4
+Avg solo turns taken: 18.78
+Solo had winning answer rate: 0.188
+Solo had winning answer given started behind rate: 0.558
+Solo start deficit buckets: 1-75: 0.462, 76-150: 0.297, 151-250: 0.167, 251+: 0.073
+Avg final board read: -0.077
+Avg absolute final board read: 0.088
+Strong harsh board rate: 0.118
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 70.72
+Avg final cutoff uncertainty: 0.536
+Low uncertainty rate: 0.000
+High cutoff rate: 0.577
+Avg final safe floor: 57.50
+Avg final local density read: 0.055
+Avg final surprise read: 0.214
+Avg final near-cutoff hits: 1.43
+Avg final near-cutoff misses: 0.10
+Mode rates: safe=0.609, risky=0.118, blind_risk=0.009, chip_away=0.000, exact_win=0.002, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.259
+Double window mode rates: safe=0.808, risky=0.192, blind_risk=0.000
+Context rates: open=0.587, dense=0.236, generous=0.371, dense_and_generous=0.019, tight=0.249, uncertain=0.785, 
+Context-action rates: risky_on_open=0.075, risky_on_dense=0.126, risky_on_generous=0.044, risky_on_dense_and_generous=0.106, safe_on_tight=0.932, risky_on_uncertain=0.146, safe_on_uncertain=0.750, risky_on_double_window=0.192, safe_on_double_window=0.808
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.662, avg_score=1951.0, avg_median_score=2012.7, avg_stdev=386.0, avg_strikes=2.58, avg_first_out_rate=0.039
+Contestant 2: avg_win_rate=0.193, avg_score=1449.8, avg_median_score=1366.6, avg_stdev=297.0, avg_strikes=2.78, avg_first_out_rate=0.468
+Contestant 3: avg_win_rate=0.144, avg_score=1175.3, avg_median_score=1163.1, avg_stdev=233.5, avg_strikes=2.56, avg_first_out_rate=0.354
+Last survivor but lost rate: 0.181
+Solo started behind rate: 0.314
+Solo started behind and lost rate: 0.530
+Avg solo start deficit: 193.0
+Avg solo turns taken: 7.85
+Solo had winning answer rate: 0.108
+Solo had winning answer given started behind rate: 0.386
+Solo start deficit buckets: 1-75: 0.379, 76-150: 0.233, 151-250: 0.126, 251+: 0.262
+Avg final board read: -0.034
+Avg absolute final board read: 0.093
+Avg strong harsh board rate: 0.122
+Avg strong generous board rate: 0.044
+Avg final cutoff estimate: 64.17
+Avg final cutoff uncertainty: 0.388
+Avg low uncertainty rate: 0.101
+Avg high cutoff rate: 0.421
+Avg final safe floor: 51.84
+Avg final local density read: 0.063
+Avg final surprise read: 0.181
+Avg final near-cutoff hits: 2.30
+Avg final near-cutoff misses: 0.06
+Mode rates: safe=0.631, risky=0.255, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.099
+Double window mode rates: safe=0.687, risky=0.313, blind_risk=0.000
+Context rates: open=0.672, dense=0.399, generous=0.308, dense_and_generous=0.035, tight=0.147, uncertain=0.493, 
+Context-action rates: risky_on_open=0.252, risky_on_dense=0.363, risky_on_generous=0.090, risky_on_dense_and_generous=0.102, safe_on_tight=0.878, risky_on_uncertain=0.286, safe_on_uncertain=0.666, risky_on_double_window=0.313, safe_on_double_window=0.687
+```
+
+**Notes:**
+
+The change made in behavior from Run 5 to Run 6: 
+
+Run 5:
+```
+if ctx["open"] and player_state.strikes == 0:
+    pressure += 0.06
+```
+
+Run 6:
+```
+if ctx["dense"] and player_state.strikes == 0:
+    pressure += 0.06
+elif ctx["generous"] and player_state.strikes == 0:
+    pressure += 0.02
+```
+
+This means that `open` still exists as a broad context label, but it no longer directly drives pressure, instead:
+- dense = full aggression bonus
+- generous = small confidence/looseness bonus
+
+**Run 5 &rarr; Run 6: almost no destabilization**
+
+Across categories, both runs are extremely close:
+
+| Metric | Run 5 | Run 6 | Read
+| - | - | - | -
+| OPS+ C1 WR | 0.643 | 0.643 | Unchanged
+| bWAR C1 WR | 0.963 | 0.964 | Tiny shift
+| HR C1 WR | 0.546 | 0.548 | Tiny shift
+| Hits C1 WR | 0.548 | 0.550 | Tiny shift
+| MVP C1 WR | 0.606 | 0.607 | Tiny shift
+
+The category-level mode rates also barely moved. This means that the adjustment did not break the simulator, it preserved the existing strategic environment.
+
+**Takeaway:**
+
+`generous` was already weak as an aggression driver:
+- `risky_on_dense` = much higher
+- `risky_on_generous` = much lower
+
+Examples of Run 6 keeping that behavior:
+
+| Category | Run 6 risky_on_dense | Run 6 risky_on_generous
+| - | - | -
+| OPS+ | 0.256 | 0.061
+| bWAR | 0.163 | 0.064
+| HR since 2000 | 0.583 | 0.227
+| Hits since 1900 | 0.415 | 0.116
+| MVP | 0.126 | 0.044
+
+The model is saying something important:
+- Density creates attackability
+- Generosity creates board loosness, but not necessarily aggression
+
+However, there was also not a big behavioral shift. It is important that the change is conceptually cleaner, but numerically small.
+- This is due to a lot of the decisions that mattered were probably already being shaped by other factors:
+    - base player style
+    - score gap
+    - strike count
+    - double-window logic
+    - uncertainty
+    - tight-board penalties
+    - solo/endagme modes
+
+Further, many `generous` states were already low-risk environments where players are not close to crossing the `risk_score >= 0.5` threshold.
+- Reducing the generous bonus from effecively `+0.06` under the old `open` logic to `+0.02` did not move many decisions across the safe/risky boundary
+
+**Conclusion:**
+
+Run 6 applied the dense/generous split behaviorally. In previous runs, the broad `open` context gave a full aggression bonus whenever either density or generosity was present. Run 6 changed this so that dense boards receive the full aggression bonus, while generous boards receive only a smaller pressure increase.
+
+The results were highly stable compared to Run 5. Win rates, solo metrics, mode rates, and category behavior changed only marginally. This suggests that the dense/generous split can be introduced into player decision-making without destabilizing the simulator.
+
+The main conceptual improvement is that M4 now distinguishes between two kinds of openness: density-driven attackability and generosity-driven board looseness. Density remains the much stronger predictor of risky behavior, while generosity alone continues to produce more conservative play. This matches the observed behavior from real episodes, where players attack when there are many viable near-line answers, but do not necessarily become aggressive simply because the board feels forgiving.
+
+One caveat is that the double-window branch still uses the broad `open` context as its gate for risky/safe alternation. This is acceptable for now, but it remains a possible future tuning point if double-window behavior needs to distinguish dense and generous boards more explicitly.
+
+### Run 7
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.642, avg_score=1817.0, median_score=1746.0, stdev=325.2, avg_strikes=2.98, first_out_rate=0.086
+Contestant 2: win_rate=0.198, avg_score=1598.1, median_score=1582.0, stdev=223.6, avg_strikes=2.99, first_out_rate=0.439
+Contestant 3: win_rate=0.159, avg_score=1259.5, median_score=1183.5, stdev=276.8, avg_strikes=2.98, first_out_rate=0.469
+Last survivor but lost rate: 0.252
+Solo started behind rate: 0.398
+Solo started behind and lost rate: 0.634
+Avg solo start deficit: 263.5
+Avg solo turns taken: 2.56
+Solo had winning answer rate: 0.113
+Solo had winning answer given started behind rate: 0.285
+Solo start deficit buckets: 1-75: 0.292, 76-150: 0.203, 151-250: 0.129, 251+: 0.376
+Avg final board read: 0.044
+Avg absolute final board read: 0.095
+Strong harsh board rate: 0.049
+Strong generous board rate: 0.150
+Avg final cutoff estimate: 67.26
+Avg final cutoff uncertainty: 0.353
+Low uncertainty rate: 0.043
+High cutoff rate: 0.428
+Avg final safe floor: 55.14
+Avg final local density read: 0.053
+Avg final surprise read: 0.177
+Avg final near-cutoff hits: 2.73
+Avg final near-cutoff misses: 0.04
+Mode rates: safe=0.755, risky=0.198, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.032
+Double window mode rates: safe=0.777, risky=0.223, blind_risk=0.000
+Context rates: open=0.703, dense=0.405, generous=0.352, dense_and_generous=0.055, tight=0.089, uncertain=0.370, 
+Context-action rates: risky_on_open=0.166, risky_on_dense=0.256, risky_on_generous=0.048, risky_on_dense_and_generous=0.066, safe_on_tight=0.951, risky_on_uncertain=0.339, safe_on_uncertain=0.648, risky_on_double_window=0.223, safe_on_double_window=0.777
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.966, avg_score=2594.2, median_score=2667.0, stdev=463.9, avg_strikes=3.00, first_out_rate=0.001
+Contestant 2: win_rate=0.004, avg_score=888.1, median_score=880.0, stdev=215.8, avg_strikes=3.00, first_out_rate=0.882
+Contestant 3: win_rate=0.030, avg_score=936.2, median_score=894.0, stdev=258.6, avg_strikes=3.00, first_out_rate=0.117
+Last survivor but lost rate: 0.036
+Solo started behind rate: 0.117
+Solo started behind and lost rate: 0.307
+Avg solo start deficit: 133.1
+Avg solo turns taken: 13.63
+Solo had winning answer rate: 0.068
+Solo had winning answer given started behind rate: 0.579
+Solo start deficit buckets: 1-75: 0.512, 76-150: 0.205, 151-250: 0.110, 251+: 0.173
+Avg final board read: -0.031
+Avg absolute final board read: 0.079
+Strong harsh board rate: 0.043
+Strong generous board rate: 0.025
+Avg final cutoff estimate: 71.67
+Avg final cutoff uncertainty: 0.463
+Low uncertainty rate: 0.001
+High cutoff rate: 0.651
+Avg final safe floor: 58.89
+Avg final local density read: 0.059
+Avg final surprise read: 0.197
+Avg final near-cutoff hits: 1.91
+Avg final near-cutoff misses: 0.12
+Mode rates: safe=0.637, risky=0.140, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.211
+Double window mode rates: safe=0.829, risky=0.171, blind_risk=0.000
+Context rates: open=0.603, dense=0.282, generous=0.358, dense_and_generous=0.037, tight=0.199, uncertain=0.698, 
+Context-action rates: risky_on_open=0.106, risky_on_dense=0.162, risky_on_generous=0.058, risky_on_dense_and_generous=0.076, safe_on_tight=0.962, risky_on_uncertain=0.178, safe_on_uncertain=0.779, risky_on_double_window=0.171, safe_on_double_window=0.829
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.540, avg_score=1753.7, median_score=1736.0, stdev=99.4, avg_strikes=1.32, first_out_rate=0.002
+Contestant 2: win_rate=0.232, avg_score=1675.6, median_score=1681.0, stdev=110.4, avg_strikes=2.09, first_out_rate=0.360
+Contestant 3: win_rate=0.228, avg_score=1595.8, median_score=1644.0, stdev=155.7, avg_strikes=1.21, first_out_rate=0.071
+Last survivor but lost rate: 0.143
+Solo started behind rate: 0.232
+Solo started behind and lost rate: 0.617
+Avg solo start deficit: 176.5
+Avg solo turns taken: 2.53
+Solo had winning answer rate: 0.083
+Solo had winning answer given started behind rate: 0.358
+Solo start deficit buckets: 1-75: 0.402, 76-150: 0.233, 151-250: 0.104, 251+: 0.261
+Avg final board read: -0.074
+Avg absolute final board read: 0.101
+Strong harsh board rate: 0.255
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 53.04
+Avg final cutoff uncertainty: 0.285
+Low uncertainty rate: 0.297
+High cutoff rate: 0.182
+Avg final safe floor: 41.33
+Avg final local density read: 0.076
+Avg final surprise read: 0.166
+Avg final near-cutoff hits: 2.52
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.512, risky=0.467, blind_risk=0.013, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.004
+Double window mode rates: safe=0.504, risky=0.496, blind_risk=0.000
+Context rates: open=0.745, dense=0.565, generous=0.204, dense_and_generous=0.024, tight=0.097, uncertain=0.323, 
+Context-action rates: risky_on_open=0.488, risky_on_dense=0.583, risky_on_generous=0.189, risky_on_dense_and_generous=0.193, safe_on_tight=0.810, risky_on_uncertain=0.570, safe_on_uncertain=0.414, risky_on_double_window=0.496, safe_on_double_window=0.504
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.550, avg_score=1759.9, median_score=1738.0, stdev=180.9, avg_strikes=2.64, first_out_rate=0.090
+Contestant 2: win_rate=0.179, avg_score=1650.5, median_score=1654.0, stdev=157.4, avg_strikes=2.81, first_out_rate=0.623
+Contestant 3: win_rate=0.271, avg_score=1501.7, median_score=1572.0, stdev=230.0, avg_strikes=2.62, first_out_rate=0.168
+Last survivor but lost rate: 0.358
+Solo started behind rate: 0.484
+Solo started behind and lost rate: 0.740
+Avg solo start deficit: 273.4
+Avg solo turns taken: 2.14
+Solo had winning answer rate: 0.100
+Solo had winning answer given started behind rate: 0.207
+Solo start deficit buckets: 1-75: 0.300, 76-150: 0.190, 151-250: 0.100, 251+: 0.410
+Avg final board read: -0.017
+Avg absolute final board read: 0.092
+Strong harsh board rate: 0.140
+Strong generous board rate: 0.043
+Avg final cutoff estimate: 59.68
+Avg final cutoff uncertainty: 0.311
+Low uncertainty rate: 0.163
+High cutoff rate: 0.276
+Avg final safe floor: 47.81
+Avg final local density read: 0.067
+Avg final surprise read: 0.160
+Avg final near-cutoff hits: 2.83
+Avg final near-cutoff misses: 0.02
+Mode rates: safe=0.656, risky=0.314, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.006, victory_lap=0.012
+Double window mode rates: safe=0.649, risky=0.351, blind_risk=0.000
+Context rates: open=0.726, dense=0.488, generous=0.279, dense_and_generous=0.041, tight=0.101, uncertain=0.329, 
+Context-action rates: risky_on_open=0.307, risky_on_dense=0.415, risky_on_generous=0.090, risky_on_dense_and_generous=0.118, safe_on_tight=0.879, risky_on_uncertain=0.461, safe_on_uncertain=0.525, risky_on_double_window=0.351, safe_on_double_window=0.649
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.602, avg_score=1834.0, median_score=2180.0, stdev=859.1, avg_strikes=3.00, first_out_rate=0.012
+Contestant 2: win_rate=0.383, avg_score=1454.7, median_score=1039.0, stdev=779.6, avg_strikes=3.00, first_out_rate=0.037
+Contestant 3: win_rate=0.015, avg_score=566.6, median_score=519.0, stdev=223.9, avg_strikes=3.00, first_out_rate=0.951
+Last survivor but lost rate: 0.099
+Solo started behind rate: 0.335
+Solo started behind and lost rate: 0.296
+Avg solo start deficit: 102.8
+Avg solo turns taken: 19.56
+Solo had winning answer rate: 0.191
+Solo had winning answer given started behind rate: 0.571
+Solo start deficit buckets: 1-75: 0.471, 76-150: 0.296, 151-250: 0.161, 251+: 0.072
+Avg final board read: -0.076
+Avg absolute final board read: 0.088
+Strong harsh board rate: 0.116
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 70.50
+Avg final cutoff uncertainty: 0.539
+Low uncertainty rate: 0.000
+High cutoff rate: 0.561
+Avg final safe floor: 57.26
+Avg final local density read: 0.056
+Avg final surprise read: 0.215
+Avg final near-cutoff hits: 1.44
+Avg final near-cutoff misses: 0.09
+Mode rates: safe=0.610, risky=0.113, blind_risk=0.009, chip_away=0.000, exact_win=0.002, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.264
+Double window mode rates: safe=0.820, risky=0.180, blind_risk=0.000
+Context rates: open=0.589, dense=0.239, generous=0.368, dense_and_generous=0.019, tight=0.246, uncertain=0.785, 
+Context-action rates: risky_on_open=0.066, risky_on_dense=0.123, risky_on_generous=0.030, risky_on_dense_and_generous=0.106, safe_on_tight=0.955, risky_on_uncertain=0.140, safe_on_uncertain=0.753, risky_on_double_window=0.180, safe_on_double_window=0.820
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.660, avg_score=1951.8, avg_median_score=2013.4, avg_stdev=385.7, avg_strikes=2.59, avg_first_out_rate=0.038
+Contestant 2: avg_win_rate=0.199, avg_score=1453.4, avg_median_score=1367.2, avg_stdev=297.3, avg_strikes=2.78, avg_first_out_rate=0.468
+Contestant 3: avg_win_rate=0.140, avg_score=1171.9, avg_median_score=1162.5, avg_stdev=229.0, avg_strikes=2.56, avg_first_out_rate=0.355
+Last survivor but lost rate: 0.178
+Solo started behind rate: 0.313
+Solo started behind and lost rate: 0.519
+Avg solo start deficit: 189.8
+Avg solo turns taken: 8.08
+Solo had winning answer rate: 0.111
+Solo had winning answer given started behind rate: 0.400
+Solo start deficit buckets: 1-75: 0.395, 76-150: 0.225, 151-250: 0.121, 251+: 0.258
+Avg final board read: -0.031
+Avg absolute final board read: 0.091
+Avg strong harsh board rate: 0.121
+Avg strong generous board rate: 0.044
+Avg final cutoff estimate: 64.43
+Avg final cutoff uncertainty: 0.390
+Avg low uncertainty rate: 0.101
+Avg high cutoff rate: 0.420
+Avg final safe floor: 52.09
+Avg final local density read: 0.062
+Avg final surprise read: 0.183
+Avg final near-cutoff hits: 2.29
+Avg final near-cutoff misses: 0.05
+Mode rates: safe=0.635, risky=0.250, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.003, victory_lap=0.101
+Double window mode rates: safe=0.695, risky=0.305, blind_risk=0.000
+Context rates: open=0.675, dense=0.400, generous=0.311, dense_and_generous=0.035, tight=0.144, uncertain=0.494, 
+Context-action rates: risky_on_open=0.243, risky_on_dense=0.363, risky_on_generous=0.073, risky_on_dense_and_generous=0.102, safe_on_tight=0.926, risky_on_uncertain=0.283, safe_on_uncertain=0.667, risky_on_double_window=0.305, safe_on_double_window=0.695
+```
+
+**Notes:**
+
+Run 7 was a curiosity test that targeted one part of M4 that was still using broad `open` behavior, which was the double-window alternation gate. Run 7 makes that gate more context-aware by changing `if player_state.strikes == 0 and ctx["open"]` to `if ... ctx["dense"] or (ctx["generous"] and not ctx["tight"])`.
+
+Dense boards still allow risky/safe rhythm, generous boards allow it only if the board is not tight, and tight generous boards no longer get treated as freely attackable.
+
+**Takeaway:**
+
+The biggest visible effect is that the double-window behavior got a little safer:
+
+| Category | Run 6 double risky | Run 7 double risky
+| - | - | -
+| OPS+ | 0.230 | 0.233
+| bWAR | 0.176 | 0.171
+| HR since 2000 | 0.506 | 0.496
+| Hits since 1900 | 0.361 | 0.351
+| MVP | 0.192 | 0.180
+
+The Run 7 change did exactly as it was intended to do by not destroying the double-window rhythm, but filtering out some riskier alternation spots when `open` was only generous/tight rather than truly attackable
+
+Category behavior also still makes sense:
+
+| Metric | Result
+| - | -
+| HR risky | 0.467
+| HR double-window | 0.496
+| HR risky_on_dense| 0.583
+| MVP risky | 0.113
+| MVP double-window risky | 0.180
+| bWAR risky | 0.140
+| bWAR double-window risky | 0.171
+
+From this, HR since 2000 remains the most aggressive category, which is good because the category is dense, recent, and answer-rich, which should still support aggression.
+
+On the contrary, MVP and bWAR remain conservative, which also makes sense because those categories are less broadly attackable even when they produce generous/surprising outcomes
+
+The main improvement is that safe-on-tight became cleaner:
+
+| Category | Run 6 safe-on-tight | Run 7 safe-on-tight
+| - | - | -
+| OPS + | 0.877 | 0.951
+| bWAR | 0.944 | 0.962
+| HR | 0.725 | 0.810
+| Hits | 0.789 | 0.879
+| MVP | 0.932 | 0.955
+
+This is meaningful improvement as tight contexts are now much more consistently survival-oriented across every category, especially HR and Hits
+- Previously, even tight boards could still get double-window alternation through braod `open`, which has now been addressed
+
+In other words, the context-aware model depicts:
+- Dense board: allow aggression
+- Generous but not tight: allow some rhythm
+- Tight board: survival overrides rhythm
+
+It must also be stated that the model was also not destabilized, as win rates remained largely unchanged, or otherwise moved only slightly.
+
+**Conclusion:**
+
+Run 7 extended the dense/generous split into the double-window logic. In previous runs, double-window risky/safe alternation still used the broad `open` context as its gate. Run 7 changed this so that dense boards continue to allow alternation, while generous boards only allow alternation when the board is not also tight.
+
+The results were stable overall. Win rates and category identities remained close to Run 6, but double-window risky rates decreased slightly across all categories. More importantly, `safe_on_tight` increased meaningfully, suggesting that tight-board contexts now override risky/safe rhythm more consistently.
+
+This makes Run 7 conceptually cleaner than Run 6. Dense contexts remain the main attackability signal, generous contexts remain a softer looseness signal, and tight contexts now more reliably force survival-oriented play. Run 7 is therefore a strong candidate for the final M4 behavior state.
+
 **M4 Outcomes:**
-fill out when complete
+
+Milestone 4 successfully added contextual strategy and multi-turn awareness to the simulator without destabilizing the broader V3 system.
+
+The final M4 state allows players to adjust risk based on:
+- board context
+- strike count
+- score position
+- cutoff uncertainty
+- double-window rhythm
+
+The milestone also clarified the meaning of `open` as a board context. Early M4 diagnostics showed that `open` was too broad when treated as a single aggression signal. Later runs decomposed `open` into `dense` and `generous`, which made the strategy layer more interpretable.
+
+The final model treats:
+- `dense` as the main attackability signal
+- `generous` as a softer looseness / forgiveness signal
+- `tight` as a survival-oriented signal
+- `open` as a broad descriptive umbrella
+
+Run 7 was selected as the final M4 behavior state because it preserved stability while making double-window behavior more context-aware. Dense boards still allow risky/safe rhythm, generous boards allow rhythm only when the board is not tight, and tight boards more reliably push players toward safe play.
 
 **Final aggregate M4 state:**
-fill out when complete
+
+The final M4 version remains close to the stable M3/M4 baseline while producing more interpretable strategy behavior.
+
+At the aggregate level, the final M4 state shows:
+- Stable win distribution across contestants
+- Category-sensitive safe/risky behavior
+- Stronger survival behavior on tight boards
+- More meaningful separation between density-driven aggression and generosity-driven looseness
+- Double-window behavior that remains human-like but is no longer driven by broad `open` alone
+
+The final strategy profile is:
+
+- HR-style categories remain aggressive
+    - high dense rate
+    - high risky-on-dense rate
+    - high double-window risky rate
+
+- bWAR / MVP-style categories remain conservative
+    - higher uncertainty
+    - higher tightness
+    - lower risky-on-generous rate
+    - higher safe-on-tight rate
+
+- Hits / OPS+ sit between those extremes
+    - playable but not as aggressively open as HR
+    - more mixed dense/generous behavior
+
+Most importantly, the final M4 state does not suggest that contextual strategy broke the simulator. Instead, it gives the simulator a clearer way to explain *why* players are choosing safe, risky, or double-window rhythm decisions.
 
 **Key Observations:**
-fill out when complete
 
+1. **`open` is useful, but too broad to be the main aggression trigger**
+
+The milestone showed that `open` should remain as a descriptive board label, but not as the sole driver of risk. Open states can come from either density or generosity, and those do not imply the same strategic response.
+
+2. **Density is the clearest attackability signal**
+
+Across the later runs, `risky_on_dense` was consistently higher than `risky_on_generous`. This suggests that players should become more aggressive when the board appears answer-rich near the cutoff, not merely when surprising outcomes occur.
+
+3. **Generosity is not the same as attackability**
+
+A generous board may feel forgiving, but it does not always mean there are many viable answers left. This was especially clear in harder categories, where generosity could be present without producing much risky behavior.
+
+4. **Tight boards should override rhythm**
+
+Run 7 showed that double-window behavior becomes cleaner when tight-board contexts suppress risky/safe alternation. This improved the model conceptually because survival pressure now overrides rhythm when the board appears precision-heavy.
+
+5. **Double-window behavior remains important**
+
+End-of-snake turns still need special handling. The final M4 logic preserves human-like alternating behavior, but filters it through board context so that the simulator does not blindly alternate risky/safe picks in bad board states.
+
+6. **M4 is complete enough for V3**
+
+Further tuning of dense/generous pressure or double-window thresholds would likely produce diminishing returns. Remaining issues, such as player-profile calibration, defensive survival logic, sharper cutoff discovery, and richer category realism, are better suited for later milestones or future versions.
 
 ---
 
-## Milestone 5
+## Milestone 5 - Human Bias and Player Identity
 
 **Summary:**
 fill out when complete
@@ -2715,7 +3837,7 @@ fill out when complete
 
 ---
 
-## Milestone 6
+## Milestone 6 - Calibration and Validation Pass
 
 **Summary:**
 fill out when complete

@@ -214,8 +214,13 @@ def get_board_context(state: PlayerState) -> Dict[str, bool]:
     """
     board_signal = get_board_signal(state)
 
+    dense = state.local_density_read >= 0.10
+    generous = state.surprise_read >= 0.18
+    
     return {
-        "open": state.local_density_read >= 0.08 or state.surprise_read >= 0.12,
+        "dense": dense,
+        "generous": generous,
+        "open": dense or generous,
         "tight": state.precision_read >= 0.12 or board_signal  <= -0.12,
         "uncertain": state.cutoff_uncertainty >= 0.50,
         "confident": state.cutoff_uncertainty <= 0.30,
@@ -434,8 +439,10 @@ def decide_pick_mode(
     # m4 stuff, fix comment later
     ctx = get_board_context(player_state)
 
-    if ctx["open"] and player_state.strikes == 0:
+    if ctx["dense"] and player_state.strikes == 0:
         pressure += 0.06
+    elif ctx["generous"] and player_state.strikes == 0:
+        pressure += 0.02
     
     if ctx["tight"]:
         pressure -= 0.08
@@ -486,7 +493,7 @@ def decide_pick_mode(
             return "risky"
         
         # if board feels open and player is clean, allow the old risky/safe rhythm
-        if player_state.strikes == 0 and ctx["open"]:
+        if player_state.strikes == 0 and (ctx["dense"] or (ctx["generous"] and not ctx["tight"])):
             mode = player_state.double_pick_toggle
             player_state.double_pick_toggle = "safe" if mode == "risky" else "risky"
             return mode
@@ -662,6 +669,9 @@ class PinpointGameSimulator:
 
         self.context_counts = {
             "open": 0,
+            "dense": 0,
+            "generous": 0,
+            "dense_and_generous": 0,
             "tight": 0,
             "uncertain": 0,
             "double_window": 0,
@@ -670,6 +680,9 @@ class PinpointGameSimulator:
 
         self.context_action_counts = {
             "risky_on_open": 0,
+            "risky_on_dense": 0,
+            "risky_on_generous": 0,
+            "risky_on_dense_and_generous": 0,
             "safe_on_tight": 0,
             "risky_on_uncertain": 0,
             "safe_on_uncertain": 0,
@@ -1101,6 +1114,21 @@ class PinpointGameSimulator:
             self.context_counts["open"] += 1
             if mode in {"risky", "blind_risk"}:
                 self.context_action_counts["risky_on_open"] += 1
+
+        if ctx["dense"]:
+            self.context_counts["dense"] += 1
+            if mode in {"risky", "blind_risk"}:
+                self.context_action_counts["risky_on_dense"] += 1
+        
+        if ctx["generous"]:
+            self.context_counts["generous"] += 1
+            if mode in {"risky", "blind_risk"}:
+                self.context_action_counts["risky_on_generous"] += 1
+        
+        if ctx["dense"] and ctx["generous"]:
+            self.context_counts["dense_and_generous"] += 1
+            if mode in {"risky", "blind_risk"}:
+                self.context_action_counts["risky_on_dense_and_generous"] += 1
         
         if ctx["tight"]:
             self.context_counts["tight"] += 1
@@ -1405,6 +1433,9 @@ def simulate_many(
     ]}
     context_counts = {
         "open": 0,
+        "dense": 0,
+        "generous": 0,
+        "dense_and_generous": 0,
         "tight": 0,
         "uncertain": 0,
         "double_window": 0,
@@ -1412,6 +1443,9 @@ def simulate_many(
     }
     context_action_counts = {
         "risky_on_open": 0,
+        "risky_on_dense": 0,
+        "risky_on_generous": 0,
+        "risky_on_dense_and_generous": 0,
         "safe_on_tight": 0,
         "risky_on_uncertain": 0,
         "safe_on_uncertain": 0,
@@ -1518,13 +1552,24 @@ def simulate_many(
     tight_count = context_counts.get("tight", 0)
     uncertain_count = context_counts.get("uncertain", 0)
     double_window_count = context_counts.get("double_window", 0)
+    dense_count = context_counts.get("dense", 0)
+    generous_count = context_counts.get("generous", 0)
+    dense_and_generous_count = context_counts.get("dense_and_generous", 0)
 
     context_rates = {
         "open_context_rate": open_count / total_decisions if total_decisions > 0 else 0.0,
+        "dense_context_rate": dense_count / total_decisions if total_decisions > 0 else 0.0,
+        "generous_context_rate": generous_count / total_decisions if total_decisions > 0 else 0.0,
+        "dense_and_generous_context_rate": dense_and_generous_count / total_decisions if total_decisions > 0 else 0.0,
         "tight_context_rate": tight_count / total_decisions if total_decisions > 0 else 0.0,
         "uncertain_context_rate": uncertain_count / total_decisions if total_decisions > 0 else 0.0,
+
         "double_window_context_rate": double_window_count / total_decisions if total_decisions > 0 else 0.0,
         "risky_on_open_rate": context_action_counts.get("risky_on_open", 0) / open_count if open_count > 0 else 0.0,
+        "risky_on_dense_rate": context_action_counts.get("risky_on_dense", 0) / dense_count if dense_count > 0 else 0.0,
+        "risky_on_generous_rate": context_action_counts.get("risky_on_generous", 0) / generous_count if generous_count > 0 else 0.0,
+        "risky_on_dense_and_generous_rate": context_action_counts.get("risky_on_dense_and_generous", 0) / dense_and_generous_count if dense_and_generous_count > 0 else 0.0,
+
         "safe_on_tight_rate": context_action_counts.get("safe_on_tight", 0) / tight_count if tight_count > 0 else 0.0,
         "risky_on_uncertain_rate": context_action_counts.get("risky_on_uncertain", 0) / uncertain_count if uncertain_count > 0 else 0.0,
         "safe_on_uncertain_rate": context_action_counts.get("safe_on_uncertain", 0) / uncertain_count if uncertain_count > 0 else 0.0,
@@ -1743,6 +1788,9 @@ def main() -> None:
             print(
                 "Context rates: "
                 f"open={context_rates.get('open_context_rate', 0.0):.3f}, "
+                f"dense={context_rates.get('dense_context_rate', 0.0):.3f}, "
+                f"generous={context_rates.get('generous_context_rate', 0.0):.3f}, "
+                f"dense_and_generous={context_rates.get('dense_and_generous_context_rate', 0.0):.3f}, "
                 f"tight={context_rates.get('tight_context_rate', 0.0):.3f}, "
                 f"uncertain={context_rates.get('uncertain_context_rate', 0.0):.3f}, "
             )
@@ -1750,6 +1798,9 @@ def main() -> None:
             print(
                 "Context-action rates: "
                 f"risky_on_open={context_rates.get('risky_on_open_rate', 0.0):.3f}, "
+                f"risky_on_dense={context_rates.get('risky_on_dense_rate', 0.0):.3f}, "
+                f"risky_on_generous={context_rates.get('risky_on_generous_rate', 0.0):.3f}, "
+                f"risky_on_dense_and_generous={context_rates.get('risky_on_dense_and_generous_rate', 0.0):.3f}, "
                 f"safe_on_tight={context_rates.get('safe_on_tight_rate', 0.0):.3f}, "
                 f"risky_on_uncertain={context_rates.get('risky_on_uncertain_rate', 0.0):.3f}, "
                 f"safe_on_uncertain={context_rates.get('safe_on_uncertain_rate', 0.0):.3f}, "
@@ -1832,6 +1883,9 @@ def main() -> None:
 
         aggregate_context_counts = {
             "open": 0,
+            "dense": 0,
+            "generous": 0,
+            "dense_and_generous": 0,
             "tight": 0,
             "uncertain": 0,
             "double_window": 0,
@@ -1840,6 +1894,9 @@ def main() -> None:
 
         aggregate_context_action_counts = {
             "risky_on_open": 0,
+            "risky_on_dense": 0,
+            "risky_on_generous": 0,
+            "risky_on_dense_and_generous": 0,
             "safe_on_tight": 0,
             "risky_on_uncertain": 0,
             "safe_on_uncertain": 0,
@@ -1858,12 +1915,21 @@ def main() -> None:
         tight_count = aggregate_context_counts.get("tight", 0)
         uncertain_count = aggregate_context_counts.get("uncertain", 0)
         double_window_count = aggregate_context_counts.get("double_window", 0)
+        dense_count = aggregate_context_counts.get("dense", 0)
+        generous_count = aggregate_context_counts.get("generous", 0)
+        dense_and_generous_count = aggregate_context_counts.get("dense_and_generous", 0)
 
         aggregate_context_rates = {
             "open_context_rate": open_count / total_decisions if total_decisions > 0 else 0.0,
+            "dense_context_rate": dense_count / total_decisions if total_decisions > 0 else 0.0,
+            "generous_context_rate": generous_count / total_decisions if total_decisions > 0 else 0.0,
+            "dense_and_generous_context_rate": dense_and_generous_count / total_decisions if total_decisions > 0 else 0.0,
             "tight_context_rate": tight_count / total_decisions if total_decisions > 0 else 0.0,
             "uncertain_context_rate": uncertain_count / total_decisions if total_decisions > 0 else 0.0,
             "risky_on_open_rate": aggregate_context_action_counts.get("risky_on_open", 0) / open_count if open_count > 0 else 0.0,
+            "risky_on_dense_rate": aggregate_context_action_counts.get("risky_on_dense", 0) / dense_count if dense_count > 0 else 0.0,
+            "risky_on_generous_rate": aggregate_context_action_counts.get("risky_on_generous", 0) / generous_count if generous_count > 0 else 0.0,
+            "risky_on_dense_and_generous_rate": aggregate_context_action_counts.get("risky_on_dense_and_generous", 0) / dense_and_generous_count if dense_and_generous_count > 0 else 0.0,
             "safe_on_tight_rate": aggregate_context_action_counts.get("safe_on_tight", 0) / tight_count if tight_count > 0 else 0.0,
             "risky_on_uncertain_rate": aggregate_context_action_counts.get("risky_on_uncertain", 0) / uncertain_count if uncertain_count > 0 else 0.0,
             "safe_on_uncertain_rate": aggregate_context_action_counts.get("safe_on_uncertain", 0) / uncertain_count if uncertain_count > 0 else 0.0,
@@ -1919,12 +1985,18 @@ def main() -> None:
         print(
             "Context rates: "
             f"open={aggregate_context_rates.get('open_context_rate', 0.0):.3f}, "
+            f"dense={aggregate_context_rates.get('dense_context_rate', 0.0):.3f}, "
+            f"generous={aggregate_context_rates.get('generous_context_rate', 0.0):.3f}, "
+            f"dense_and_generous={aggregate_context_rates.get('dense_and_generous_context_rate', 0.0):.3f}, "
             f"tight={aggregate_context_rates.get('tight_context_rate', 0.0):.3f}, "
             f"uncertain={aggregate_context_rates.get('uncertain_context_rate', 0.0):.3f}, "
         )
         print(
             "Context-action rates: "
             f"risky_on_open={aggregate_context_rates.get('risky_on_open_rate', 0.0):.3f}, "
+            f"risky_on_dense={aggregate_context_rates.get('risky_on_dense_rate', 0.0):.3f}, "
+            f"risky_on_generous={aggregate_context_rates.get('risky_on_generous_rate', 0.0):.3f}, "
+            f"risky_on_dense_and_generous={aggregate_context_rates.get('risky_on_dense_and_generous_rate', 0.0):.3f}, "
             f"safe_on_tight={aggregate_context_rates.get('safe_on_tight_rate', 0.0):.3f}, "
             f"risky_on_uncertain={aggregate_context_rates.get('risky_on_uncertain_rate', 0.0):.3f}, "
             f"safe_on_uncertain={aggregate_context_rates.get('safe_on_uncertain_rate', 0.0):.3f}, "
