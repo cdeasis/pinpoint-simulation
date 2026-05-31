@@ -71,6 +71,18 @@ class PlayerProfile:
     pressure_sensitivity: float = 0.0
     alternate_safe_risky_on_double: bool = False
 
+    # m5: human identity / bias fields
+    comfort_bias: float = 0.0
+    archetype_bias: Dict[str, float] = field(default_factory=dict)
+    category_confidence: Dict[str, float] = field(default_factory=dict)
+    familiarity_bias: Dict[str, float] = field(default_factory=dict)
+    defensive_survival_bias: float = 0.0
+    safe_fallback_bias: float = 0.0
+    reaction_influence: float = 0.0
+    board_read_trust: float = 1.0
+    pressure_composure: float = 0.0
+    risk_identity: float = 0.0
+
 @dataclass
 class AnswerState:
     """
@@ -167,6 +179,13 @@ class SimulationResult:
     double_window_mode_counts: Dict[str, int] = field(default_factory=dict)
     context_counts: Dict[str, int] = field(default_factory=dict)
     context_action_counts: Dict[str, int] = field(default_factory=dict)
+    answer_state_summaries: Dict[str, Dict[str, float]] = field(default_factory=dict) # per-player summary of answer states at end of game
+    player_mode_counts: Dict[str, Dict[str, int]] = field(default_factory=dict) # avg knowledge/confidence/recall candidate counts by player
+    player_mode_hit_counts: Dict[str, Dict[str, int]] = field(default_factory=dict) # how often each player used safe/risky/blind/etc.
+    player_mode_guess_value_sums: Dict[str, Dict[str, int]] = field(default_factory=dict) # how often each mode succeeded by player
+    player_mode_guess_counts: Dict[str, Dict[str, int]] = field(default_factory=dict) # avg guess value by mode and player
+    early_guess_counts: Dict[str, Dict[str, int]] = field(default_factory=dict) # early-game guess bands by player, useful for C3 volatility
+
 
 #==============================
 # HELPERS
@@ -249,6 +268,70 @@ def choose_from_bottom(values: List[int], n: int, rng: random.Random) -> Optiona
         return None
     return rng.choice(values[-min(n, len(values)) :])
 
+# m5 helpers
+
+def tag_multiplier(values: Dict[str, float], tags: Set[str], default: float = 1.0) -> float:
+    """
+    Combine profile bias multipliers for any category tags that apply
+
+    Example:
+    category.tags = {"modern", "counting_stat"}
+    profile.category_confidence = {"modern": 1.05, "counting_stat": 1.03}
+    result = 1.05 * 1.03
+    """
+    multiplier = default
+
+    for tag in tags:
+        multiplier *= values.get(tag, 1.0)
+
+    return multiplier
+
+def bucket_archetype_tags(points: int) -> Set[str]:
+    """
+    Lightweight abstract answer archetypes based on point value
+
+    Higher point values represent more obscure / higher-value answers
+    Lower point values represent safer / more obvious answers
+    """
+    if points >= 90:
+        return {"deep_cut", "high_value"}
+    if points >= 70:
+        return {"star", "high_value"}
+    if points >= 40:
+        return {"regular", "mid_value"}
+    return {"safe", "low_value"}
+
+def summarize_answer_states(state: PlayerState) -> Dict[str, float]:
+    """
+    Summarize a player's answer-state pool for M5 diagnostics
+
+    These values show how much playable material a player has before turn-order, board depletion, and strategy logic affect the game
+    """
+    answers = list(state.answer_states.values())
+
+    if not answers:
+        return {
+            "avg_knowledge": 0.0,
+            "avg_recall": 0.0,
+            "avg_confidence": 0.0,
+            "safe_candidates": 0.0,
+            "risky_candidates": 0.0,
+            "blind_candidates": 0.0,
+        }
+
+    safe_candidates = sum(1 for ans in answers if ans.recall >= 0.14 and ans.confidence >= 0.14)
+    risky_candidates = sum(1 for ans in answers if ans.recall >= 0.07 and ans.confidence >= 0.07)
+    blind_candidates = sum(1 for ans in answers if ans.confidence < 0.08)
+
+    return {
+        "avg_knowledge": statistics.mean(ans.knowledge for ans in answers),
+        "avg_recall": statistics.mean(ans.recall for ans in answers),
+        "avg_confidence": statistics.mean(ans.confidence for ans in answers),
+        "safe_candidates": float(safe_candidates),
+        "risky_candidates": float(risky_candidates),
+        "blind_candidates": float(blind_candidates),
+    }
+
 #==============================
 # KNOWLEDGE GENERATION
 #==============================
@@ -315,12 +398,36 @@ def build_answer_states(
             if tag in profile.category_modifiers:
                 knowledge *= profile.category_modifiers[tag]
 
+        # M5: category/player identity modifiers
+        category_confidence_mult = tag_multiplier(
+            profile.category_confidence, 
+            category.tags,
+        )
+
+        familiarity_mult = tag_multiplier(
+            profile.familiarity_bias,
+            category.tags,
+        )
+
+        archetype_tags = bucket_archetype_tags(points)
+
+        archetype_mult = tag_multiplier(
+            profile.archetype_bias,
+            archetype_tags,
+        )
+
+        # Archetype bias can lightly affect knowledge because some players are better with certain answer types, such as stars, safe names, or deep cuts
+        knowledge *= archetype_mult
+        
         # Clamp to valid probablity range
         knowledge = clamp(knowledge, 0.0, 1.0)
 
         # Step 2: Recall (noisy function of knowledge)
         # Idea: even if you know something, you might not recall it
         recall = knowledge * rng.uniform(0.75, 1.05)
+
+        # M5: familiarity affects whether an answer comes to mind
+        recall *= familiarity_mult
 
         # Add a little randomness so low-knowledge answers sometimes surface
         recall += rng.uniform(-0.05, 0.05)
@@ -330,6 +437,12 @@ def build_answer_states(
         # Step 3: Confidence (willingness to guess)
         # Blend knowledge + recall, then add slight noise
         confidence = (0.6 * knowledge + 0.4 * recall)
+
+        # M5: category confidence affects willingness to trust the answer
+        confidence *= category_confidence_mult
+
+        # M5: familiar answers are also easier to trust
+        confidence *= familiarity_mult
 
         confidence += rng.uniform(-0.05, 0.05)
 
@@ -688,6 +801,83 @@ class PinpointGameSimulator:
             "safe_on_uncertain": 0,
             "risky_on_double_window": 0,
             "safe_on_double_window": 0,
+        }
+
+        #V3M5 metrics
+        self.answer_state_summaries = {
+            name: summarize_answer_states(state)
+            for name, state in self.states.items()
+        }
+
+        self.player_mode_counts = {
+            p.name: {
+                "safe": 0,
+                "risky": 0,
+                "blind_risk": 0,
+                "chip_away": 0,
+                "exact_win": 0,
+                "comeback": 0,
+                "high_upside": 0,
+                "desperation": 0,
+                "victory_lap": 0,
+            }
+            for p in profiles
+        }
+        self.player_mode_hit_counts = {
+            p.name: {
+                "safe": 0,
+                "risky": 0,
+                "blind_risk": 0,
+                "chip_away": 0,
+                "exact_win": 0,
+                "comeback": 0,
+                "high_upside": 0,
+                "desperation": 0,
+                "victory_lap": 0,
+            }
+            for p in profiles
+        }
+
+        self.player_mode_guess_value_sums = {
+            p.name: {
+                "safe": 0,
+                "risky": 0,
+                "blind_risk": 0,
+                "chip_away": 0,
+                "exact_win": 0,
+                "comeback": 0,
+                "high_upside": 0,
+                "desperation": 0,
+                "victory_lap": 0,
+            }
+            for p in profiles
+        }
+
+        self.player_mode_guess_counts = {
+            p.name: {
+                "safe": 0,
+                "risky": 0,
+                "blind_risk": 0,
+                "chip_away": 0,
+                "exact_win": 0,
+                "comeback": 0,
+                "high_upside": 0,
+                "desperation": 0,
+                "victory_lap": 0,
+            }
+            for p in profiles
+        }
+
+        self.early_guess_counts = {
+            p.name: {
+                "top_15": 0,
+                "mid_16_69": 0,
+                "high_70_89": 0,
+                "deep_90_100": 0,
+                "strikes": 0,
+                "total": 0,
+            }
+            for p in profiles
         }
         
     def alive_players(self) -> List[str]:
@@ -1102,6 +1292,9 @@ class PinpointGameSimulator:
             )
 
         self.mode_counts[mode] = self.mode_counts.get(mode, 0) + 1
+        self.player_mode_counts[player_name][mode] = (
+            self.player_mode_counts[player_name].get(mode, 0) + 1
+        )
 
         if is_part_of_double_pick_window:
             self.double_window_mode_counts[mode] = self.double_window_mode_counts.get(mode, 0) + 1
@@ -1199,7 +1392,39 @@ class PinpointGameSimulator:
             strike_given = True
             state.strikes += 1
             state.wrong_guesses += 1
-        
+
+        # M5: per-player mode hit and guess-value diagnostics
+        if was_correct:
+            self.player_mode_hit_counts[player_name][mode] = (
+                self.player_mode_hit_counts[player_name].get(mode, 0) + 1
+            )
+
+        if guess is not None:
+            self.player_mode_guess_value_sums[player_name][mode] = (
+                self.player_mode_guess_value_sums[player_name].get(mode, 0) + guess
+            )
+            self.player_mode_guess_counts[player_name][mode] = (
+                self.player_mode_guess_counts[player_name].get(mode, 0) + 1
+            )
+
+        # M5: early-game volatility diagnostics
+        # Tracks the first 6 total guesses before the board/game state has fully developed.
+        if len(self.history) < 6:
+            self.early_guess_counts[player_name]["total"] += 1
+
+            if strike_given:
+                self.early_guess_counts[player_name]["strikes"] += 1
+
+            if guess is not None:
+                if guess <= 15:
+                    self.early_guess_counts[player_name]["top_15"] += 1
+                elif guess <= 69:
+                    self.early_guess_counts[player_name]["mid_16_69"] += 1
+                elif guess <= 89:
+                    self.early_guess_counts[player_name]["high_70_89"] += 1
+                else:
+                    self.early_guess_counts[player_name]["deep_90_100"] += 1    
+                
         if state.strikes >= 3 and state.alive:
             state.alive = False
             self.elimination_order.append(player_name)
@@ -1374,6 +1599,12 @@ class PinpointGameSimulator:
             double_window_mode_counts=double_window_mode_counts,
             context_counts=context_counts,
             context_action_counts=context_action_counts,
+            answer_state_summaries=self.answer_state_summaries,
+            player_mode_counts=self.player_mode_counts,
+            player_mode_hit_counts=self.player_mode_hit_counts,
+            player_mode_guess_value_sums=self.player_mode_guess_value_sums,
+            player_mode_guess_counts=self.player_mode_guess_counts,
+            early_guess_counts=self.early_guess_counts,
         )
     
 #=============================
@@ -1453,6 +1684,90 @@ def simulate_many(
         "safe_on_double_window": 0,
     }
 
+    answer_state_metric_values = {
+        p.name: {
+            "avg_knowledge": [],
+            "avg_recall": [],
+            "avg_confidence": [],
+            "safe_candidates": [],
+            "risky_candidates": [],
+            "blind_candidates": [],
+        }
+        for p in profiles
+    }
+
+    player_mode_counts = {
+        p.name: {
+            "safe": 0,
+            "risky": 0,
+            "blind_risk": 0,
+            "chip_away": 0,
+            "exact_win": 0,
+            "comeback": 0,
+            "high_upside": 0,
+            "desperation": 0,
+            "victory_lap": 0,
+        }
+        for p in profiles
+    }
+
+    player_mode_hit_counts = {
+        p.name: {
+            "safe": 0,
+            "risky": 0,
+            "blind_risk": 0,
+            "chip_away": 0,
+            "exact_win": 0,
+            "comeback": 0,
+            "high_upside": 0,
+            "desperation": 0,
+            "victory_lap": 0,
+        }
+        for p in profiles
+    }
+
+    player_mode_guess_value_sums = {
+        p.name: {
+            "safe": 0,
+            "risky": 0,
+            "blind_risk": 0,
+            "chip_away": 0,
+            "exact_win": 0,
+            "comeback": 0,
+            "high_upside": 0,
+            "desperation": 0,
+            "victory_lap": 0,
+        }
+        for p in profiles
+    }
+
+    player_mode_guess_counts = {
+        p.name: {
+            "safe": 0,
+            "risky": 0,
+            "blind_risk": 0,
+            "chip_away": 0,
+            "exact_win": 0,
+            "comeback": 0,
+            "high_upside": 0,
+            "desperation": 0,
+            "victory_lap": 0,
+        }
+        for p in profiles
+    }
+
+    early_guess_counts = {
+        p.name: {
+            "top_15": 0,
+            "mid_16_69": 0,
+            "high_70_89": 0,
+            "deep_90_100": 0,
+            "strikes": 0,
+            "total": 0,
+        }
+        for p in profiles
+    }
+
     for _ in range(n_sims):
         sim_seed = rng.randint(1, 10**9)
         
@@ -1465,6 +1780,36 @@ def simulate_many(
         )
 
         result = game.run()
+
+        # M5 answer-state diagnostics
+        for name, metrics in result.answer_state_summaries.items():
+            for key, value in metrics.items():
+                answer_state_metric_values[name][key].append(value)
+
+        # M5 per-player mode diagnostics
+        for name, counts in result.player_mode_counts.items():
+            for mode, count in counts.items():
+                player_mode_counts[name][mode] = player_mode_counts[name].get(mode, 0) + count
+
+        for name, counts in result.player_mode_hit_counts.items():
+            for mode, count in counts.items():
+                player_mode_hit_counts[name][mode] = player_mode_hit_counts[name].get(mode, 0) + count
+
+        for name, sums in result.player_mode_guess_value_sums.items():
+            for mode, value_sum in sums.items():
+                player_mode_guess_value_sums[name][mode] = (
+                    player_mode_guess_value_sums[name].get(mode, 0) + value_sum
+                )
+
+        for name, counts in result.player_mode_guess_counts.items():
+            for mode, count in counts.items():
+                player_mode_guess_counts[name][mode] = (
+                    player_mode_guess_counts[name].get(mode, 0) + count
+                )
+
+        for name, counts in result.early_guess_counts.items():
+            for key, count in counts.items():
+                early_guess_counts[name][key] = early_guess_counts[name].get(key, 0) + count
 
         # Track conditional solo
         if result.solo_player_name is not None and result.solo_started_behind:
@@ -1577,6 +1922,58 @@ def simulate_many(
         "safe_on_double_window_rate": context_action_counts.get("safe_on_double_window", 0) / double_window_count if double_window_count > 0 else 0.0,
     }
 
+    answer_state_summary = {
+        name: {
+            key: statistics.mean(values) if values else 0.0
+            for key, values in metrics.items()
+        }
+        for name, metrics in answer_state_metric_values.items()
+    }
+
+    player_mode_rates = {}
+    player_mode_hit_rates = {}
+    player_mode_avg_guess_values = {}
+
+    for name in player_mode_counts:
+        total_player_modes = sum(player_mode_counts[name].values())
+
+        player_mode_rates[name] = {
+            mode: (
+                count / total_player_modes
+                if total_player_modes > 0 else 0.0
+            )
+            for mode, count in player_mode_counts[name].items()
+        }
+
+        player_mode_hit_rates[name] = {
+            mode: (
+                player_mode_hit_counts[name].get(mode, 0) / player_mode_counts[name].get(mode, 0)
+                if player_mode_counts[name].get(mode, 0) > 0 else 0.0
+            )
+            for mode in player_mode_counts[name]
+        }
+
+        player_mode_avg_guess_values[name] = {
+            mode: (
+                player_mode_guess_value_sums[name].get(mode, 0) / player_mode_guess_counts[name].get(mode, 0)
+                if player_mode_guess_counts[name].get(mode, 0) > 0 else 0.0
+            )
+            for mode in player_mode_counts[name]
+        }
+
+    early_guess_rates = {}
+
+    for name, counts in early_guess_counts.items():
+        total = counts.get("total", 0)
+
+        early_guess_rates[name] = {
+            "top_15_rate": counts.get("top_15", 0) / total if total > 0 else 0.0,
+            "mid_16_69_rate": counts.get("mid_16_69", 0) / total if total > 0 else 0.0,
+            "high_70_89_rate": counts.get("high_70_89", 0) / total if total > 0 else 0.0,
+            "deep_90_100_rate": counts.get("deep_90_100", 0) / total if total > 0 else 0.0,
+            "early_strike_rate": counts.get("strikes", 0) / total if total > 0 else 0.0,
+        }
+
     # Build the final summary object
     summary = {
         "win_rate": {name: win_counts[name] / n_sims for name in win_counts},
@@ -1624,6 +2021,13 @@ def simulate_many(
         "context_counts": context_counts,
         "context_action_counts": context_action_counts,
         "context_rates": context_rates,
+        "answer_state_summary": answer_state_summary,
+        "player_mode_counts": player_mode_counts,
+        "player_mode_rates": player_mode_rates,
+        "player_mode_hit_rates": player_mode_hit_rates,
+        "player_mode_avg_guess_values": player_mode_avg_guess_values,
+        "early_guess_counts": early_guess_counts,
+        "early_guess_rates": early_guess_rates,
     }
 
     return summary
@@ -1652,6 +2056,21 @@ def main() -> None:
         content_bias=0.20,
         pressure_sensitivity=0.20,
         alternate_safe_risky_on_double=True,
+        category_confidence={
+            "all_time": 1.02,
+            "war": 1.02,
+            "awards": 1.01,
+        },
+        familiarity_bias={
+            "all_time": 1.02,
+            "war": 1.01,
+        },
+        archetype_bias={
+            "safe": 1.02,
+            "regular": 1.02,
+            "star": 1.01,
+            "deep_cut": 1.00,
+        },
     )
 
     contestant_2 = PlayerProfile(
@@ -1664,12 +2083,36 @@ def main() -> None:
         },
         style="volatile",
         category_modifiers={
-            "war": 0.78,   # worse on WAR-type categories
+            "war": 0.98,
+            "hitter_war": 1.02,
+            "pitcher_war": 0.90,
+            "career_war": 0.97,
         },
         blind_risk_base=0.05,
         content_bias=0.30,
         pressure_sensitivity=0.35,
         alternate_safe_risky_on_double=False,
+        category_confidence={
+            "modern": 1.05,
+            "recent": 1.04,
+            "counting_stat": 1.04,
+            "awards": 1.03,
+            "hitter_war": 1.03,
+            "pitcher_war": 0.96,
+            "closed_calibration": 0.96,
+        },
+        familiarity_bias={
+            "modern": 1.04,
+            "recent": 1.04,
+            "counting_stat": 1.04,
+            "hitter_war": 1.02,
+        },
+        archetype_bias={
+            "safe": 1.01,
+            "regular": 1.03,
+            "star": 1.04,
+            "deep_cut": 0.99,
+        },
     )
 
     contestant_3 = PlayerProfile(
@@ -1686,6 +2129,26 @@ def main() -> None:
         content_bias=0.45,
         pressure_sensitivity=0.25,
         alternate_safe_risky_on_double=True,
+        category_confidence={
+            "modern": 1.05,
+            "recent": 1.04,
+            "counting_stat": 1.03,
+            "hitter_war": 0.98,
+            "awards": 0.95,
+            "pitcher_war": 0.94,
+            "closed_calibration": 0.92,
+        },
+        familiarity_bias={
+            "modern": 1.05,
+            "recent": 1.04,
+            "counting_stat": 1.03,
+        },
+        archetype_bias={
+            "safe": 1.01,
+            "regular": 0.99,
+            "star": 1.04,
+            "deep_cut": 0.96,
+        }
     )
 
     profiles = [contestant_1, contestant_2, contestant_3]
@@ -1695,11 +2158,50 @@ def main() -> None:
         comment here later
         """
         categories = [
-            Category(name="All-Time OPS+", difficulty=3.5, tags=set()),
-            Category(name="All-Time bWAR", difficulty=4.2, tags={"war"}),
-            Category(name="Home Runs since 2000", difficulty=2.5, tags={"modern"}),
-            Category(name="Hits since 1900", difficulty=3.0, tags={"all_time"}),
-            Category(name="Every MVP Winner", difficulty=5.0, tags={"awards"}),
+            Category(
+                name="All-Time OPS+", 
+                difficulty=3.5, 
+                tags={"all_time", "rate_stat", "hitter", "advanced_stat", "career_rate", "stat_value_calibration"}),
+            Category(
+                name="All-Time bWAR", 
+                difficulty=4.2, 
+                tags={"all_time", "war", "advanced_stat", "career_war", "war_calibration"}),
+            Category(
+                name="Hitter bWAR since 2000",
+                difficulty=3.7,
+                tags={"modern", "war", "hitter_war", "advanced_stat", "career_war", "war_calibration"}),
+            Category(
+                name="Pitcher bWAR since 2000",
+                difficulty=4.4,
+                tags={"modern", "war", "pitcher_war", "advanced_stat", "career_war", "war_calibration", "pitcher_calibration"}),
+            Category(
+                name="All-Time ERA+",
+                difficulty=4.8,
+                tags={"all_time", "rate_stat", "pitcher", "advanced_stat", "career_rate", "closed_calibration", "pitcher_calibration"}),
+            Category(
+                name="Pitcher Strikeouts since 2010",
+                difficulty=2.4,
+                tags={"modern", "recent", "counting_stat", "pitcher", "strikeouts", "open"}),
+            Category(
+                name="Home Runs since 2020",
+                difficulty=2.2,
+                tags={"modern", "recent", "counting_stat", "power", "open"}),
+            Category(
+                name="Stolen Bases since 2000",
+                difficulty=3.0,
+                tags={"modern", "counting_stat", "speed", "archetype_heavy", "open"}),
+            Category(
+                name="Home Runs since 2000", 
+                difficulty=2.5, 
+                tags={"modern", "counting_stat", "power", "open"}),
+            Category(
+                name="Hits since 1900", 
+                difficulty=3.0, 
+                tags={"all_time", "counting_stat", "compiler", "career"}),
+            Category(
+                name="Every MVP Winner", 
+                difficulty=5.0, 
+                tags={"awards", "all_time", "star", "historical", "closed_calibration", "stress_test"}),
         ]
 
         all_summaries = []
@@ -1807,6 +2309,62 @@ def main() -> None:
                 f"risky_on_double_window={context_rates.get('risky_on_double_window_rate', 0.0):.3f}, "
                 f"safe_on_double_window={context_rates.get('safe_on_double_window_rate', 0.0):.3f}"
             )
+            print("Answer-state summary:")
+            for name in [p.name for p in profiles]:
+                m = summary["answer_state_summary"][name]
+                print(
+                    f"  {name}: "
+                    f"knowledge={m['avg_knowledge']:.3f}, "
+                    f"recall={m['avg_recall']:.3f}, "
+                    f"confidence={m['avg_confidence']:.3f}, "
+                    f"safe_candidates={m['safe_candidates']:.1f}, "
+                    f"risky_candidates={m['risky_candidates']:.1f}, "
+                    f"blind_candidates={m['blind_candidates']:.1f}"
+                )
+
+            print("Player mode rates:")
+            for name in [p.name for p in profiles]:
+                r = summary["player_mode_rates"][name]
+                print(
+                    f"  {name}: "
+                    f"safe={r.get('safe', 0.0):.3f}, "
+                    f"risky={r.get('risky', 0.0):.3f}, "
+                    f"blind={r.get('blind_risk', 0.0):.3f}, "
+                    f"victory_lap={r.get('victory_lap', 0.0):.3f}"
+                )
+
+            print("Player mode hit rates:")
+            for name in [p.name for p in profiles]:
+                r = summary["player_mode_hit_rates"][name]
+                print(
+                    f"  {name}: "
+                    f"safe={r.get('safe', 0.0):.3f}, "
+                    f"risky={r.get('risky', 0.0):.3f}, "
+                    f"blind={r.get('blind_risk', 0.0):.3f}, "
+                    f"desperation={r.get('desperation', 0.0):.3f}"
+                )
+
+            print("Player avg guess values:")
+            for name in [p.name for p in profiles]:
+                r = summary["player_mode_avg_guess_values"][name]
+                print(
+                    f"  {name}: "
+                    f"safe={r.get('safe', 0.0):.1f}, "
+                    f"risky={r.get('risky', 0.0):.1f}, "
+                    f"blind={r.get('blind_risk', 0.0):.1f}"
+                )
+
+            print("Early guess profile:")
+            for name in [p.name for p in profiles]:
+                r = summary["early_guess_rates"][name]
+                print(
+                    f"  {name}: "
+                    f"top_15={r.get('top_15_rate', 0.0):.3f}, "
+                    f"mid_16_69={r.get('mid_16_69_rate', 0.0):.3f}, "
+                    f"high_70_89={r.get('high_70_89_rate', 0.0):.3f}, "
+                    f"deep_90_100={r.get('deep_90_100_rate', 0.0):.3f}, "
+                    f"early_strike={r.get('early_strike_rate', 0.0):.3f}"
+                )
 
         
         # aggregate summary across categories
@@ -2003,6 +2561,30 @@ def main() -> None:
             f"risky_on_double_window={aggregate_context_rates.get('risky_on_double_window_rate', 0.0):.3f}, "
             f"safe_on_double_window={aggregate_context_rates.get('safe_on_double_window_rate', 0.0):.3f}"
         )
+
+        print("Aggregate answer-state summary:")
+        for name in [p.name for p in profiles]:
+            values_by_key = {
+                "avg_knowledge": [],
+                "avg_recall": [],
+                "avg_confidence": [],
+                "safe_candidates": [],
+                "risky_candidates": [],
+                "blind_candidates": [],
+            }
+
+            for _, summary in all_summaries:
+                for key in values_by_key:
+                    values_by_key[key].append(summary["answer_state_summary"][name][key])
+
+            print(
+                f"{name}: "
+                f"knowledge={statistics.mean(values_by_key['avg_knowledge']):.3f}, "
+                f"recall={statistics.mean(values_by_key['avg_recall']):.3f}, "
+                f"confidence={statistics.mean(values_by_key['avg_confidence']):.3f}, "
+                f"safe_candidates={statistics.mean(values_by_key['safe_candidates']):.1f}, "
+                f"risky_candidates={statistics.mean(values_by_key['risky_candidates']):.1f} "
+            )
 
     run_validation_suite(profiles)
 
