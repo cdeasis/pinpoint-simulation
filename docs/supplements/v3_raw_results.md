@@ -4977,7 +4977,7 @@ No new behavior was altered, however new metrics do provide much better visibili
 
 Aggregate gameplay numbers match Run 2.2, Run 2.3 is thus a clearn run for the Run 2 phase
 
-2. **Answer-state metrics explain C1's dominance****
+2. **Answer-state metrics explain C1's dominance**
 
 | Contestant | knowledge | recall | confidence | safe_candidates | risky_candidates
 | - | - | - | - | - | -
@@ -5880,6 +5880,3671 @@ Run 3 expanded the validation suite and replaced C2's broad WAR penalty with sub
 The new open modern categories also behaved well. Pitcher Strikeouts since 2010, Home Runs since 2020, and Stolen Bases since 2000 produced much more balanced win distributions and high dense/open context rates. ERA+ behaved as a closed calibration stress test, with high uncertainty and strong C1 advantage.
 
 Overall, Run 3 suggests that the M5 identity system benefits significantly from a more specific category suite. The next step is not more category tuning, but measuring player behavior by strike state before adding two-strike identity logic.
+
+### Run 4
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.655, avg_score=1811.8, median_score=1748.0, stdev=301.1, avg_strikes=2.97, first_out_rate=0.086
+Contestant 2: win_rate=0.166, avg_score=1595.9, median_score=1595.0, stdev=195.7, avg_strikes=2.98, first_out_rate=0.473
+Contestant 3: win_rate=0.179, avg_score=1308.0, median_score=1254.0, stdev=275.3, avg_strikes=2.97, first_out_rate=0.431
+Last survivor but lost rate: 0.245
+Solo started behind rate: 0.391
+Solo started behind and lost rate: 0.627
+Avg solo start deficit: 242.0
+Avg solo turns taken: 2.38
+Solo had winning answer rate: 0.118
+Solo had winning answer given started behind rate: 0.301
+Solo start deficit buckets: 1-75: 0.345, 76-150: 0.203, 151-250: 0.127, 251+: 0.324
+Avg final board read: 0.030
+Avg absolute final board read: 0.092
+Strong harsh board rate: 0.063
+Strong generous board rate: 0.125
+Avg final cutoff estimate: 66.20
+Avg final cutoff uncertainty: 0.343
+Low uncertainty rate: 0.054
+High cutoff rate: 0.402
+Avg final safe floor: 54.14
+Avg final local density read: 0.053
+Avg final surprise read: 0.177
+Avg final near-cutoff hits: 2.66
+Avg final near-cutoff misses: 0.04
+Mode rates: safe=0.740, risky=0.217, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.027
+Double window mode rates: safe=0.755, risky=0.245, blind_risk=0.000
+Context rates: open=0.707, dense=0.420, generous=0.338, dense_and_generous=0.051, tight=0.093, uncertain=0.352, 
+Context-action rates: risky_on_open=0.191, risky_on_dense=0.285, risky_on_generous=0.057, risky_on_dense_and_generous=0.074, safe_on_tight=0.942, risky_on_uncertain=0.367, safe_on_uncertain=0.620, risky_on_double_window=0.245, safe_on_double_window=0.755
+Answer-state summary:
+  Contestant 1: knowledge=0.217, recall=0.199, confidence=0.219, safe_candidates=83.4, risky_candidates=98.5, blind_candidates=1.2
+  Contestant 2: knowledge=0.215, recall=0.193, confidence=0.206, safe_candidates=81.6, risky_candidates=97.2, blind_candidates=2.4
+  Contestant 3: knowledge=0.174, recall=0.156, confidence=0.167, safe_candidates=56.4, risky_candidates=90.7, blind_candidates=7.8
+Player mode rates:
+  Contestant 1: safe=0.736, risky=0.200, blind=0.001, victory_lap=0.059
+  Contestant 2: safe=0.768, risky=0.192, blind=0.027, victory_lap=0.010
+  Contestant 3: safe=0.717, risky=0.261, blind=0.001, victory_lap=0.010
+Player mode hit rates:
+  Contestant 1: safe=0.939, risky=0.939, blind=0.038, desperation=0.193
+  Contestant 2: safe=0.953, risky=0.890, blind=0.052, desperation=0.129
+  Contestant 3: safe=0.934, risky=0.920, blind=0.051, desperation=0.130
+Player avg guess values:
+  Contestant 1: safe=45.0, risky=78.0, blind=95.6
+  Contestant 2: safe=43.7, risky=81.5, blind=95.6
+  Contestant 3: safe=33.8, risky=65.0, blind=96.1
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.606, high_70_89=0.029, deep_90_100=0.365, early_strike=0.051
+  Contestant 2: top_15=0.000, mid_16_69=0.061, high_70_89=0.099, deep_90_100=0.837, early_strike=0.207
+  Contestant 3: top_15=0.000, mid_16_69=0.603, high_70_89=0.293, deep_90_100=0.104, early_strike=0.064
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.666, risky=0.322, blind=0.000, victory_lap=0.011
+  Contestant 1 at 1 strikes: safe=0.923, risky=0.003, blind=0.001, victory_lap=0.070
+  Contestant 1 at 2 strikes: safe=0.296, risky=0.000, blind=0.000, victory_lap=0.645
+  Contestant 2 at 0 strikes: safe=0.506, risky=0.443, blind=0.050, victory_lap=0.001
+  Contestant 2 at 1 strikes: safe=0.689, risky=0.250, blind=0.050, victory_lap=0.010
+  Contestant 2 at 2 strikes: safe=0.980, risky=0.000, blind=0.000, victory_lap=0.016
+  Contestant 3 at 0 strikes: safe=0.473, risky=0.522, blind=0.001, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.979, risky=0.005, blind=0.002, victory_lap=0.007
+  Contestant 3 at 2 strikes: safe=0.596, risky=0.000, blind=0.000, victory_lap=0.166
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.968, risky=0.940, blind=0.027, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.939, risky=0.705, blind=0.045, desperation=0.153
+  Contestant 1 at 2 strikes: safe=0.006, risky=0.000, blind=0.000, desperation=0.202
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.900, blind=0.050, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.957, risky=0.872, blind=0.054, desperation=0.067
+  Contestant 2 at 2 strikes: safe=0.942, risky=0.000, blind=0.000, desperation=0.133
+  Contestant 3 at 0 strikes: safe=0.971, risky=0.922, blind=0.052, desperation=0.055
+  Contestant 3 at 1 strikes: safe=0.953, risky=0.695, blind=0.051, desperation=0.124
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.135
+Two-strike summary:
+  Contestant 1: entries=9900, survival_rate=0.189, strikeout_next_turn=0.810, avg_survival_turns=0.63, median_survival_turns=0.0
+  Contestant 2: entries=9949, survival_rate=0.749, strikeout_next_turn=0.249, avg_survival_turns=14.58, median_survival_turns=16.0
+  Contestant 3: entries=9899, survival_rate=0.055, strikeout_next_turn=0.945, avg_survival_turns=0.06, median_survival_turns=0.0
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.843, avg_score=2166.8, median_score=2295.0, stdev=486.0, avg_strikes=3.00, first_out_rate=0.018
+Contestant 2: win_rate=0.110, avg_score=1387.9, median_score=1363.0, stdev=265.3, avg_strikes=3.00, first_out_rate=0.150
+Contestant 3: win_rate=0.047, avg_score=925.9, median_score=847.0, stdev=282.0, avg_strikes=3.00, first_out_rate=0.832
+Last survivor but lost rate: 0.084
+Solo started behind rate: 0.228
+Solo started behind and lost rate: 0.367
+Avg solo start deficit: 128.3
+Avg solo turns taken: 6.73
+Solo had winning answer rate: 0.113
+Solo had winning answer given started behind rate: 0.495
+Solo start deficit buckets: 1-75: 0.441, 76-150: 0.278, 151-250: 0.162, 251+: 0.120
+Avg final board read: 0.040
+Avg absolute final board read: 0.075
+Strong harsh board rate: 0.014
+Strong generous board rate: 0.133
+Avg final cutoff estimate: 70.44
+Avg final cutoff uncertainty: 0.420
+Low uncertainty rate: 0.006
+High cutoff rate: 0.585
+Avg final safe floor: 57.92
+Avg final local density read: 0.054
+Avg final surprise read: 0.183
+Avg final near-cutoff hits: 2.67
+Avg final near-cutoff misses: 0.04
+Mode rates: safe=0.733, risky=0.150, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.104
+Double window mode rates: safe=0.822, risky=0.178, blind_risk=0.000
+Context rates: open=0.648, dense=0.314, generous=0.381, dense_and_generous=0.048, tight=0.118, uncertain=0.597, 
+Context-action rates: risky_on_open=0.109, risky_on_dense=0.192, risky_on_generous=0.034, risky_on_dense_and_generous=0.052, safe_on_tight=0.982, risky_on_uncertain=0.202, safe_on_uncertain=0.782, risky_on_double_window=0.178, safe_on_double_window=0.822
+Answer-state summary:
+  Contestant 1: knowledge=0.181, recall=0.168, confidence=0.188, safe_candidates=69.7, risky_candidates=96.1, blind_candidates=2.9
+  Contestant 2: knowledge=0.170, recall=0.153, confidence=0.163, safe_candidates=56.3, risky_candidates=93.5, blind_candidates=5.3
+  Contestant 3: knowledge=0.145, recall=0.130, confidence=0.139, safe_candidates=36.0, risky_candidates=84.1, blind_candidates=13.5
+Player mode rates:
+  Contestant 1: safe=0.645, risky=0.111, blind=0.002, victory_lap=0.238
+  Contestant 2: safe=0.784, risky=0.164, blind=0.029, victory_lap=0.021
+  Contestant 3: safe=0.804, risky=0.190, blind=0.000, victory_lap=0.003
+Player mode hit rates:
+  Contestant 1: safe=0.975, risky=0.892, blind=0.053, desperation=0.226
+  Contestant 2: safe=0.948, risky=0.875, blind=0.054, desperation=0.195
+  Contestant 3: safe=0.915, risky=0.837, blind=0.064, desperation=0.141
+Player avg guess values:
+  Contestant 1: safe=44.5, risky=84.8, blind=95.3
+  Contestant 2: safe=40.1, risky=83.1, blind=94.5
+  Contestant 3: safe=28.7, risky=70.6, blind=92.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.591, high_70_89=0.101, deep_90_100=0.308, early_strike=0.066
+  Contestant 2: top_15=0.000, mid_16_69=0.084, high_70_89=0.471, deep_90_100=0.445, early_strike=0.181
+  Contestant 3: top_15=0.000, mid_16_69=0.585, high_70_89=0.368, deep_90_100=0.047, early_strike=0.089
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.649, risky=0.202, blind=0.002, victory_lap=0.147
+  Contestant 1 at 1 strikes: safe=0.723, risky=0.003, blind=0.002, victory_lap=0.267
+  Contestant 1 at 2 strikes: safe=0.105, risky=0.000, blind=0.000, victory_lap=0.868
+  Contestant 2 at 0 strikes: safe=0.582, risky=0.365, blind=0.049, victory_lap=0.004
+  Contestant 2 at 1 strikes: safe=0.756, risky=0.171, blind=0.049, victory_lap=0.022
+  Contestant 2 at 2 strikes: safe=0.964, risky=0.000, blind=0.000, victory_lap=0.032
+  Contestant 3 at 0 strikes: safe=0.467, risky=0.531, blind=0.000, victory_lap=0.001
+  Contestant 3 at 1 strikes: safe=0.994, risky=0.002, blind=0.001, victory_lap=0.002
+  Contestant 3 at 2 strikes: safe=0.906, risky=0.000, blind=0.000, victory_lap=0.047
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.987, risky=0.893, blind=0.050, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.974, risky=0.789, blind=0.055, desperation=0.273
+  Contestant 1 at 2 strikes: safe=0.318, risky=0.000, blind=0.000, desperation=0.213
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.889, blind=0.053, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.956, risky=0.840, blind=0.054, desperation=0.133
+  Contestant 2 at 2 strikes: safe=0.928, risky=0.000, blind=0.000, desperation=0.199
+  Contestant 3 at 0 strikes: safe=0.978, risky=0.838, blind=0.000, desperation=0.037
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.744, blind=0.093, desperation=0.146
+  Contestant 3 at 2 strikes: safe=0.001, risky=0.000, blind=0.000, desperation=0.146
+Two-strike summary:
+  Contestant 1: entries=9999, survival_rate=0.169, strikeout_next_turn=0.831, avg_survival_turns=1.52, median_survival_turns=0.0
+  Contestant 2: entries=9999, survival_rate=0.680, strikeout_next_turn=0.320, avg_survival_turns=11.92, median_survival_turns=11.0
+  Contestant 3: entries=9999, survival_rate=0.018, strikeout_next_turn=0.982, avg_survival_turns=0.02, median_survival_turns=0.0
+
+=== Category: Hitter bWAR since 2000 ===
+Contestant 1: win_rate=0.543, avg_score=1708.1, median_score=1672.0, stdev=290.7, avg_strikes=2.98, first_out_rate=0.106
+Contestant 2: win_rate=0.237, avg_score=1614.1, median_score=1594.0, stdev=218.5, avg_strikes=2.99, first_out_rate=0.473
+Contestant 3: win_rate=0.220, avg_score=1325.9, median_score=1287.0, stdev=268.0, avg_strikes=2.98, first_out_rate=0.413
+Last survivor but lost rate: 0.259
+Solo started behind rate: 0.417
+Solo started behind and lost rate: 0.621
+Avg solo start deficit: 236.5
+Avg solo turns taken: 2.39
+Solo had winning answer rate: 0.120
+Solo had winning answer given started behind rate: 0.289
+Solo start deficit buckets: 1-75: 0.314, 76-150: 0.198, 151-250: 0.137, 251+: 0.350
+Avg final board read: 0.025
+Avg absolute final board read: 0.087
+Strong harsh board rate: 0.061
+Strong generous board rate: 0.089
+Avg final cutoff estimate: 65.30
+Avg final cutoff uncertainty: 0.347
+Low uncertainty rate: 0.053
+High cutoff rate: 0.367
+Avg final safe floor: 53.22
+Avg final local density read: 0.055
+Avg final surprise read: 0.171
+Avg final near-cutoff hits: 2.74
+Avg final near-cutoff misses: 0.04
+Mode rates: safe=0.736, risky=0.223, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.026
+Double window mode rates: safe=0.747, risky=0.253, blind_risk=0.000
+Context rates: open=0.706, dense=0.419, generous=0.338, dense_and_generous=0.051, tight=0.099, uncertain=0.357, 
+Context-action rates: risky_on_open=0.197, risky_on_dense=0.295, risky_on_generous=0.060, risky_on_dense_and_generous=0.091, safe_on_tight=0.942, risky_on_uncertain=0.369, safe_on_uncertain=0.617, risky_on_double_window=0.253, safe_on_double_window=0.747
+Answer-state summary:
+  Contestant 1: knowledge=0.205, recall=0.187, confidence=0.204, safe_candidates=78.8, risky_candidates=97.6, blind_candidates=1.9
+  Contestant 2: knowledge=0.197, recall=0.188, confidence=0.222, safe_candidates=81.5, risky_candidates=97.4, blind_candidates=1.6
+  Contestant 3: knowledge=0.164, recall=0.155, confidence=0.174, safe_candidates=57.6, risky_candidates=91.1, blind_candidates=6.9
+Player mode rates:
+  Contestant 1: safe=0.729, risky=0.219, blind=0.001, victory_lap=0.047
+  Contestant 2: safe=0.763, risky=0.191, blind=0.029, victory_lap=0.016
+  Contestant 3: safe=0.716, risky=0.259, blind=0.001, victory_lap=0.012
+Player mode hit rates:
+  Contestant 1: safe=0.936, risky=0.937, blind=0.041, desperation=0.193
+  Contestant 2: safe=0.953, risky=0.900, blind=0.046, desperation=0.136
+  Contestant 3: safe=0.935, risky=0.922, blind=0.054, desperation=0.151
+Player avg guess values:
+  Contestant 1: safe=42.8, risky=75.6, blind=95.7
+  Contestant 2: safe=43.8, risky=82.8, blind=95.5
+  Contestant 3: safe=34.3, risky=65.8, blind=95.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.597, high_70_89=0.065, deep_90_100=0.338, early_strike=0.058
+  Contestant 2: top_15=0.000, mid_16_69=0.062, high_70_89=0.087, deep_90_100=0.842, early_strike=0.185
+  Contestant 3: top_15=0.000, mid_16_69=0.593, high_70_89=0.289, deep_90_100=0.117, early_strike=0.066
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.627, risky=0.363, blind=0.000, victory_lap=0.009
+  Contestant 1 at 1 strikes: safe=0.938, risky=0.005, blind=0.001, victory_lap=0.051
+  Contestant 1 at 2 strikes: safe=0.354, risky=0.000, blind=0.000, victory_lap=0.558
+  Contestant 2 at 0 strikes: safe=0.522, risky=0.425, blind=0.051, victory_lap=0.001
+  Contestant 2 at 1 strikes: safe=0.702, risky=0.231, blind=0.050, victory_lap=0.016
+  Contestant 2 at 2 strikes: safe=0.970, risky=0.000, blind=0.000, victory_lap=0.026
+  Contestant 3 at 0 strikes: safe=0.485, risky=0.509, blind=0.001, victory_lap=0.004
+  Contestant 3 at 1 strikes: safe=0.977, risky=0.005, blind=0.002, victory_lap=0.009
+  Contestant 3 at 2 strikes: safe=0.569, risky=0.000, blind=0.000, victory_lap=0.202
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.966, risky=0.939, blind=0.065, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.942, risky=0.719, blind=0.022, desperation=0.192
+  Contestant 1 at 2 strikes: safe=0.006, risky=0.000, blind=0.000, desperation=0.193
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.911, blind=0.047, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.958, risky=0.876, blind=0.046, desperation=0.111
+  Contestant 2 at 2 strikes: safe=0.940, risky=0.000, blind=0.000, desperation=0.138
+  Contestant 3 at 0 strikes: safe=0.970, risky=0.924, blind=0.034, desperation=0.020
+  Contestant 3 at 1 strikes: safe=0.953, risky=0.681, blind=0.065, desperation=0.152
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.154
+Two-strike summary:
+  Contestant 1: entries=9928, survival_rate=0.153, strikeout_next_turn=0.846, avg_survival_turns=0.48, median_survival_turns=0.0
+  Contestant 2: entries=9957, survival_rate=0.739, strikeout_next_turn=0.260, avg_survival_turns=13.79, median_survival_turns=14.0
+  Contestant 3: entries=9929, survival_rate=0.063, strikeout_next_turn=0.936, avg_survival_turns=0.08, median_survival_turns=0.0
+
+=== Category: Pitcher bWAR since 2000 ===
+Contestant 1: win_rate=0.872, avg_score=2237.7, median_score=2375.5, stdev=532.0, avg_strikes=3.00, first_out_rate=0.009
+Contestant 2: win_rate=0.068, avg_score=1171.7, median_score=1146.0, stdev=264.5, avg_strikes=3.00, first_out_rate=0.390
+Contestant 3: win_rate=0.060, avg_score=923.0, median_score=856.0, stdev=280.2, avg_strikes=3.00, first_out_rate=0.601
+Last survivor but lost rate: 0.077
+Solo started behind rate: 0.226
+Solo started behind and lost rate: 0.341
+Avg solo start deficit: 136.0
+Avg solo turns taken: 9.86
+Solo had winning answer rate: 0.114
+Solo had winning answer given started behind rate: 0.504
+Solo start deficit buckets: 1-75: 0.434, 76-150: 0.260, 151-250: 0.152, 251+: 0.154
+Avg final board read: 0.013
+Avg absolute final board read: 0.066
+Strong harsh board rate: 0.011
+Strong generous board rate: 0.072
+Avg final cutoff estimate: 69.85
+Avg final cutoff uncertainty: 0.449
+Low uncertainty rate: 0.003
+High cutoff rate: 0.546
+Avg final safe floor: 57.16
+Avg final local density read: 0.053
+Avg final surprise read: 0.181
+Avg final near-cutoff hits: 2.41
+Avg final near-cutoff misses: 0.07
+Mode rates: safe=0.691, risky=0.147, blind_risk=0.009, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.150
+Double window mode rates: safe=0.825, risky=0.175, blind_risk=0.000
+Context rates: open=0.620, dense=0.273, generous=0.382, dense_and_generous=0.035, tight=0.170, uncertain=0.692, 
+Context-action rates: risky_on_open=0.107, risky_on_dense=0.195, risky_on_generous=0.043, risky_on_dense_and_generous=0.083, safe_on_tight=0.982, risky_on_uncertain=0.179, safe_on_uncertain=0.790, risky_on_double_window=0.175, safe_on_double_window=0.825
+Answer-state summary:
+  Contestant 1: knowledge=0.173, recall=0.157, confidence=0.172, safe_candidates=60.8, risky_candidates=94.7, blind_candidates=4.2
+  Contestant 2: knowledge=0.146, recall=0.137, confidence=0.149, safe_candidates=39.9, risky_candidates=91.1, blind_candidates=7.2
+  Contestant 3: knowledge=0.138, recall=0.131, confidence=0.140, safe_candidates=36.7, risky_candidates=84.3, blind_candidates=13.2
+Player mode rates:
+  Contestant 1: safe=0.566, risky=0.098, blind=0.001, victory_lap=0.330
+  Contestant 2: safe=0.776, risky=0.180, blind=0.027, victory_lap=0.016
+  Contestant 3: safe=0.798, risky=0.190, blind=0.003, victory_lap=0.006
+Player mode hit rates:
+  Contestant 1: safe=0.980, risky=0.879, blind=0.063, desperation=0.222
+  Contestant 2: safe=0.940, risky=0.836, blind=0.062, desperation=0.192
+  Contestant 3: safe=0.916, risky=0.829, blind=0.040, desperation=0.178
+Player avg guess values:
+  Contestant 1: safe=41.8, risky=83.9, blind=94.5
+  Contestant 2: safe=37.1, risky=82.7, blind=92.7
+  Contestant 3: safe=29.4, risky=72.3, blind=91.4
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.598, high_70_89=0.158, deep_90_100=0.244, early_strike=0.065
+  Contestant 2: top_15=0.000, mid_16_69=0.084, high_70_89=0.605, deep_90_100=0.311, early_strike=0.202
+  Contestant 3: top_15=0.000, mid_16_69=0.595, high_70_89=0.355, deep_90_100=0.050, early_strike=0.089
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.581, risky=0.179, blind=0.001, victory_lap=0.240
+  Contestant 1 at 1 strikes: safe=0.610, risky=0.004, blind=0.002, victory_lap=0.378
+  Contestant 1 at 2 strikes: safe=0.082, risky=0.000, blind=0.000, victory_lap=0.891
+  Contestant 2 at 0 strikes: safe=0.525, risky=0.423, blind=0.049, victory_lap=0.003
+  Contestant 2 at 1 strikes: safe=0.718, risky=0.216, blind=0.050, victory_lap=0.016
+  Contestant 2 at 2 strikes: safe=0.974, risky=0.000, blind=0.000, victory_lap=0.024
+  Contestant 3 at 0 strikes: safe=0.516, risky=0.479, blind=0.002, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.979, risky=0.013, blind=0.003, victory_lap=0.003
+  Contestant 3 at 2 strikes: safe=0.868, risky=0.000, blind=0.000, victory_lap=0.079
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.991, risky=0.881, blind=0.063, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.979, risky=0.771, blind=0.063, desperation=0.226
+  Contestant 1 at 2 strikes: safe=0.276, risky=0.000, blind=0.000, desperation=0.220
+  Contestant 2 at 0 strikes: safe=0.977, risky=0.856, blind=0.058, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.948, risky=0.795, blind=0.067, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.924, risky=0.000, blind=0.000, desperation=0.200
+  Contestant 3 at 0 strikes: safe=0.980, risky=0.832, blind=0.048, desperation=0.111
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.753, blind=0.037, desperation=0.161
+  Contestant 3 at 2 strikes: safe=0.051, risky=0.000, blind=0.000, desperation=0.186
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.117, strikeout_next_turn=0.883, avg_survival_turns=1.37, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.699, strikeout_next_turn=0.301, avg_survival_turns=11.85, median_survival_turns=14.0
+  Contestant 3: entries=10000, survival_rate=0.058, strikeout_next_turn=0.942, avg_survival_turns=0.11, median_survival_turns=0.0
+
+=== Category: All-Time ERA+ ===
+Contestant 1: win_rate=0.806, avg_score=2266.0, median_score=2492.0, stdev=666.7, avg_strikes=3.00, first_out_rate=0.002
+Contestant 2: win_rate=0.189, avg_score=1270.4, median_score=1141.5, stdev=466.8, avg_strikes=3.00, first_out_rate=0.022
+Contestant 3: win_rate=0.005, avg_score=594.4, median_score=543.0, stdev=231.3, avg_strikes=3.00, first_out_rate=0.977
+Last survivor but lost rate: 0.084
+Solo started behind rate: 0.300
+Solo started behind and lost rate: 0.280
+Avg solo start deficit: 109.6
+Avg solo turns taken: 16.63
+Solo had winning answer rate: 0.164
+Solo had winning answer given started behind rate: 0.547
+Solo start deficit buckets: 1-75: 0.444, 76-150: 0.293, 151-250: 0.176, 251+: 0.087
+Avg final board read: -0.042
+Avg absolute final board read: 0.081
+Strong harsh board rate: 0.090
+Strong generous board rate: 0.014
+Avg final cutoff estimate: 71.84
+Avg final cutoff uncertainty: 0.499
+Low uncertainty rate: 0.000
+High cutoff rate: 0.646
+Avg final safe floor: 58.85
+Avg final local density read: 0.062
+Avg final surprise read: 0.208
+Avg final near-cutoff hits: 1.79
+Avg final near-cutoff misses: 0.08
+Mode rates: safe=0.656, risky=0.119, blind_risk=0.011, chip_away=0.000, exact_win=0.002, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.211
+Double window mode rates: safe=0.810, risky=0.190, blind_risk=0.000
+Context rates: open=0.610, dense=0.264, generous=0.379, dense_and_generous=0.033, tight=0.195, uncertain=0.764, 
+Context-action rates: risky_on_open=0.074, risky_on_dense=0.139, risky_on_generous=0.029, risky_on_dense_and_generous=0.070, safe_on_tight=0.974, risky_on_uncertain=0.148, safe_on_uncertain=0.789, risky_on_double_window=0.190, safe_on_double_window=0.810
+Answer-state summary:
+  Contestant 1: knowledge=0.158, recall=0.145, confidence=0.159, safe_candidates=49.8, risky_candidates=92.9, blind_candidates=5.6
+  Contestant 2: knowledge=0.156, recall=0.141, confidence=0.144, safe_candidates=39.6, risky_candidates=91.1, blind_candidates=8.0
+  Contestant 3: knowledge=0.127, recall=0.114, confidence=0.112, safe_candidates=16.8, risky_candidates=74.4, blind_candidates=24.1
+Player mode rates:
+  Contestant 1: safe=0.527, risky=0.075, blind=0.004, victory_lap=0.388
+  Contestant 2: safe=0.761, risky=0.131, blind=0.029, victory_lap=0.078
+  Contestant 3: safe=0.795, risky=0.203, blind=0.000, victory_lap=0.001
+Player mode hit rates:
+  Contestant 1: safe=0.981, risky=0.858, blind=0.049, desperation=0.182
+  Contestant 2: safe=0.945, risky=0.832, blind=0.052, desperation=0.159
+  Contestant 3: safe=0.873, risky=0.776, blind=0.111, desperation=0.162
+Player avg guess values:
+  Contestant 1: safe=38.5, risky=85.5, blind=93.3
+  Contestant 2: safe=37.8, risky=85.1, blind=92.1
+  Contestant 3: safe=26.0, risky=71.5, blind=91.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.588, high_70_89=0.213, deep_90_100=0.199, early_strike=0.070
+  Contestant 2: top_15=0.000, mid_16_69=0.123, high_70_89=0.587, deep_90_100=0.291, early_strike=0.191
+  Contestant 3: top_15=0.058, mid_16_69=0.554, high_70_89=0.371, deep_90_100=0.017, early_strike=0.104
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.563, risky=0.141, blind=0.003, victory_lap=0.292
+  Contestant 1 at 1 strikes: safe=0.553, risky=0.003, blind=0.005, victory_lap=0.429
+  Contestant 1 at 2 strikes: safe=0.153, risky=0.000, blind=0.000, victory_lap=0.816
+  Contestant 2 at 0 strikes: safe=0.617, risky=0.312, blind=0.050, victory_lap=0.021
+  Contestant 2 at 1 strikes: safe=0.764, risky=0.119, blind=0.046, victory_lap=0.070
+  Contestant 2 at 2 strikes: safe=0.868, risky=0.000, blind=0.000, victory_lap=0.128
+  Contestant 3 at 0 strikes: safe=0.443, risky=0.557, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=0.999, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 2 strikes: safe=0.989, risky=0.000, blind=0.000, victory_lap=0.007
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.992, risky=0.859, blind=0.046, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.979, risky=0.770, blind=0.053, desperation=0.201
+  Contestant 1 at 2 strikes: safe=0.739, risky=0.000, blind=0.000, desperation=0.177
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.852, blind=0.052, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.954, risky=0.775, blind=0.052, desperation=0.167
+  Contestant 2 at 2 strikes: safe=0.920, risky=0.000, blind=0.000, desperation=0.159
+  Contestant 3 at 0 strikes: safe=0.979, risky=0.776, blind=0.071, desperation=0.000
+  Contestant 3 at 1 strikes: safe=0.916, risky=0.900, blind=0.154, desperation=0.125
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.192
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.168, strikeout_next_turn=0.832, avg_survival_turns=2.76, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.655, strikeout_next_turn=0.344, avg_survival_turns=11.36, median_survival_turns=11.0
+  Contestant 3: entries=10000, survival_rate=0.002, strikeout_next_turn=0.998, avg_survival_turns=0.00, median_survival_turns=0.0
+
+=== Category: Pitcher Strikeouts since 2010 ===
+Contestant 1: win_rate=0.423, avg_score=1715.9, median_score=1706.0, stdev=81.8, avg_strikes=0.64, first_out_rate=0.000
+Contestant 2: win_rate=0.296, avg_score=1675.7, median_score=1683.0, stdev=90.2, avg_strikes=1.70, first_out_rate=0.148
+Contestant 3: win_rate=0.281, avg_score=1654.6, median_score=1678.0, stdev=105.3, avg_strikes=0.41, first_out_rate=0.015
+Last survivor but lost rate: 0.020
+Solo started behind rate: 0.047
+Solo started behind and lost rate: 0.424
+Avg solo start deficit: 93.8
+Avg solo turns taken: 3.00
+Solo had winning answer rate: 0.027
+Solo had winning answer given started behind rate: 0.576
+Solo start deficit buckets: 1-75: 0.586, 76-150: 0.222, 151-250: 0.099, 251+: 0.093
+Avg final board read: -0.096
+Avg absolute final board read: 0.105
+Strong harsh board rate: 0.260
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 50.96
+Avg final cutoff uncertainty: 0.281
+Low uncertainty rate: 0.295
+High cutoff rate: 0.124
+Avg final safe floor: 39.28
+Avg final local density read: 0.071
+Avg final surprise read: 0.184
+Avg final near-cutoff hits: 2.27
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.450, risky=0.534, blind_risk=0.013, chip_away=0.000, exact_win=0.000, comeback=0.000, high_upside=0.000, desperation=0.000, victory_lap=0.002
+Double window mode rates: safe=0.442, risky=0.558, blind_risk=0.000
+Context rates: open=0.748, dense=0.575, generous=0.189, dense_and_generous=0.016, tight=0.089, uncertain=0.323, 
+Context-action rates: risky_on_open=0.562, risky_on_dense=0.647, risky_on_generous=0.283, risky_on_dense_and_generous=0.328, safe_on_tight=0.823, risky_on_uncertain=0.620, safe_on_uncertain=0.364, risky_on_double_window=0.558, safe_on_double_window=0.442
+Answer-state summary:
+  Contestant 1: knowledge=0.317, recall=0.285, confidence=0.304, safe_candidates=95.3, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.313, recall=0.317, confidence=0.402, safe_candidates=97.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.254, recall=0.257, confidence=0.322, safe_candidates=89.6, risky_candidates=99.3, blind_candidates=0.1
+Player mode rates:
+  Contestant 1: safe=0.416, risky=0.584, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.467, risky=0.492, blind=0.040, victory_lap=0.001
+  Contestant 3: safe=0.467, risky=0.527, blind=0.000, victory_lap=0.004
+Player mode hit rates:
+  Contestant 1: safe=0.969, risky=0.990, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.983, risky=0.997, blind=0.000, desperation=0.000
+  Contestant 3: safe=0.997, risky=0.990, blind=0.000, desperation=0.040
+Player avg guess values:
+  Contestant 1: safe=39.8, risky=58.9, blind=0.0
+  Contestant 2: safe=35.8, risky=66.3, blind=0.0
+  Contestant 3: safe=41.5, risky=55.7, blind=98.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.526, high_70_89=0.000, deep_90_100=0.474, early_strike=0.000
+  Contestant 2: top_15=0.000, mid_16_69=0.034, high_70_89=0.000, deep_90_100=0.917, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.002, deep_90_100=0.473, early_strike=0.035
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.414, risky=0.586, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.995, risky=0.000, blind=0.005, victory_lap=0.000
+  Contestant 1 at 2 strikes: safe=0.993, risky=0.000, blind=0.000, victory_lap=0.007
+  Contestant 2 at 0 strikes: safe=0.256, risky=0.693, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.410, risky=0.538, blind=0.052, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.996, risky=0.000, blind=0.000, victory_lap=0.002
+  Contestant 3 at 0 strikes: safe=0.375, risky=0.622, blind=0.000, victory_lap=0.002
+  Contestant 3 at 1 strikes: safe=0.986, risky=0.002, blind=0.000, victory_lap=0.009
+  Contestant 3 at 2 strikes: safe=0.185, risky=0.000, blind=0.000, victory_lap=0.561
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.980, risky=0.990, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.995, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.991, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.980, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 3 at 0 strikes: safe=0.999, risky=0.990, blind=0.000, desperation=0.026
+  Contestant 3 at 1 strikes: safe=0.996, risky=0.824, blind=0.000, desperation=0.051
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.040
+Two-strike summary:
+  Contestant 1: entries=911, survival_rate=0.002, strikeout_next_turn=0.887, avg_survival_turns=0.00, median_survival_turns=0.0
+  Contestant 2: entries=5724, survival_rate=0.922, strikeout_next_turn=0.039, avg_survival_turns=12.99, median_survival_turns=13.0
+  Contestant 3: entries=815, survival_rate=0.026, strikeout_next_turn=0.969, avg_survival_turns=0.03, median_survival_turns=0.0
+
+=== Category: Home Runs since 2020 ===
+Contestant 1: win_rate=0.400, avg_score=1707.0, median_score=1701.0, stdev=75.3, avg_strikes=0.48, first_out_rate=0.000
+Contestant 2: win_rate=0.278, avg_score=1665.5, median_score=1675.0, stdev=88.1, avg_strikes=1.59, first_out_rate=0.067
+Contestant 3: win_rate=0.322, avg_score=1676.8, median_score=1690.0, stdev=87.3, avg_strikes=0.16, first_out_rate=0.002
+Last survivor but lost rate: 0.004
+Solo started behind rate: 0.010
+Solo started behind and lost rate: 0.417
+Avg solo start deficit: 97.0
+Avg solo turns taken: 3.12
+Solo had winning answer rate: 0.006
+Solo had winning answer given started behind rate: 0.583
+Solo start deficit buckets: 1-75: 0.604, 76-150: 0.177, 151-250: 0.125, 251+: 0.094
+Avg final board read: -0.103
+Avg absolute final board read: 0.109
+Strong harsh board rate: 0.253
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 50.05
+Avg final cutoff uncertainty: 0.280
+Low uncertainty rate: 0.285
+High cutoff rate: 0.095
+Avg final safe floor: 38.37
+Avg final local density read: 0.069
+Avg final surprise read: 0.190
+Avg final near-cutoff hits: 2.24
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.425, risky=0.561, blind_risk=0.013, chip_away=0.000, exact_win=0.000, comeback=0.000, high_upside=0.000, desperation=0.000, victory_lap=0.000
+Double window mode rates: safe=0.419, risky=0.581, blind_risk=0.000
+Context rates: open=0.750, dense=0.578, generous=0.186, dense_and_generous=0.014, tight=0.083, uncertain=0.322, 
+Context-action rates: risky_on_open=0.590, risky_on_dense=0.669, risky_on_generous=0.329, risky_on_dense_and_generous=0.386, safe_on_tight=0.820, risky_on_uncertain=0.639, safe_on_uncertain=0.345, risky_on_double_window=0.581, safe_on_double_window=0.419
+Answer-state summary:
+  Contestant 1: knowledge=0.346, recall=0.311, confidence=0.332, safe_candidates=97.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.341, recall=0.346, confidence=0.438, safe_candidates=98.7, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.277, recall=0.280, confidence=0.352, safe_candidates=92.2, risky_candidates=99.8, blind_candidates=0.0
+Player mode rates:
+  Contestant 1: safe=0.395, risky=0.605, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.437, risky=0.522, blind=0.040, victory_lap=0.000
+  Contestant 3: safe=0.443, risky=0.555, blind=0.000, victory_lap=0.001
+Player mode hit rates:
+  Contestant 1: safe=0.980, risky=0.989, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.991, risky=0.996, blind=0.000, desperation=0.000
+  Contestant 3: safe=0.999, risky=0.994, blind=0.000, desperation=0.034
+Player avg guess values:
+  Contestant 1: safe=39.7, risky=58.0, blind=0.0
+  Contestant 2: safe=35.0, risky=64.9, blind=0.0
+  Contestant 3: safe=41.7, risky=55.9, blind=0.0
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.525, high_70_89=0.000, deep_90_100=0.475, early_strike=0.000
+  Contestant 2: top_15=0.000, mid_16_69=0.019, high_70_89=0.000, deep_90_100=0.932, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.000, deep_90_100=0.476, early_strike=0.020
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.395, risky=0.605, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.985, risky=0.000, blind=0.015, victory_lap=0.000
+  Contestant 1 at 2 strikes: safe=1.000, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 2 at 0 strikes: safe=0.221, risky=0.727, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.361, risky=0.587, blind=0.052, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.999, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 0 strikes: safe=0.388, risky=0.611, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=0.995, risky=0.001, blind=0.000, victory_lap=0.004
+  Contestant 3 at 2 strikes: safe=0.134, risky=0.000, blind=0.000, victory_lap=0.637
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.983, risky=0.989, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.983, risky=0.994, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.998, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.991, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 3 at 0 strikes: safe=0.999, risky=0.995, blind=0.000, desperation=0.083
+  Contestant 3 at 1 strikes: safe=0.999, risky=0.720, blind=0.000, desperation=0.042
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+Two-strike summary:
+  Contestant 1: entries=198, survival_rate=0.000, strikeout_next_turn=0.899, avg_survival_turns=0.00, median_survival_turns=0.0
+  Contestant 2: entries=5405, survival_rate=0.960, strikeout_next_turn=0.010, avg_survival_turns=14.00, median_survival_turns=14.0
+  Contestant 3: entries=180, survival_rate=0.006, strikeout_next_turn=0.983, avg_survival_turns=0.01, median_survival_turns=0.0
+
+=== Category: Stolen Bases since 2000 ===
+Contestant 1: win_rate=0.402, avg_score=1691.0, median_score=1695.0, stdev=139.5, avg_strikes=2.22, first_out_rate=0.104
+Contestant 2: win_rate=0.246, avg_score=1661.9, median_score=1664.5, stdev=127.7, avg_strikes=2.56, first_out_rate=0.531
+Contestant 3: win_rate=0.352, avg_score=1608.3, median_score=1653.0, stdev=165.0, avg_strikes=2.14, first_out_rate=0.092
+Last survivor but lost rate: 0.265
+Solo started behind rate: 0.378
+Solo started behind and lost rate: 0.700
+Avg solo start deficit: 190.3
+Avg solo turns taken: 2.32
+Solo had winning answer rate: 0.100
+Solo had winning answer given started behind rate: 0.265
+Solo start deficit buckets: 1-75: 0.368, 76-150: 0.194, 151-250: 0.137, 251+: 0.302
+Avg final board read: -0.057
+Avg absolute final board read: 0.092
+Strong harsh board rate: 0.208
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 55.17
+Avg final cutoff uncertainty: 0.293
+Low uncertainty rate: 0.252
+High cutoff rate: 0.219
+Avg final safe floor: 43.41
+Avg final local density read: 0.078
+Avg final surprise read: 0.152
+Avg final near-cutoff hits: 2.82
+Avg final near-cutoff misses: 0.01
+Mode rates: safe=0.581, risky=0.391, blind_risk=0.012, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.005, victory_lap=0.009
+Double window mode rates: safe=0.568, risky=0.432, blind_risk=0.000
+Context rates: open=0.736, dense=0.536, generous=0.229, dense_and_generous=0.030, tight=0.112, uncertain=0.323, 
+Context-action rates: risky_on_open=0.402, risky_on_dense=0.504, risky_on_generous=0.133, risky_on_dense_and_generous=0.167, safe_on_tight=0.842, risky_on_uncertain=0.513, safe_on_uncertain=0.472, risky_on_double_window=0.432, safe_on_double_window=0.568
+Answer-state summary:
+  Contestant 1: knowledge=0.253, recall=0.228, confidence=0.243, safe_candidates=89.4, risky_candidates=99.7, blind_candidates=0.4
+  Contestant 2: knowledge=0.250, recall=0.244, confidence=0.293, safe_candidates=91.9, risky_candidates=99.8, blind_candidates=0.0
+  Contestant 3: knowledge=0.203, recall=0.197, confidence=0.235, safe_candidates=77.7, risky_candidates=96.2, blind_candidates=2.5
+Player mode rates:
+  Contestant 1: safe=0.583, risky=0.411, blind=0.000, victory_lap=0.004
+  Contestant 2: safe=0.621, risky=0.339, blind=0.035, victory_lap=0.004
+  Contestant 3: safe=0.541, risky=0.422, blind=0.001, victory_lap=0.019
+Player mode hit rates:
+  Contestant 1: safe=0.911, risky=0.981, blind=0.026, desperation=0.103
+  Contestant 2: safe=0.954, risky=0.979, blind=0.001, desperation=0.020
+  Contestant 3: safe=0.969, risky=0.974, blind=0.033, desperation=0.082
+Player avg guess values:
+  Contestant 1: safe=41.3, risky=63.7, blind=96.8
+  Contestant 2: safe=39.5, risky=73.4, blind=96.5
+  Contestant 3: safe=40.0, risky=58.0, blind=97.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.546, high_70_89=0.012, deep_90_100=0.442, early_strike=0.032
+  Contestant 2: top_15=0.000, mid_16_69=0.061, high_70_89=0.001, deep_90_100=0.890, early_strike=0.088
+  Contestant 3: top_15=0.000, mid_16_69=0.543, high_70_89=0.122, deep_90_100=0.335, early_strike=0.064
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.488, risky=0.512, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.985, risky=0.005, blind=0.001, victory_lap=0.009
+  Contestant 1 at 2 strikes: safe=0.824, risky=0.000, blind=0.000, victory_lap=0.135
+  Contestant 2 at 0 strikes: safe=0.387, risky=0.562, blind=0.051, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.568, risky=0.381, blind=0.050, victory_lap=0.001
+  Contestant 2 at 2 strikes: safe=0.984, risky=0.000, blind=0.000, victory_lap=0.011
+  Contestant 3 at 0 strikes: safe=0.398, risky=0.591, blind=0.001, victory_lap=0.006
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.007, blind=0.002, victory_lap=0.024
+  Contestant 3 at 2 strikes: safe=0.205, risky=0.000, blind=0.000, victory_lap=0.411
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.961, risky=0.981, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.890, risky=0.764, blind=0.039, desperation=0.125
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.100
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.980, blind=0.001, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.955, risky=0.976, blind=0.001, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.938, risky=0.000, blind=0.000, desperation=0.020
+  Contestant 3 at 0 strikes: safe=0.981, risky=0.976, blind=0.035, desperation=0.024
+  Contestant 3 at 1 strikes: safe=0.972, risky=0.554, blind=0.031, desperation=0.100
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.084
+Two-strike summary:
+  Contestant 1: entries=7084, survival_rate=0.048, strikeout_next_turn=0.920, avg_survival_turns=0.09, median_survival_turns=0.0
+  Contestant 2: entries=8533, survival_rate=0.735, strikeout_next_turn=0.231, avg_survival_turns=11.52, median_survival_turns=9.0
+  Contestant 3: entries=6880, survival_rate=0.072, strikeout_next_turn=0.926, avg_survival_turns=0.08, median_survival_turns=0.0
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.466, avg_score=1729.3, median_score=1717.0, stdev=88.4, avg_strikes=0.92, first_out_rate=0.001
+Contestant 2: win_rate=0.280, avg_score=1680.2, median_score=1686.0, stdev=97.0, avg_strikes=1.87, first_out_rate=0.247
+Contestant 3: win_rate=0.254, avg_score=1629.6, median_score=1664.0, stdev=124.7, avg_strikes=0.77, first_out_rate=0.039
+Last survivor but lost rate: 0.057
+Solo started behind rate: 0.115
+Solo started behind and lost rate: 0.498
+Avg solo start deficit: 118.1
+Avg solo turns taken: 2.74
+Solo had winning answer rate: 0.056
+Solo had winning answer given started behind rate: 0.491
+Solo start deficit buckets: 1-75: 0.517, 76-150: 0.216, 151-250: 0.112, 251+: 0.155
+Avg final board read: -0.086
+Avg absolute final board read: 0.101
+Strong harsh board rate: 0.258
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 52.02
+Avg final cutoff uncertainty: 0.282
+Low uncertainty rate: 0.295
+High cutoff rate: 0.156
+Avg final safe floor: 40.33
+Avg final local density read: 0.073
+Avg final surprise read: 0.176
+Avg final near-cutoff hits: 2.38
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.480, risky=0.501, blind_risk=0.013, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.003
+Double window mode rates: safe=0.472, risky=0.528, blind_risk=0.000
+Context rates: open=0.746, dense=0.569, generous=0.196, dense_and_generous=0.019, tight=0.095, uncertain=0.323, 
+Context-action rates: risky_on_open=0.526, risky_on_dense=0.617, risky_on_generous=0.236, risky_on_dense_and_generous=0.265, safe_on_tight=0.820, risky_on_uncertain=0.595, safe_on_uncertain=0.389, risky_on_double_window=0.528, safe_on_double_window=0.472
+Answer-state summary:
+  Contestant 1: knowledge=0.304, recall=0.274, confidence=0.292, safe_candidates=94.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.300, recall=0.292, confidence=0.351, safe_candidates=95.9, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.243, recall=0.237, confidence=0.282, safe_candidates=86.7, risky_candidates=98.6, blind_candidates=0.7
+Player mode rates:
+  Contestant 1: safe=0.448, risky=0.552, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.501, risky=0.458, blind=0.040, victory_lap=0.001
+  Contestant 3: safe=0.493, risky=0.494, blind=0.000, victory_lap=0.008
+Player mode hit rates:
+  Contestant 1: safe=0.951, risky=0.992, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.975, risky=0.997, blind=0.000, desperation=0.053
+  Contestant 3: safe=0.993, risky=0.985, blind=0.000, desperation=0.051
+Player avg guess values:
+  Contestant 1: safe=40.3, risky=60.2, blind=0.0
+  Contestant 2: safe=36.5, risky=67.9, blind=0.0
+  Contestant 3: safe=41.2, risky=55.7, blind=97.6
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.528, high_70_89=0.000, deep_90_100=0.472, early_strike=0.001
+  Contestant 2: top_15=0.000, mid_16_69=0.052, high_70_89=0.000, deep_90_100=0.899, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.015, deep_90_100=0.461, early_strike=0.056
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.439, risky=0.561, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.995, risky=0.000, blind=0.003, victory_lap=0.002
+  Contestant 1 at 2 strikes: safe=0.979, risky=0.000, blind=0.000, victory_lap=0.020
+  Contestant 2 at 0 strikes: safe=0.294, risky=0.655, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.461, risky=0.488, blind=0.051, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.991, risky=0.000, blind=0.000, victory_lap=0.005
+  Contestant 3 at 0 strikes: safe=0.360, risky=0.635, blind=0.000, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.978, risky=0.004, blind=0.001, victory_lap=0.012
+  Contestant 3 at 2 strikes: safe=0.199, risky=0.000, blind=0.000, victory_lap=0.491
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.976, risky=0.992, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.411, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.996, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.981, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.967, risky=0.000, blind=0.000, desperation=0.053
+  Contestant 3 at 0 strikes: safe=0.997, risky=0.985, blind=0.000, desperation=0.031
+  Contestant 3 at 1 strikes: safe=0.993, risky=0.712, blind=0.000, desperation=0.066
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.050
+Two-strike summary:
+  Contestant 1: entries=2099, survival_rate=0.006, strikeout_next_turn=0.887, avg_survival_turns=0.01, median_survival_turns=0.0
+  Contestant 2: entries=6187, survival_rate=0.875, strikeout_next_turn=0.079, avg_survival_turns=11.98, median_survival_turns=11.0
+  Contestant 3: entries=1886, survival_rate=0.041, strikeout_next_turn=0.957, avg_survival_turns=0.05, median_survival_turns=0.0
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.504, avg_score=1730.0, median_score=1720.0, stdev=147.2, avg_strikes=2.37, first_out_rate=0.079
+Contestant 2: win_rate=0.194, avg_score=1650.0, median_score=1656.0, stdev=139.5, avg_strikes=2.66, first_out_rate=0.591
+Contestant 3: win_rate=0.302, avg_score=1567.7, median_score=1626.0, stdev=189.9, avg_strikes=2.33, first_out_rate=0.117
+Last survivor but lost rate: 0.321
+Solo started behind rate: 0.439
+Solo started behind and lost rate: 0.732
+Avg solo start deficit: 217.4
+Avg solo turns taken: 2.21
+Solo had winning answer rate: 0.099
+Solo had winning answer given started behind rate: 0.226
+Solo start deficit buckets: 1-75: 0.347, 76-150: 0.208, 151-250: 0.113, 251+: 0.331
+Avg final board read: -0.048
+Avg absolute final board read: 0.094
+Strong harsh board rate: 0.196
+Strong generous board rate: 0.011
+Avg final cutoff estimate: 55.97
+Avg final cutoff uncertainty: 0.297
+Low uncertainty rate: 0.231
+High cutoff rate: 0.228
+Avg final safe floor: 44.19
+Avg final local density read: 0.076
+Avg final surprise read: 0.152
+Avg final near-cutoff hits: 2.87
+Avg final near-cutoff misses: 0.01
+Mode rates: safe=0.597, risky=0.375, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.006, victory_lap=0.009
+Double window mode rates: safe=0.583, risky=0.417, blind_risk=0.000
+Context rates: open=0.733, dense=0.526, generous=0.239, dense_and_generous=0.032, tight=0.110, uncertain=0.324, 
+Context-action rates: risky_on_open=0.382, risky_on_dense=0.487, risky_on_generous=0.121, risky_on_dense_and_generous=0.150, safe_on_tight=0.847, risky_on_uncertain=0.505, safe_on_uncertain=0.480, risky_on_double_window=0.417, safe_on_double_window=0.583
+Answer-state summary:
+  Contestant 1: knowledge=0.253, recall=0.233, confidence=0.255, safe_candidates=90.3, risky_candidates=99.8, blind_candidates=0.2
+  Contestant 2: knowledge=0.250, recall=0.234, confidence=0.264, safe_candidates=90.4, risky_candidates=99.6, blind_candidates=0.2
+  Contestant 3: knowledge=0.203, recall=0.188, confidence=0.209, safe_candidates=73.4, risky_candidates=95.0, blind_candidates=3.8
+Player mode rates:
+  Contestant 1: safe=0.602, risky=0.389, blind=0.000, victory_lap=0.008
+  Contestant 2: safe=0.640, risky=0.321, blind=0.033, victory_lap=0.004
+  Contestant 3: safe=0.551, risky=0.413, blind=0.001, victory_lap=0.016
+Player mode hit rates:
+  Contestant 1: safe=0.907, risky=0.984, blind=0.000, desperation=0.135
+  Contestant 2: safe=0.953, risky=0.968, blind=0.007, desperation=0.014
+  Contestant 3: safe=0.963, risky=0.969, blind=0.027, desperation=0.084
+Player avg guess values:
+  Contestant 1: safe=42.1, risky=65.8, blind=95.5
+  Contestant 2: safe=40.0, risky=74.0, blind=96.1
+  Contestant 3: safe=38.7, risky=57.8, blind=97.4
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.556, high_70_89=0.005, deep_90_100=0.439, early_strike=0.022
+  Contestant 2: top_15=0.000, mid_16_69=0.057, high_70_89=0.001, deep_90_100=0.902, early_strike=0.109
+  Contestant 3: top_15=0.000, mid_16_69=0.553, high_70_89=0.192, deep_90_100=0.255, early_strike=0.060
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.531, risky=0.469, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.975, risky=0.005, blind=0.001, victory_lap=0.018
+  Contestant 1 at 2 strikes: safe=0.759, risky=0.000, blind=0.000, victory_lap=0.205
+  Contestant 2 at 0 strikes: safe=0.395, risky=0.555, blind=0.050, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.560, risky=0.388, blind=0.051, victory_lap=0.002
+  Contestant 2 at 2 strikes: safe=0.984, risky=0.000, blind=0.000, victory_lap=0.010
+  Contestant 3 at 0 strikes: safe=0.390, risky=0.600, blind=0.001, victory_lap=0.005
+  Contestant 3 at 1 strikes: safe=0.952, risky=0.007, blind=0.003, victory_lap=0.018
+  Contestant 3 at 2 strikes: safe=0.240, risky=0.000, blind=0.000, victory_lap=0.341
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.960, risky=0.984, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.859, risky=0.733, blind=0.000, desperation=0.143
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.133
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.969, blind=0.007, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.953, risky=0.965, blind=0.006, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.940, risky=0.000, blind=0.000, desperation=0.014
+  Contestant 3 at 0 strikes: safe=0.979, risky=0.971, blind=0.019, desperation=0.046
+  Contestant 3 at 1 strikes: safe=0.967, risky=0.504, blind=0.032, desperation=0.091
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.087
+Two-strike summary:
+  Contestant 1: entries=7686, survival_rate=0.063, strikeout_next_turn=0.913, avg_survival_turns=0.14, median_survival_turns=0.0
+  Contestant 2: entries=8936, survival_rate=0.744, strikeout_next_turn=0.225, avg_survival_turns=12.23, median_survival_turns=10.0
+  Contestant 3: entries=7538, survival_rate=0.067, strikeout_next_turn=0.930, avg_survival_turns=0.07, median_survival_turns=0.0
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.774, avg_score=2260.4, median_score=2554.0, stdev=753.8, avg_strikes=3.00, first_out_rate=0.001
+Contestant 2: win_rate=0.224, avg_score=1266.4, median_score=1081.0, stdev=558.9, avg_strikes=3.00, first_out_rate=0.006
+Contestant 3: win_rate=0.001, avg_score=466.5, median_score=422.0, stdev=213.0, avg_strikes=3.00, first_out_rate=0.994
+Last survivor but lost rate: 0.095
+Solo started behind rate: 0.343
+Solo started behind and lost rate: 0.278
+Avg solo start deficit: 112.2
+Avg solo turns taken: 19.90
+Solo had winning answer rate: 0.179
+Solo had winning answer given started behind rate: 0.522
+Solo start deficit buckets: 1-75: 0.430, 76-150: 0.287, 151-250: 0.203, 251+: 0.080
+Avg final board read: -0.058
+Avg absolute final board read: 0.083
+Strong harsh board rate: 0.135
+Strong generous board rate: 0.004
+Avg final cutoff estimate: 71.34
+Avg final cutoff uncertainty: 0.524
+Low uncertainty rate: 0.000
+High cutoff rate: 0.609
+Avg final safe floor: 58.20
+Avg final local density read: 0.069
+Avg final surprise read: 0.197
+Avg final near-cutoff hits: 1.81
+Avg final near-cutoff misses: 0.10
+Mode rates: safe=0.625, risky=0.108, blind_risk=0.011, chip_away=0.000, exact_win=0.003, comeback=0.001, high_upside=0.000, desperation=0.002, victory_lap=0.251
+Double window mode rates: safe=0.791, risky=0.209, blind_risk=0.000
+Context rates: open=0.595, dense=0.265, generous=0.357, dense_and_generous=0.027, tight=0.210, uncertain=0.775, 
+Context-action rates: risky_on_open=0.061, risky_on_dense=0.110, risky_on_generous=0.025, risky_on_dense_and_generous=0.067, safe_on_tight=0.960, risky_on_uncertain=0.136, safe_on_uncertain=0.775, risky_on_double_window=0.209, safe_on_double_window=0.791
+Answer-state summary:
+  Contestant 1: knowledge=0.152, recall=0.140, confidence=0.155, safe_candidates=44.1, risky_candidates=91.9, blind_candidates=6.3
+  Contestant 2: knowledge=0.150, recall=0.135, confidence=0.143, safe_candidates=35.6, risky_candidates=90.3, blind_candidates=8.3
+  Contestant 3: knowledge=0.122, recall=0.109, confidence=0.102, safe_candidates=11.8, risky_candidates=69.6, blind_candidates=30.2
+Player mode rates:
+  Contestant 1: safe=0.503, risky=0.061, blind=0.004, victory_lap=0.423
+  Contestant 2: safe=0.738, risky=0.116, blind=0.028, victory_lap=0.115
+  Contestant 3: safe=0.768, risky=0.232, blind=0.000, victory_lap=0.000
+Player mode hit rates:
+  Contestant 1: safe=0.978, risky=0.838, blind=0.056, desperation=0.172
+  Contestant 2: safe=0.945, risky=0.817, blind=0.056, desperation=0.197
+  Contestant 3: safe=0.837, risky=0.757, blind=0.000, desperation=0.133
+Player avg guess values:
+  Contestant 1: safe=36.9, risky=86.0, blind=92.5
+  Contestant 2: safe=37.0, risky=85.6, blind=91.7
+  Contestant 3: safe=24.8, risky=70.6, blind=90.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.603, high_70_89=0.229, deep_90_100=0.168, early_strike=0.072
+  Contestant 2: top_15=0.000, mid_16_69=0.151, high_70_89=0.589, deep_90_100=0.261, early_strike=0.197
+  Contestant 3: top_15=0.129, mid_16_69=0.523, high_70_89=0.337, deep_90_100=0.011, early_strike=0.102
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.552, risky=0.119, blind=0.004, victory_lap=0.323
+  Contestant 1 at 1 strikes: safe=0.519, risky=0.002, blind=0.005, victory_lap=0.462
+  Contestant 1 at 2 strikes: safe=0.175, risky=0.000, blind=0.000, victory_lap=0.796
+  Contestant 2 at 0 strikes: safe=0.635, risky=0.281, blind=0.049, victory_lap=0.035
+  Contestant 2 at 1 strikes: safe=0.741, risky=0.102, blind=0.045, victory_lap=0.111
+  Contestant 2 at 2 strikes: safe=0.816, risky=0.000, blind=0.000, victory_lap=0.180
+  Contestant 3 at 0 strikes: safe=0.423, risky=0.576, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=1.000, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 2 strikes: safe=0.997, risky=0.000, blind=0.000, victory_lap=0.002
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.991, risky=0.839, blind=0.051, desperation=0.048
+  Contestant 1 at 1 strikes: safe=0.977, risky=0.756, blind=0.061, desperation=0.195
+  Contestant 1 at 2 strikes: safe=0.785, risky=0.000, blind=0.000, desperation=0.166
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.837, blind=0.052, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.954, risky=0.761, blind=0.062, desperation=0.200
+  Contestant 2 at 2 strikes: safe=0.918, risky=0.000, blind=0.000, desperation=0.198
+  Contestant 3 at 0 strikes: safe=0.975, risky=0.757, blind=0.000, desperation=0.333
+  Contestant 3 at 1 strikes: safe=0.887, risky=0.000, blind=0.000, desperation=0.200
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.178, strikeout_next_turn=0.822, avg_survival_turns=3.61, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.640, strikeout_next_turn=0.360, avg_survival_turns=11.40, median_survival_turns=10.5
+  Contestant 3: entries=10000, survival_rate=0.001, strikeout_next_turn=0.999, avg_survival_turns=0.00, median_survival_turns=0.0
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.608, avg_score=1911.3, avg_median_score=1970.5, avg_stdev=323.9, avg_strikes=2.23, avg_first_out_rate=0.037
+Contestant 2: avg_win_rate=0.208, avg_score=1512.7, avg_median_score=1480.5, avg_stdev=228.4, avg_strikes=2.58, avg_first_out_rate=0.282
+Contestant 3: avg_win_rate=0.184, avg_score=1243.7, avg_median_score=1229.1, avg_stdev=202.0, avg_strikes=2.16, avg_first_out_rate=0.410
+Last survivor but lost rate: 0.137
+Solo started behind rate: 0.263
+Solo started behind and lost rate: 0.480
+Avg solo start deficit: 152.8
+Avg solo turns taken: 6.48
+Solo had winning answer rate: 0.100
+Solo had winning answer given started behind rate: 0.436
+Solo start deficit buckets: 1-75: 0.439, 76-150: 0.231, 151-250: 0.140, 251+: 0.190
+Avg final board read: -0.035
+Avg absolute final board read: 0.090
+Avg strong harsh board rate: 0.141
+Avg strong generous board rate: 0.041
+Avg final cutoff estimate: 61.74
+Avg final cutoff uncertainty: 0.365
+Avg low uncertainty rate: 0.134
+Avg high cutoff rate: 0.362
+Avg final safe floor: 49.55
+Avg final local density read: 0.065
+Avg final surprise read: 0.179
+Avg final near-cutoff hits: 2.42
+Avg final near-cutoff misses: 0.03
+Mode rates: safe=0.610, risky=0.305, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.002, victory_lap=0.070
+Double window mode rates: safe=0.637, risky=0.363, blind_risk=0.000
+Context rates: open=0.692, dense=0.433, generous=0.291, dense_and_generous=0.032, tight=0.124, uncertain=0.464, 
+Context-action rates: risky_on_open=0.308, risky_on_dense=0.436, risky_on_generous=0.097, risky_on_dense_and_generous=0.122, safe_on_tight=0.917, risky_on_uncertain=0.325, safe_on_uncertain=0.641, risky_on_double_window=0.363, safe_on_double_window=0.637
+Aggregate answer-state summary:
+Contestant 1: knowledge=0.233, recall=0.212, confidence=0.229, safe_candidates=77.6, risky_candidates=97.4 
+Contestant 2: knowledge=0.226, recall=0.216, confidence=0.252, safe_candidates=73.5, risky_candidates=96.4 
+Contestant 3: knowledge=0.186, recall=0.178, confidence=0.203, safe_candidates=57.7, risky_candidates=89.3 
+Aggregate two-strike summary:
+Contestant 1: entries=77805, survival_rate=0.136, strikeout_next_turn=0.855, avg_survival_turns=0.97, median_survival_turns=0.0
+Contestant 2: entries=94690, survival_rate=0.743, strikeout_next_turn=0.244, avg_survival_turns=12.51, median_survival_turns=12.1
+Contestant 3: entries=77126, survival_rate=0.040, strikeout_next_turn=0.960, avg_survival_turns=0.05, median_survival_turns=0.0
+Aggregate strike-state mode rates:
+Contestant 1 at 0 strikes: safe=0.537, risky=0.369, blind=0.001, victory_lap=0.093
+Contestant 1 at 1 strikes: safe=0.837, risky=0.003, blind=0.004, victory_lap=0.153
+Contestant 1 at 2 strikes: safe=0.520, risky=0.000, blind=0.000, victory_lap=0.449
+Contestant 2 at 0 strikes: safe=0.449, risky=0.495, blind=0.050, victory_lap=0.006
+Contestant 2 at 1 strikes: safe=0.612, risky=0.316, blind=0.049, victory_lap=0.022
+Contestant 2 at 2 strikes: safe=0.957, risky=0.000, blind=0.000, victory_lap=0.040
+Contestant 3 at 0 strikes: safe=0.429, risky=0.567, blind=0.000, victory_lap=0.003
+Contestant 3 at 1 strikes: safe=0.980, risky=0.004, blind=0.001, victory_lap=0.008
+Contestant 3 at 2 strikes: safe=0.535, risky=0.000, blind=0.000, victory_lap=0.268
+Aggregate strike-state hit rates:
+Contestant 1 at 0 strikes: safe=0.978, risky=0.935, desperation=0.004
+Contestant 1 at 1 strikes: safe=0.723, risky=0.546, desperation=0.137
+Contestant 1 at 2 strikes: safe=0.194, risky=0.000, desperation=0.128
+Contestant 2 at 0 strikes: safe=0.981, risky=0.925, desperation=0.000
+Contestant 2 at 1 strikes: safe=0.964, risky=0.896, desperation=0.062
+Contestant 2 at 2 strikes: safe=0.945, risky=0.000, desperation=0.101
+Contestant 3 at 0 strikes: safe=0.982, risky=0.906, desperation=0.070
+Contestant 3 at 1 strikes: safe=0.957, risky=0.644, desperation=0.114
+Contestant 3 at 2 strikes: safe=0.005, risky=0.000, desperation=0.098
+```
+
+**Notes:**
+
+Run 4 is a successful diagnostic run that reveals the model's current two-strike behavior is inverted from the real show.
+- C2 by far has the best 2 strike behavior, while C3 is currently the worst
+
+Examples:
+- OPS+: C2 two-strike turn: 0.749, C3 two-strike turn: 0.055
+- bWAR: C2 two-strike turn: 0.680, C3 two-strike turn: 0.018
+
+**Takeaway:**
+
+- C2's two strike survival is extremely high because once he reaches two strikes, he mostly goes safe and still has enough playable safe candidates to keep surviving
+- C3's two strike survival is extremely low because his safe pool is weaker, and at two strikes logic forces him into a safe mode
+  - He is not allowed to play "C3's style", where at 2 strikes he is excellent and incredibly resilient, instead he just dies
+- C1's two strike numbers are mixed/low, which does align with C1's real life claim that he is not a good two strike player
+- The mode rates are working diagnostically:
+  - C3 is aggresive at 0 strikes, usually safe at 1 strike, and then collapses at 2 strikes rather than becoming resilient
+
+**Conclusion:**
+
+Run 4 added strike-state diagnostics without changing gameplay. The metrics revealed that the current simulator does not yet reproduce real contestant strike-state identity. C2 is currently the strongest two-strike player by a large margin, while C3 is the weakest, which contradicts observed show behavior. This suggests the next M5 feature should be explicit two-strike composure / pressure behavior, especially for C3.
+
+### Run 5.1
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.652, avg_score=1806.8, median_score=1745.0, stdev=298.7, avg_strikes=2.97, first_out_rate=0.091
+Contestant 2: win_rate=0.167, avg_score=1594.7, median_score=1594.0, stdev=193.8, avg_strikes=2.98, first_out_rate=0.488
+Contestant 3: win_rate=0.181, avg_score=1311.5, median_score=1257.0, stdev=273.5, avg_strikes=2.97, first_out_rate=0.412
+Last survivor but lost rate: 0.255
+Solo started behind rate: 0.399
+Solo started behind and lost rate: 0.639
+Avg solo start deficit: 252.0
+Avg solo turns taken: 2.34
+Solo had winning answer rate: 0.116
+Solo had winning answer given started behind rate: 0.290
+Solo start deficit buckets: 1-75: 0.334, 76-150: 0.201, 151-250: 0.124, 251+: 0.341
+Avg final board read: 0.028
+Avg absolute final board read: 0.091
+Strong harsh board rate: 0.064
+Strong generous board rate: 0.115
+Avg final cutoff estimate: 66.29
+Avg final cutoff uncertainty: 0.343
+Low uncertainty rate: 0.054
+High cutoff rate: 0.410
+Avg final safe floor: 54.23
+Avg final local density read: 0.053
+Avg final surprise read: 0.175
+Avg final near-cutoff hits: 2.64
+Avg final near-cutoff misses: 0.05
+Mode rates: safe=0.740, risky=0.218, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.026
+Double window mode rates: safe=0.754, risky=0.246, blind_risk=0.000
+Context rates: open=0.706, dense=0.420, generous=0.337, dense_and_generous=0.051, tight=0.093, uncertain=0.352, 
+Context-action rates: risky_on_open=0.192, risky_on_dense=0.285, risky_on_generous=0.058, risky_on_dense_and_generous=0.074, safe_on_tight=0.941, risky_on_uncertain=0.367, safe_on_uncertain=0.620, risky_on_double_window=0.246, safe_on_double_window=0.754
+Answer-state summary:
+  Contestant 1: knowledge=0.217, recall=0.199, confidence=0.219, safe_candidates=83.4, risky_candidates=98.5, blind_candidates=1.2
+  Contestant 2: knowledge=0.215, recall=0.193, confidence=0.206, safe_candidates=81.6, risky_candidates=97.2, blind_candidates=2.4
+  Contestant 3: knowledge=0.174, recall=0.156, confidence=0.167, safe_candidates=56.4, risky_candidates=90.7, blind_candidates=7.8
+Player mode rates:
+  Contestant 1: safe=0.738, risky=0.201, blind=0.001, victory_lap=0.057
+  Contestant 2: safe=0.768, risky=0.193, blind=0.027, victory_lap=0.010
+  Contestant 3: safe=0.715, risky=0.262, blind=0.001, victory_lap=0.010
+Player mode hit rates:
+  Contestant 1: safe=0.938, risky=0.939, blind=0.040, desperation=0.184
+  Contestant 2: safe=0.953, risky=0.890, blind=0.052, desperation=0.134
+  Contestant 3: safe=0.936, risky=0.918, blind=0.051, desperation=0.131
+Player avg guess values:
+  Contestant 1: safe=45.0, risky=78.0, blind=95.7
+  Contestant 2: safe=43.7, risky=81.5, blind=95.6
+  Contestant 3: safe=33.9, risky=65.1, blind=96.1
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.606, high_70_89=0.029, deep_90_100=0.365, early_strike=0.051
+  Contestant 2: top_15=0.000, mid_16_69=0.061, high_70_89=0.099, deep_90_100=0.837, early_strike=0.207
+  Contestant 3: top_15=0.000, mid_16_69=0.603, high_70_89=0.293, deep_90_100=0.104, early_strike=0.064
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.666, risky=0.323, blind=0.000, victory_lap=0.011
+  Contestant 1 at 1 strikes: safe=0.926, risky=0.003, blind=0.001, victory_lap=0.068
+  Contestant 1 at 2 strikes: safe=0.305, risky=0.000, blind=0.000, victory_lap=0.637
+  Contestant 2 at 0 strikes: safe=0.506, risky=0.443, blind=0.050, victory_lap=0.001
+  Contestant 2 at 1 strikes: safe=0.689, risky=0.250, blind=0.050, victory_lap=0.010
+  Contestant 2 at 2 strikes: safe=0.980, risky=0.000, blind=0.000, victory_lap=0.016
+  Contestant 3 at 0 strikes: safe=0.473, risky=0.522, blind=0.001, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.979, risky=0.005, blind=0.002, victory_lap=0.007
+  Contestant 3 at 2 strikes: safe=0.539, risky=0.061, blind=0.000, victory_lap=0.161
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.968, risky=0.940, blind=0.038, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.938, risky=0.718, blind=0.042, desperation=0.161
+  Contestant 1 at 2 strikes: safe=0.008, risky=0.000, blind=0.000, desperation=0.190
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.900, blind=0.051, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.957, risky=0.872, blind=0.054, desperation=0.125
+  Contestant 2 at 2 strikes: safe=0.942, risky=0.000, blind=0.000, desperation=0.135
+  Contestant 3 at 0 strikes: safe=0.971, risky=0.922, blind=0.052, desperation=0.055
+  Contestant 3 at 1 strikes: safe=0.953, risky=0.695, blind=0.051, desperation=0.124
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.680, blind=0.000, desperation=0.137
+Two-strike summary:
+  Contestant 1: entries=9900, survival_rate=0.187, strikeout_next_turn=0.812, avg_survival_turns=0.62, median_survival_turns=0.0
+  Contestant 2: entries=9949, survival_rate=0.749, strikeout_next_turn=0.250, avg_survival_turns=14.57, median_survival_turns=16.0
+  Contestant 3: entries=9899, survival_rate=0.098, strikeout_next_turn=0.902, avg_survival_turns=0.11, median_survival_turns=0.0
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.839, avg_score=2158.6, median_score=2289.5, stdev=485.5, avg_strikes=3.00, first_out_rate=0.018
+Contestant 2: win_rate=0.113, avg_score=1387.1, median_score=1362.0, stdev=265.0, avg_strikes=3.00, first_out_rate=0.161
+Contestant 3: win_rate=0.049, avg_score=933.5, median_score=859.0, stdev=280.5, avg_strikes=3.00, first_out_rate=0.820
+Last survivor but lost rate: 0.085
+Solo started behind rate: 0.227
+Solo started behind and lost rate: 0.373
+Avg solo start deficit: 130.8
+Avg solo turns taken: 6.54
+Solo had winning answer rate: 0.111
+Solo had winning answer given started behind rate: 0.491
+Solo start deficit buckets: 1-75: 0.436, 76-150: 0.282, 151-250: 0.159, 251+: 0.123
+Avg final board read: 0.032
+Avg absolute final board read: 0.070
+Strong harsh board rate: 0.014
+Strong generous board rate: 0.098
+Avg final cutoff estimate: 70.65
+Avg final cutoff uncertainty: 0.419
+Low uncertainty rate: 0.006
+High cutoff rate: 0.600
+Avg final safe floor: 58.13
+Avg final local density read: 0.051
+Avg final surprise read: 0.179
+Avg final near-cutoff hits: 2.64
+Avg final near-cutoff misses: 0.08
+Mode rates: safe=0.733, risky=0.151, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.103
+Double window mode rates: safe=0.820, risky=0.180, blind_risk=0.000
+Context rates: open=0.636, dense=0.307, generous=0.376, dense_and_generous=0.047, tight=0.119, uncertain=0.596, 
+Context-action rates: risky_on_open=0.114, risky_on_dense=0.197, risky_on_generous=0.038, risky_on_dense_and_generous=0.052, safe_on_tight=0.981, risky_on_uncertain=0.203, safe_on_uncertain=0.781, risky_on_double_window=0.180, safe_on_double_window=0.820
+Answer-state summary:
+  Contestant 1: knowledge=0.181, recall=0.168, confidence=0.188, safe_candidates=69.7, risky_candidates=96.1, blind_candidates=2.9
+  Contestant 2: knowledge=0.170, recall=0.153, confidence=0.163, safe_candidates=56.3, risky_candidates=93.5, blind_candidates=5.3
+  Contestant 3: knowledge=0.145, recall=0.130, confidence=0.139, safe_candidates=36.0, risky_candidates=84.1, blind_candidates=13.5
+Player mode rates:
+  Contestant 1: safe=0.647, risky=0.111, blind=0.002, victory_lap=0.236
+  Contestant 2: safe=0.784, risky=0.164, blind=0.029, victory_lap=0.021
+  Contestant 3: safe=0.799, risky=0.195, blind=0.000, victory_lap=0.003
+Player mode hit rates:
+  Contestant 1: safe=0.974, risky=0.892, blind=0.053, desperation=0.220
+  Contestant 2: safe=0.948, risky=0.875, blind=0.055, desperation=0.212
+  Contestant 3: safe=0.916, risky=0.834, blind=0.064, desperation=0.142
+Player avg guess values:
+  Contestant 1: safe=44.5, risky=84.8, blind=95.2
+  Contestant 2: safe=40.1, risky=83.1, blind=94.5
+  Contestant 3: safe=29.1, risky=70.6, blind=92.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.591, high_70_89=0.101, deep_90_100=0.308, early_strike=0.066
+  Contestant 2: top_15=0.000, mid_16_69=0.084, high_70_89=0.471, deep_90_100=0.445, early_strike=0.181
+  Contestant 3: top_15=0.000, mid_16_69=0.585, high_70_89=0.368, deep_90_100=0.047, early_strike=0.089
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.650, risky=0.203, blind=0.002, victory_lap=0.146
+  Contestant 1 at 1 strikes: safe=0.725, risky=0.003, blind=0.002, victory_lap=0.265
+  Contestant 1 at 2 strikes: safe=0.104, risky=0.000, blind=0.000, victory_lap=0.869
+  Contestant 2 at 0 strikes: safe=0.581, risky=0.365, blind=0.049, victory_lap=0.005
+  Contestant 2 at 1 strikes: safe=0.758, risky=0.172, blind=0.049, victory_lap=0.020
+  Contestant 2 at 2 strikes: safe=0.963, risky=0.000, blind=0.000, victory_lap=0.033
+  Contestant 3 at 0 strikes: safe=0.467, risky=0.531, blind=0.000, victory_lap=0.001
+  Contestant 3 at 1 strikes: safe=0.994, risky=0.002, blind=0.001, victory_lap=0.002
+  Contestant 3 at 2 strikes: safe=0.777, risky=0.133, blind=0.000, victory_lap=0.045
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.987, risky=0.893, blind=0.055, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.973, risky=0.789, blind=0.051, desperation=0.263
+  Contestant 1 at 2 strikes: safe=0.291, risky=0.000, blind=0.000, desperation=0.208
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.889, blind=0.054, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.955, risky=0.841, blind=0.057, desperation=0.083
+  Contestant 2 at 2 strikes: safe=0.928, risky=0.000, blind=0.000, desperation=0.218
+  Contestant 3 at 0 strikes: safe=0.978, risky=0.838, blind=0.000, desperation=0.037
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.744, blind=0.093, desperation=0.146
+  Contestant 3 at 2 strikes: safe=0.001, risky=0.732, blind=0.000, desperation=0.148
+Two-strike summary:
+  Contestant 1: entries=9999, survival_rate=0.166, strikeout_next_turn=0.834, avg_survival_turns=1.49, median_survival_turns=0.0
+  Contestant 2: entries=9999, survival_rate=0.682, strikeout_next_turn=0.318, avg_survival_turns=11.92, median_survival_turns=11.0
+  Contestant 3: entries=9999, survival_rate=0.116, strikeout_next_turn=0.884, avg_survival_turns=0.13, median_survival_turns=0.0
+
+=== Category: Hitter bWAR since 2000 ===
+Contestant 1: win_rate=0.539, avg_score=1703.9, median_score=1669.0, stdev=288.6, avg_strikes=2.98, first_out_rate=0.112
+Contestant 2: win_rate=0.239, avg_score=1613.1, median_score=1594.0, stdev=216.5, avg_strikes=2.99, first_out_rate=0.487
+Contestant 3: win_rate=0.222, avg_score=1329.0, median_score=1293.0, stdev=266.3, avg_strikes=2.98, first_out_rate=0.394
+Last survivor but lost rate: 0.268
+Solo started behind rate: 0.424
+Solo started behind and lost rate: 0.632
+Avg solo start deficit: 244.1
+Avg solo turns taken: 2.35
+Solo had winning answer rate: 0.119
+Solo had winning answer given started behind rate: 0.282
+Solo start deficit buckets: 1-75: 0.307, 76-150: 0.193, 151-250: 0.135, 251+: 0.365
+Avg final board read: 0.023
+Avg absolute final board read: 0.085
+Strong harsh board rate: 0.062
+Strong generous board rate: 0.081
+Avg final cutoff estimate: 65.40
+Avg final cutoff uncertainty: 0.347
+Low uncertainty rate: 0.053
+High cutoff rate: 0.375
+Avg final safe floor: 53.32
+Avg final local density read: 0.054
+Avg final surprise read: 0.169
+Avg final near-cutoff hits: 2.73
+Avg final near-cutoff misses: 0.06
+Mode rates: safe=0.736, risky=0.223, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.025
+Double window mode rates: safe=0.747, risky=0.253, blind_risk=0.000
+Context rates: open=0.705, dense=0.419, generous=0.337, dense_and_generous=0.051, tight=0.099, uncertain=0.357, 
+Context-action rates: risky_on_open=0.198, risky_on_dense=0.295, risky_on_generous=0.062, risky_on_dense_and_generous=0.091, safe_on_tight=0.941, risky_on_uncertain=0.369, safe_on_uncertain=0.617, risky_on_double_window=0.253, safe_on_double_window=0.747
+Answer-state summary:
+  Contestant 1: knowledge=0.205, recall=0.187, confidence=0.204, safe_candidates=78.8, risky_candidates=97.6, blind_candidates=1.9
+  Contestant 2: knowledge=0.197, recall=0.188, confidence=0.222, safe_candidates=81.5, risky_candidates=97.4, blind_candidates=1.6
+  Contestant 3: knowledge=0.164, recall=0.155, confidence=0.174, safe_candidates=57.6, risky_candidates=91.1, blind_candidates=6.9
+Player mode rates:
+  Contestant 1: safe=0.730, risky=0.219, blind=0.001, victory_lap=0.045
+  Contestant 2: safe=0.763, risky=0.191, blind=0.029, victory_lap=0.016
+  Contestant 3: safe=0.714, risky=0.261, blind=0.001, victory_lap=0.013
+Player mode hit rates:
+  Contestant 1: safe=0.935, risky=0.937, blind=0.055, desperation=0.177
+  Contestant 2: safe=0.953, risky=0.900, blind=0.046, desperation=0.154
+  Contestant 3: safe=0.936, risky=0.921, blind=0.054, desperation=0.149
+Player avg guess values:
+  Contestant 1: safe=42.8, risky=75.6, blind=95.7
+  Contestant 2: safe=43.8, risky=82.8, blind=95.5
+  Contestant 3: safe=34.4, risky=65.9, blind=95.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.597, high_70_89=0.065, deep_90_100=0.338, early_strike=0.058
+  Contestant 2: top_15=0.000, mid_16_69=0.062, high_70_89=0.087, deep_90_100=0.842, early_strike=0.185
+  Contestant 3: top_15=0.000, mid_16_69=0.593, high_70_89=0.289, deep_90_100=0.117, early_strike=0.066
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.628, risky=0.363, blind=0.000, victory_lap=0.009
+  Contestant 1 at 1 strikes: safe=0.940, risky=0.005, blind=0.001, victory_lap=0.049
+  Contestant 1 at 2 strikes: safe=0.363, risky=0.000, blind=0.000, victory_lap=0.551
+  Contestant 2 at 0 strikes: safe=0.522, risky=0.425, blind=0.051, victory_lap=0.002
+  Contestant 2 at 1 strikes: safe=0.702, risky=0.231, blind=0.050, victory_lap=0.016
+  Contestant 2 at 2 strikes: safe=0.971, risky=0.000, blind=0.000, victory_lap=0.026
+  Contestant 3 at 0 strikes: safe=0.485, risky=0.509, blind=0.001, victory_lap=0.004
+  Contestant 3 at 1 strikes: safe=0.977, risky=0.005, blind=0.002, victory_lap=0.009
+  Contestant 3 at 2 strikes: safe=0.525, risky=0.048, blind=0.000, victory_lap=0.196
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.966, risky=0.939, blind=0.071, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.941, risky=0.720, blind=0.044, desperation=0.190
+  Contestant 1 at 2 strikes: safe=0.007, risky=0.000, blind=0.000, desperation=0.173
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.911, blind=0.047, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.958, risky=0.876, blind=0.045, desperation=0.200
+  Contestant 2 at 2 strikes: safe=0.940, risky=0.000, blind=0.000, desperation=0.151
+  Contestant 3 at 0 strikes: safe=0.970, risky=0.924, blind=0.034, desperation=0.020
+  Contestant 3 at 1 strikes: safe=0.953, risky=0.681, blind=0.065, desperation=0.152
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.730, blind=0.000, desperation=0.151
+Two-strike summary:
+  Contestant 1: entries=9928, survival_rate=0.151, strikeout_next_turn=0.849, avg_survival_turns=0.48, median_survival_turns=0.0
+  Contestant 2: entries=9957, survival_rate=0.738, strikeout_next_turn=0.260, avg_survival_turns=13.78, median_survival_turns=14.0
+  Contestant 3: entries=9929, survival_rate=0.100, strikeout_next_turn=0.900, avg_survival_turns=0.12, median_survival_turns=0.0
+
+=== Category: Pitcher bWAR since 2000 ===
+Contestant 1: win_rate=0.871, avg_score=2233.0, median_score=2370.0, stdev=531.2, avg_strikes=3.00, first_out_rate=0.009
+Contestant 2: win_rate=0.066, avg_score=1169.7, median_score=1145.0, stdev=260.5, avg_strikes=3.00, first_out_rate=0.407
+Contestant 3: win_rate=0.062, avg_score=929.3, median_score=863.0, stdev=279.6, avg_strikes=3.00, first_out_rate=0.583
+Last survivor but lost rate: 0.079
+Solo started behind rate: 0.230
+Solo started behind and lost rate: 0.344
+Avg solo start deficit: 137.7
+Avg solo turns taken: 9.75
+Solo had winning answer rate: 0.116
+Solo had winning answer given started behind rate: 0.506
+Solo start deficit buckets: 1-75: 0.436, 76-150: 0.250, 151-250: 0.158, 251+: 0.156
+Avg final board read: 0.004
+Avg absolute final board read: 0.062
+Strong harsh board rate: 0.013
+Strong generous board rate: 0.048
+Avg final cutoff estimate: 70.12
+Avg final cutoff uncertainty: 0.448
+Low uncertainty rate: 0.003
+High cutoff rate: 0.569
+Avg final safe floor: 57.44
+Avg final local density read: 0.051
+Avg final surprise read: 0.176
+Avg final near-cutoff hits: 2.39
+Avg final near-cutoff misses: 0.11
+Mode rates: safe=0.690, risky=0.148, blind_risk=0.009, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.149
+Double window mode rates: safe=0.824, risky=0.176, blind_risk=0.000
+Context rates: open=0.604, dense=0.263, generous=0.375, dense_and_generous=0.035, tight=0.171, uncertain=0.691, 
+Context-action rates: risky_on_open=0.113, risky_on_dense=0.202, risky_on_generous=0.047, risky_on_dense_and_generous=0.083, safe_on_tight=0.976, risky_on_uncertain=0.181, safe_on_uncertain=0.790, risky_on_double_window=0.176, safe_on_double_window=0.824
+Answer-state summary:
+  Contestant 1: knowledge=0.173, recall=0.157, confidence=0.172, safe_candidates=60.8, risky_candidates=94.7, blind_candidates=4.2
+  Contestant 2: knowledge=0.146, recall=0.137, confidence=0.149, safe_candidates=39.9, risky_candidates=91.1, blind_candidates=7.2
+  Contestant 3: knowledge=0.138, recall=0.131, confidence=0.140, safe_candidates=36.7, risky_candidates=84.3, blind_candidates=13.2
+Player mode rates:
+  Contestant 1: safe=0.567, risky=0.098, blind=0.001, victory_lap=0.329
+  Contestant 2: safe=0.777, risky=0.180, blind=0.027, victory_lap=0.015
+  Contestant 3: safe=0.794, risky=0.194, blind=0.003, victory_lap=0.006
+Player mode hit rates:
+  Contestant 1: safe=0.980, risky=0.879, blind=0.069, desperation=0.214
+  Contestant 2: safe=0.940, risky=0.836, blind=0.062, desperation=0.207
+  Contestant 3: safe=0.918, risky=0.825, blind=0.040, desperation=0.182
+Player avg guess values:
+  Contestant 1: safe=41.8, risky=83.9, blind=94.8
+  Contestant 2: safe=37.1, risky=82.7, blind=92.7
+  Contestant 3: safe=29.9, risky=72.3, blind=91.4
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.598, high_70_89=0.158, deep_90_100=0.244, early_strike=0.065
+  Contestant 2: top_15=0.000, mid_16_69=0.084, high_70_89=0.605, deep_90_100=0.311, early_strike=0.202
+  Contestant 3: top_15=0.000, mid_16_69=0.595, high_70_89=0.355, deep_90_100=0.050, early_strike=0.089
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.581, risky=0.179, blind=0.001, victory_lap=0.239
+  Contestant 1 at 1 strikes: safe=0.612, risky=0.004, blind=0.002, victory_lap=0.375
+  Contestant 1 at 2 strikes: safe=0.081, risky=0.000, blind=0.000, victory_lap=0.892
+  Contestant 2 at 0 strikes: safe=0.524, risky=0.423, blind=0.049, victory_lap=0.004
+  Contestant 2 at 1 strikes: safe=0.719, risky=0.216, blind=0.050, victory_lap=0.014
+  Contestant 2 at 2 strikes: safe=0.976, risky=0.000, blind=0.000, victory_lap=0.022
+  Contestant 3 at 0 strikes: safe=0.516, risky=0.479, blind=0.002, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.979, risky=0.013, blind=0.003, victory_lap=0.003
+  Contestant 3 at 2 strikes: safe=0.751, risky=0.117, blind=0.000, victory_lap=0.079
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.991, risky=0.881, blind=0.069, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.979, risky=0.778, blind=0.070, desperation=0.241
+  Contestant 1 at 2 strikes: safe=0.267, risky=0.000, blind=0.000, desperation=0.204
+  Contestant 2 at 0 strikes: safe=0.978, risky=0.856, blind=0.057, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.947, risky=0.795, blind=0.066, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.924, risky=0.000, blind=0.000, desperation=0.216
+  Contestant 3 at 0 strikes: safe=0.980, risky=0.832, blind=0.048, desperation=0.111
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.753, blind=0.037, desperation=0.161
+  Contestant 3 at 2 strikes: safe=0.032, risky=0.676, blind=0.000, desperation=0.191
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.117, strikeout_next_turn=0.883, avg_survival_turns=1.38, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.696, strikeout_next_turn=0.304, avg_survival_turns=11.82, median_survival_turns=14.0
+  Contestant 3: entries=10000, survival_rate=0.128, strikeout_next_turn=0.872, avg_survival_turns=0.19, median_survival_turns=0.0
+
+=== Category: All-Time ERA+ ===
+Contestant 1: win_rate=0.802, avg_score=2259.3, median_score=2487.0, stdev=669.3, avg_strikes=3.00, first_out_rate=0.002
+Contestant 2: win_rate=0.193, avg_score=1274.5, median_score=1141.0, stdev=471.1, avg_strikes=3.00, first_out_rate=0.023
+Contestant 3: win_rate=0.005, avg_score=598.3, median_score=547.0, stdev=232.0, avg_strikes=3.00, first_out_rate=0.975
+Last survivor but lost rate: 0.083
+Solo started behind rate: 0.301
+Solo started behind and lost rate: 0.274
+Avg solo start deficit: 109.9
+Avg solo turns taken: 16.71
+Solo had winning answer rate: 0.168
+Solo had winning answer given started behind rate: 0.557
+Solo start deficit buckets: 1-75: 0.451, 76-150: 0.285, 151-250: 0.176, 251+: 0.087
+Avg final board read: -0.050
+Avg absolute final board read: 0.083
+Strong harsh board rate: 0.095
+Strong generous board rate: 0.009
+Avg final cutoff estimate: 72.15
+Avg final cutoff uncertainty: 0.499
+Low uncertainty rate: 0.000
+High cutoff rate: 0.669
+Avg final safe floor: 59.16
+Avg final local density read: 0.060
+Avg final surprise read: 0.207
+Avg final near-cutoff hits: 1.76
+Avg final near-cutoff misses: 0.09
+Mode rates: safe=0.655, risky=0.120, blind_risk=0.011, chip_away=0.000, exact_win=0.002, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.211
+Double window mode rates: safe=0.808, risky=0.192, blind_risk=0.000
+Context rates: open=0.604, dense=0.258, generous=0.377, dense_and_generous=0.031, tight=0.212, uncertain=0.763, 
+Context-action rates: risky_on_open=0.076, risky_on_dense=0.142, risky_on_generous=0.031, risky_on_dense_and_generous=0.077, safe_on_tight=0.968, risky_on_uncertain=0.149, safe_on_uncertain=0.788, risky_on_double_window=0.192, safe_on_double_window=0.808
+Answer-state summary:
+  Contestant 1: knowledge=0.158, recall=0.145, confidence=0.159, safe_candidates=49.8, risky_candidates=92.9, blind_candidates=5.6
+  Contestant 2: knowledge=0.156, recall=0.141, confidence=0.144, safe_candidates=39.6, risky_candidates=91.1, blind_candidates=8.0
+  Contestant 3: knowledge=0.127, recall=0.114, confidence=0.112, safe_candidates=16.8, risky_candidates=74.4, blind_candidates=24.1
+Player mode rates:
+  Contestant 1: safe=0.528, risky=0.075, blind=0.004, victory_lap=0.387
+  Contestant 2: safe=0.759, risky=0.130, blind=0.029, victory_lap=0.080
+  Contestant 3: safe=0.791, risky=0.207, blind=0.000, victory_lap=0.001
+Player mode hit rates:
+  Contestant 1: safe=0.980, risky=0.858, blind=0.052, desperation=0.192
+  Contestant 2: safe=0.946, risky=0.832, blind=0.051, desperation=0.190
+  Contestant 3: safe=0.875, risky=0.773, blind=0.111, desperation=0.158
+Player avg guess values:
+  Contestant 1: safe=38.5, risky=85.5, blind=93.3
+  Contestant 2: safe=37.9, risky=85.1, blind=92.0
+  Contestant 3: safe=26.5, risky=71.4, blind=91.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.588, high_70_89=0.213, deep_90_100=0.199, early_strike=0.070
+  Contestant 2: top_15=0.000, mid_16_69=0.123, high_70_89=0.587, deep_90_100=0.291, early_strike=0.191
+  Contestant 3: top_15=0.058, mid_16_69=0.554, high_70_89=0.371, deep_90_100=0.017, early_strike=0.104
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.564, risky=0.141, blind=0.003, victory_lap=0.291
+  Contestant 1 at 1 strikes: safe=0.557, risky=0.003, blind=0.005, victory_lap=0.426
+  Contestant 1 at 2 strikes: safe=0.151, risky=0.000, blind=0.000, victory_lap=0.818
+  Contestant 2 at 0 strikes: safe=0.616, risky=0.313, blind=0.050, victory_lap=0.021
+  Contestant 2 at 1 strikes: safe=0.762, risky=0.118, blind=0.046, victory_lap=0.073
+  Contestant 2 at 2 strikes: safe=0.866, risky=0.000, blind=0.000, victory_lap=0.130
+  Contestant 3 at 0 strikes: safe=0.443, risky=0.557, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=0.999, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 2 strikes: safe=0.902, risky=0.087, blind=0.000, victory_lap=0.007
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.992, risky=0.859, blind=0.051, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.979, risky=0.756, blind=0.053, desperation=0.207
+  Contestant 1 at 2 strikes: safe=0.732, risky=0.000, blind=0.000, desperation=0.188
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.852, blind=0.051, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.954, risky=0.775, blind=0.052, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.920, risky=0.000, blind=0.000, desperation=0.195
+  Contestant 3 at 0 strikes: safe=0.979, risky=0.776, blind=0.071, desperation=0.000
+  Contestant 3 at 1 strikes: safe=0.916, risky=0.900, blind=0.154, desperation=0.125
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.640, blind=0.000, desperation=0.185
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.170, strikeout_next_turn=0.830, avg_survival_turns=2.79, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.654, strikeout_next_turn=0.346, avg_survival_turns=11.36, median_survival_turns=11.0
+  Contestant 3: entries=10000, survival_rate=0.055, strikeout_next_turn=0.945, avg_survival_turns=0.06, median_survival_turns=0.0
+
+=== Category: Pitcher Strikeouts since 2010 ===
+Contestant 1: win_rate=0.423, avg_score=1715.9, median_score=1706.0, stdev=81.8, avg_strikes=0.64, first_out_rate=0.000
+Contestant 2: win_rate=0.296, avg_score=1675.6, median_score=1683.0, stdev=90.2, avg_strikes=1.70, first_out_rate=0.148
+Contestant 3: win_rate=0.281, avg_score=1654.6, median_score=1678.0, stdev=105.3, avg_strikes=0.41, first_out_rate=0.015
+Last survivor but lost rate: 0.020
+Solo started behind rate: 0.047
+Solo started behind and lost rate: 0.427
+Avg solo start deficit: 94.0
+Avg solo turns taken: 3.00
+Solo had winning answer rate: 0.027
+Solo had winning answer given started behind rate: 0.573
+Solo start deficit buckets: 1-75: 0.586, 76-150: 0.221, 151-250: 0.100, 251+: 0.093
+Avg final board read: -0.096
+Avg absolute final board read: 0.105
+Strong harsh board rate: 0.260
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 50.97
+Avg final cutoff uncertainty: 0.281
+Low uncertainty rate: 0.295
+High cutoff rate: 0.124
+Avg final safe floor: 39.28
+Avg final local density read: 0.071
+Avg final surprise read: 0.184
+Avg final near-cutoff hits: 2.27
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.450, risky=0.534, blind_risk=0.013, chip_away=0.000, exact_win=0.000, comeback=0.000, high_upside=0.000, desperation=0.000, victory_lap=0.002
+Double window mode rates: safe=0.442, risky=0.558, blind_risk=0.000
+Context rates: open=0.748, dense=0.575, generous=0.189, dense_and_generous=0.016, tight=0.089, uncertain=0.323, 
+Context-action rates: risky_on_open=0.562, risky_on_dense=0.647, risky_on_generous=0.283, risky_on_dense_and_generous=0.328, safe_on_tight=0.823, risky_on_uncertain=0.620, safe_on_uncertain=0.364, risky_on_double_window=0.558, safe_on_double_window=0.442
+Answer-state summary:
+  Contestant 1: knowledge=0.317, recall=0.285, confidence=0.304, safe_candidates=95.3, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.313, recall=0.317, confidence=0.402, safe_candidates=97.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.254, recall=0.257, confidence=0.322, safe_candidates=89.6, risky_candidates=99.3, blind_candidates=0.1
+Player mode rates:
+  Contestant 1: safe=0.416, risky=0.584, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.467, risky=0.492, blind=0.040, victory_lap=0.001
+  Contestant 3: safe=0.467, risky=0.527, blind=0.000, victory_lap=0.004
+Player mode hit rates:
+  Contestant 1: safe=0.969, risky=0.990, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.983, risky=0.997, blind=0.000, desperation=0.000
+  Contestant 3: safe=0.997, risky=0.990, blind=0.000, desperation=0.040
+Player avg guess values:
+  Contestant 1: safe=39.8, risky=58.9, blind=0.0
+  Contestant 2: safe=35.8, risky=66.3, blind=0.0
+  Contestant 3: safe=41.5, risky=55.7, blind=98.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.526, high_70_89=0.000, deep_90_100=0.474, early_strike=0.000
+  Contestant 2: top_15=0.000, mid_16_69=0.034, high_70_89=0.000, deep_90_100=0.917, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.002, deep_90_100=0.473, early_strike=0.035
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.414, risky=0.586, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.995, risky=0.000, blind=0.005, victory_lap=0.000
+  Contestant 1 at 2 strikes: safe=0.993, risky=0.000, blind=0.000, victory_lap=0.007
+  Contestant 2 at 0 strikes: safe=0.256, risky=0.693, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.410, risky=0.538, blind=0.052, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.996, risky=0.000, blind=0.000, victory_lap=0.002
+  Contestant 3 at 0 strikes: safe=0.375, risky=0.622, blind=0.000, victory_lap=0.002
+  Contestant 3 at 1 strikes: safe=0.986, risky=0.002, blind=0.000, victory_lap=0.009
+  Contestant 3 at 2 strikes: safe=0.180, risky=0.005, blind=0.000, victory_lap=0.561
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.980, risky=0.990, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.995, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.991, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.980, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 3 at 0 strikes: safe=0.999, risky=0.990, blind=0.000, desperation=0.026
+  Contestant 3 at 1 strikes: safe=0.996, risky=0.824, blind=0.000, desperation=0.051
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.750, blind=0.000, desperation=0.040
+Two-strike summary:
+  Contestant 1: entries=911, survival_rate=0.002, strikeout_next_turn=0.884, avg_survival_turns=0.00, median_survival_turns=0.0
+  Contestant 2: entries=5724, survival_rate=0.921, strikeout_next_turn=0.039, avg_survival_turns=12.99, median_survival_turns=13.0
+  Contestant 3: entries=815, survival_rate=0.029, strikeout_next_turn=0.966, avg_survival_turns=0.03, median_survival_turns=0.0
+
+=== Category: Home Runs since 2020 ===
+Contestant 1: win_rate=0.400, avg_score=1707.0, median_score=1701.0, stdev=75.3, avg_strikes=0.48, first_out_rate=0.000
+Contestant 2: win_rate=0.278, avg_score=1665.5, median_score=1675.0, stdev=88.1, avg_strikes=1.59, first_out_rate=0.067
+Contestant 3: win_rate=0.322, avg_score=1676.8, median_score=1690.0, stdev=87.3, avg_strikes=0.16, first_out_rate=0.002
+Last survivor but lost rate: 0.004
+Solo started behind rate: 0.009
+Solo started behind and lost rate: 0.421
+Avg solo start deficit: 97.7
+Avg solo turns taken: 3.14
+Solo had winning answer rate: 0.005
+Solo had winning answer given started behind rate: 0.579
+Solo start deficit buckets: 1-75: 0.600, 76-150: 0.179, 151-250: 0.126, 251+: 0.095
+Avg final board read: -0.103
+Avg absolute final board read: 0.109
+Strong harsh board rate: 0.253
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 50.05
+Avg final cutoff uncertainty: 0.280
+Low uncertainty rate: 0.285
+High cutoff rate: 0.095
+Avg final safe floor: 38.37
+Avg final local density read: 0.069
+Avg final surprise read: 0.190
+Avg final near-cutoff hits: 2.24
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.425, risky=0.561, blind_risk=0.013, chip_away=0.000, exact_win=0.000, comeback=0.000, high_upside=0.000, desperation=0.000, victory_lap=0.000
+Double window mode rates: safe=0.419, risky=0.581, blind_risk=0.000
+Context rates: open=0.750, dense=0.578, generous=0.186, dense_and_generous=0.014, tight=0.083, uncertain=0.322, 
+Context-action rates: risky_on_open=0.590, risky_on_dense=0.669, risky_on_generous=0.329, risky_on_dense_and_generous=0.386, safe_on_tight=0.820, risky_on_uncertain=0.639, safe_on_uncertain=0.345, risky_on_double_window=0.581, safe_on_double_window=0.419
+Answer-state summary:
+  Contestant 1: knowledge=0.346, recall=0.311, confidence=0.332, safe_candidates=97.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.341, recall=0.346, confidence=0.438, safe_candidates=98.7, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.277, recall=0.280, confidence=0.352, safe_candidates=92.2, risky_candidates=99.8, blind_candidates=0.0
+Player mode rates:
+  Contestant 1: safe=0.395, risky=0.605, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.437, risky=0.522, blind=0.040, victory_lap=0.000
+  Contestant 3: safe=0.443, risky=0.555, blind=0.000, victory_lap=0.001
+Player mode hit rates:
+  Contestant 1: safe=0.980, risky=0.989, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.991, risky=0.996, blind=0.000, desperation=0.000
+  Contestant 3: safe=0.999, risky=0.994, blind=0.000, desperation=0.034
+Player avg guess values:
+  Contestant 1: safe=39.7, risky=58.0, blind=0.0
+  Contestant 2: safe=35.0, risky=64.9, blind=0.0
+  Contestant 3: safe=41.7, risky=55.9, blind=0.0
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.525, high_70_89=0.000, deep_90_100=0.475, early_strike=0.000
+  Contestant 2: top_15=0.000, mid_16_69=0.019, high_70_89=0.000, deep_90_100=0.932, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.000, deep_90_100=0.476, early_strike=0.020
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.395, risky=0.605, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.985, risky=0.000, blind=0.015, victory_lap=0.000
+  Contestant 1 at 2 strikes: safe=1.000, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 2 at 0 strikes: safe=0.221, risky=0.727, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.361, risky=0.587, blind=0.052, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.999, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 0 strikes: safe=0.388, risky=0.611, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=0.995, risky=0.001, blind=0.000, victory_lap=0.004
+  Contestant 3 at 2 strikes: safe=0.128, risky=0.006, blind=0.000, victory_lap=0.637
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.983, risky=0.989, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.983, risky=0.994, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.998, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.991, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 3 at 0 strikes: safe=0.999, risky=0.995, blind=0.000, desperation=0.083
+  Contestant 3 at 1 strikes: safe=0.999, risky=0.720, blind=0.000, desperation=0.042
+  Contestant 3 at 2 strikes: safe=0.000, risky=1.000, blind=0.000, desperation=0.000
+Two-strike summary:
+  Contestant 1: entries=198, survival_rate=0.000, strikeout_next_turn=0.894, avg_survival_turns=0.00, median_survival_turns=0.0
+  Contestant 2: entries=5405, survival_rate=0.960, strikeout_next_turn=0.010, avg_survival_turns=14.00, median_survival_turns=14.0
+  Contestant 3: entries=180, survival_rate=0.011, strikeout_next_turn=0.978, avg_survival_turns=0.01, median_survival_turns=0.0
+
+=== Category: Stolen Bases since 2000 ===
+Contestant 1: win_rate=0.402, avg_score=1690.6, median_score=1694.0, stdev=139.3, avg_strikes=2.21, first_out_rate=0.105
+Contestant 2: win_rate=0.245, avg_score=1661.7, median_score=1664.5, stdev=127.3, avg_strikes=2.56, first_out_rate=0.532
+Contestant 3: win_rate=0.354, avg_score=1609.1, median_score=1653.0, stdev=164.7, avg_strikes=2.14, first_out_rate=0.090
+Last survivor but lost rate: 0.265
+Solo started behind rate: 0.377
+Solo started behind and lost rate: 0.703
+Avg solo start deficit: 190.7
+Avg solo turns taken: 2.31
+Solo had winning answer rate: 0.099
+Solo had winning answer given started behind rate: 0.262
+Solo start deficit buckets: 1-75: 0.367, 76-150: 0.193, 151-250: 0.137, 251+: 0.303
+Avg final board read: -0.057
+Avg absolute final board read: 0.092
+Strong harsh board rate: 0.208
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 55.19
+Avg final cutoff uncertainty: 0.293
+Low uncertainty rate: 0.252
+High cutoff rate: 0.221
+Avg final safe floor: 43.44
+Avg final local density read: 0.078
+Avg final surprise read: 0.152
+Avg final near-cutoff hits: 2.82
+Avg final near-cutoff misses: 0.01
+Mode rates: safe=0.581, risky=0.391, blind_risk=0.012, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.005, victory_lap=0.009
+Double window mode rates: safe=0.568, risky=0.432, blind_risk=0.000
+Context rates: open=0.736, dense=0.536, generous=0.229, dense_and_generous=0.030, tight=0.112, uncertain=0.323, 
+Context-action rates: risky_on_open=0.402, risky_on_dense=0.504, risky_on_generous=0.133, risky_on_dense_and_generous=0.167, safe_on_tight=0.842, risky_on_uncertain=0.513, safe_on_uncertain=0.472, risky_on_double_window=0.432, safe_on_double_window=0.568
+Answer-state summary:
+  Contestant 1: knowledge=0.253, recall=0.228, confidence=0.243, safe_candidates=89.4, risky_candidates=99.7, blind_candidates=0.4
+  Contestant 2: knowledge=0.250, recall=0.244, confidence=0.293, safe_candidates=91.9, risky_candidates=99.8, blind_candidates=0.0
+  Contestant 3: knowledge=0.203, recall=0.197, confidence=0.235, safe_candidates=77.7, risky_candidates=96.2, blind_candidates=2.5
+Player mode rates:
+  Contestant 1: safe=0.583, risky=0.411, blind=0.000, victory_lap=0.004
+  Contestant 2: safe=0.621, risky=0.339, blind=0.035, victory_lap=0.004
+  Contestant 3: safe=0.541, risky=0.422, blind=0.001, victory_lap=0.019
+Player mode hit rates:
+  Contestant 1: safe=0.911, risky=0.981, blind=0.013, desperation=0.106
+  Contestant 2: safe=0.953, risky=0.979, blind=0.001, desperation=0.020
+  Contestant 3: safe=0.970, risky=0.973, blind=0.033, desperation=0.083
+Player avg guess values:
+  Contestant 1: safe=41.3, risky=63.7, blind=96.8
+  Contestant 2: safe=39.5, risky=73.4, blind=96.5
+  Contestant 3: safe=40.0, risky=58.0, blind=97.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.546, high_70_89=0.012, deep_90_100=0.442, early_strike=0.032
+  Contestant 2: top_15=0.000, mid_16_69=0.061, high_70_89=0.001, deep_90_100=0.890, early_strike=0.088
+  Contestant 3: top_15=0.000, mid_16_69=0.543, high_70_89=0.122, deep_90_100=0.335, early_strike=0.064
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.488, risky=0.512, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.986, risky=0.005, blind=0.001, victory_lap=0.008
+  Contestant 1 at 2 strikes: safe=0.829, risky=0.000, blind=0.000, victory_lap=0.132
+  Contestant 2 at 0 strikes: safe=0.387, risky=0.562, blind=0.051, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.568, risky=0.381, blind=0.050, victory_lap=0.001
+  Contestant 2 at 2 strikes: safe=0.984, risky=0.000, blind=0.000, victory_lap=0.011
+  Contestant 3 at 0 strikes: safe=0.398, risky=0.591, blind=0.001, victory_lap=0.006
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.007, blind=0.002, victory_lap=0.024
+  Contestant 3 at 2 strikes: safe=0.190, risky=0.016, blind=0.000, victory_lap=0.410
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.961, risky=0.981, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.890, risky=0.769, blind=0.019, desperation=0.118
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.104
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.980, blind=0.001, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.955, risky=0.976, blind=0.001, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.938, risky=0.000, blind=0.000, desperation=0.020
+  Contestant 3 at 0 strikes: safe=0.981, risky=0.976, blind=0.035, desperation=0.024
+  Contestant 3 at 1 strikes: safe=0.972, risky=0.554, blind=0.031, desperation=0.100
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.513, blind=0.000, desperation=0.084
+Two-strike summary:
+  Contestant 1: entries=7083, survival_rate=0.047, strikeout_next_turn=0.919, avg_survival_turns=0.09, median_survival_turns=0.0
+  Contestant 2: entries=8532, survival_rate=0.733, strikeout_next_turn=0.233, avg_survival_turns=11.52, median_survival_turns=9.0
+  Contestant 3: entries=6880, survival_rate=0.080, strikeout_next_turn=0.917, avg_survival_turns=0.09, median_survival_turns=0.0
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.467, avg_score=1729.3, median_score=1717.0, stdev=88.4, avg_strikes=0.92, first_out_rate=0.001
+Contestant 2: win_rate=0.279, avg_score=1680.0, median_score=1686.0, stdev=96.9, avg_strikes=1.87, first_out_rate=0.248
+Contestant 3: win_rate=0.254, avg_score=1629.7, median_score=1664.0, stdev=124.5, avg_strikes=0.77, first_out_rate=0.037
+Last survivor but lost rate: 0.057
+Solo started behind rate: 0.113
+Solo started behind and lost rate: 0.503
+Avg solo start deficit: 118.7
+Avg solo turns taken: 2.75
+Solo had winning answer rate: 0.055
+Solo had winning answer given started behind rate: 0.485
+Solo start deficit buckets: 1-75: 0.516, 76-150: 0.214, 151-250: 0.113, 251+: 0.157
+Avg final board read: -0.086
+Avg absolute final board read: 0.101
+Strong harsh board rate: 0.258
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 52.04
+Avg final cutoff uncertainty: 0.282
+Low uncertainty rate: 0.295
+High cutoff rate: 0.157
+Avg final safe floor: 40.34
+Avg final local density read: 0.073
+Avg final surprise read: 0.176
+Avg final near-cutoff hits: 2.38
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.480, risky=0.501, blind_risk=0.013, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.003
+Double window mode rates: safe=0.472, risky=0.528, blind_risk=0.000
+Context rates: open=0.746, dense=0.569, generous=0.196, dense_and_generous=0.019, tight=0.095, uncertain=0.323, 
+Context-action rates: risky_on_open=0.526, risky_on_dense=0.617, risky_on_generous=0.237, risky_on_dense_and_generous=0.265, safe_on_tight=0.820, risky_on_uncertain=0.595, safe_on_uncertain=0.389, risky_on_double_window=0.528, safe_on_double_window=0.472
+Answer-state summary:
+  Contestant 1: knowledge=0.304, recall=0.274, confidence=0.292, safe_candidates=94.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.300, recall=0.292, confidence=0.351, safe_candidates=95.9, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.243, recall=0.237, confidence=0.282, safe_candidates=86.7, risky_candidates=98.6, blind_candidates=0.7
+Player mode rates:
+  Contestant 1: safe=0.448, risky=0.552, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.501, risky=0.458, blind=0.040, victory_lap=0.001
+  Contestant 3: safe=0.493, risky=0.494, blind=0.000, victory_lap=0.008
+Player mode hit rates:
+  Contestant 1: safe=0.951, risky=0.992, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.975, risky=0.997, blind=0.000, desperation=0.053
+  Contestant 3: safe=0.993, risky=0.985, blind=0.000, desperation=0.051
+Player avg guess values:
+  Contestant 1: safe=40.3, risky=60.2, blind=0.0
+  Contestant 2: safe=36.5, risky=67.9, blind=0.0
+  Contestant 3: safe=41.2, risky=55.7, blind=97.6
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.528, high_70_89=0.000, deep_90_100=0.472, early_strike=0.001
+  Contestant 2: top_15=0.000, mid_16_69=0.052, high_70_89=0.000, deep_90_100=0.899, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.015, deep_90_100=0.461, early_strike=0.056
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.439, risky=0.561, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.995, risky=0.000, blind=0.003, victory_lap=0.002
+  Contestant 1 at 2 strikes: safe=0.979, risky=0.000, blind=0.000, victory_lap=0.020
+  Contestant 2 at 0 strikes: safe=0.294, risky=0.655, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.461, risky=0.488, blind=0.051, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.991, risky=0.000, blind=0.000, victory_lap=0.005
+  Contestant 3 at 0 strikes: safe=0.360, risky=0.635, blind=0.000, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.978, risky=0.004, blind=0.001, victory_lap=0.012
+  Contestant 3 at 2 strikes: safe=0.189, risky=0.010, blind=0.000, victory_lap=0.491
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.976, risky=0.992, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.411, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.996, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.981, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.967, risky=0.000, blind=0.000, desperation=0.053
+  Contestant 3 at 0 strikes: safe=0.997, risky=0.985, blind=0.000, desperation=0.031
+  Contestant 3 at 1 strikes: safe=0.993, risky=0.712, blind=0.000, desperation=0.066
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.632, blind=0.000, desperation=0.050
+Two-strike summary:
+  Contestant 1: entries=2099, survival_rate=0.006, strikeout_next_turn=0.881, avg_survival_turns=0.01, median_survival_turns=0.0
+  Contestant 2: entries=6187, survival_rate=0.873, strikeout_next_turn=0.081, avg_survival_turns=11.98, median_survival_turns=11.0
+  Contestant 3: entries=1886, survival_rate=0.047, strikeout_next_turn=0.950, avg_survival_turns=0.05, median_survival_turns=0.0
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.503, avg_score=1729.5, median_score=1719.0, stdev=146.5, avg_strikes=2.36, first_out_rate=0.080
+Contestant 2: win_rate=0.193, avg_score=1649.7, median_score=1656.0, stdev=138.9, avg_strikes=2.66, first_out_rate=0.594
+Contestant 3: win_rate=0.303, avg_score=1568.5, median_score=1626.0, stdev=189.0, avg_strikes=2.33, first_out_rate=0.113
+Last survivor but lost rate: 0.323
+Solo started behind rate: 0.439
+Solo started behind and lost rate: 0.735
+Avg solo start deficit: 219.0
+Avg solo turns taken: 2.21
+Solo had winning answer rate: 0.098
+Solo had winning answer given started behind rate: 0.223
+Solo start deficit buckets: 1-75: 0.345, 76-150: 0.206, 151-250: 0.114, 251+: 0.336
+Avg final board read: -0.048
+Avg absolute final board read: 0.094
+Strong harsh board rate: 0.196
+Strong generous board rate: 0.011
+Avg final cutoff estimate: 56.00
+Avg final cutoff uncertainty: 0.297
+Low uncertainty rate: 0.232
+High cutoff rate: 0.230
+Avg final safe floor: 44.22
+Avg final local density read: 0.076
+Avg final surprise read: 0.152
+Avg final near-cutoff hits: 2.87
+Avg final near-cutoff misses: 0.01
+Mode rates: safe=0.597, risky=0.375, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.006, victory_lap=0.009
+Double window mode rates: safe=0.583, risky=0.417, blind_risk=0.000
+Context rates: open=0.733, dense=0.526, generous=0.239, dense_and_generous=0.032, tight=0.110, uncertain=0.324, 
+Context-action rates: risky_on_open=0.382, risky_on_dense=0.487, risky_on_generous=0.121, risky_on_dense_and_generous=0.150, safe_on_tight=0.846, risky_on_uncertain=0.505, safe_on_uncertain=0.480, risky_on_double_window=0.417, safe_on_double_window=0.583
+Answer-state summary:
+  Contestant 1: knowledge=0.253, recall=0.233, confidence=0.255, safe_candidates=90.3, risky_candidates=99.8, blind_candidates=0.2
+  Contestant 2: knowledge=0.250, recall=0.234, confidence=0.264, safe_candidates=90.4, risky_candidates=99.6, blind_candidates=0.2
+  Contestant 3: knowledge=0.203, recall=0.188, confidence=0.209, safe_candidates=73.4, risky_candidates=95.0, blind_candidates=3.8
+Player mode rates:
+  Contestant 1: safe=0.602, risky=0.389, blind=0.000, victory_lap=0.008
+  Contestant 2: safe=0.640, risky=0.321, blind=0.033, victory_lap=0.004
+  Contestant 3: safe=0.551, risky=0.413, blind=0.001, victory_lap=0.016
+Player mode hit rates:
+  Contestant 1: safe=0.907, risky=0.984, blind=0.000, desperation=0.161
+  Contestant 2: safe=0.953, risky=0.968, blind=0.007, desperation=0.014
+  Contestant 3: safe=0.964, risky=0.968, blind=0.027, desperation=0.084
+Player avg guess values:
+  Contestant 1: safe=42.1, risky=65.8, blind=95.5
+  Contestant 2: safe=40.0, risky=74.0, blind=96.1
+  Contestant 3: safe=38.7, risky=57.8, blind=97.4
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.556, high_70_89=0.005, deep_90_100=0.439, early_strike=0.022
+  Contestant 2: top_15=0.000, mid_16_69=0.057, high_70_89=0.001, deep_90_100=0.902, early_strike=0.109
+  Contestant 3: top_15=0.000, mid_16_69=0.553, high_70_89=0.192, deep_90_100=0.255, early_strike=0.060
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.531, risky=0.469, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.976, risky=0.005, blind=0.001, victory_lap=0.017
+  Contestant 1 at 2 strikes: safe=0.764, risky=0.000, blind=0.000, victory_lap=0.200
+  Contestant 2 at 0 strikes: safe=0.395, risky=0.555, blind=0.050, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.560, risky=0.388, blind=0.051, victory_lap=0.002
+  Contestant 2 at 2 strikes: safe=0.984, risky=0.000, blind=0.000, victory_lap=0.009
+  Contestant 3 at 0 strikes: safe=0.390, risky=0.600, blind=0.001, victory_lap=0.005
+  Contestant 3 at 1 strikes: safe=0.952, risky=0.007, blind=0.003, victory_lap=0.018
+  Contestant 3 at 2 strikes: safe=0.225, risky=0.017, blind=0.000, victory_lap=0.340
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.960, risky=0.984, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.859, risky=0.731, blind=0.000, desperation=0.143
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.165
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.969, blind=0.007, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.953, risky=0.965, blind=0.006, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.940, risky=0.000, blind=0.000, desperation=0.014
+  Contestant 3 at 0 strikes: safe=0.979, risky=0.971, blind=0.019, desperation=0.046
+  Contestant 3 at 1 strikes: safe=0.967, risky=0.504, blind=0.032, desperation=0.091
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.582, blind=0.000, desperation=0.087
+Two-strike summary:
+  Contestant 1: entries=7683, survival_rate=0.061, strikeout_next_turn=0.912, avg_survival_turns=0.14, median_survival_turns=0.0
+  Contestant 2: entries=8934, survival_rate=0.742, strikeout_next_turn=0.226, avg_survival_turns=12.23, median_survival_turns=10.5
+  Contestant 3: entries=7538, survival_rate=0.077, strikeout_next_turn=0.920, avg_survival_turns=0.08, median_survival_turns=0.0
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.777, avg_score=2258.6, median_score=2551.0, stdev=753.1, avg_strikes=3.00, first_out_rate=0.001
+Contestant 2: win_rate=0.222, avg_score=1260.7, median_score=1080.0, stdev=551.5, avg_strikes=3.00, first_out_rate=0.006
+Contestant 3: win_rate=0.002, avg_score=469.8, median_score=426.0, stdev=212.8, avg_strikes=3.00, first_out_rate=0.993
+Last survivor but lost rate: 0.098
+Solo started behind rate: 0.344
+Solo started behind and lost rate: 0.285
+Avg solo start deficit: 113.6
+Avg solo turns taken: 19.69
+Solo had winning answer rate: 0.178
+Solo had winning answer given started behind rate: 0.518
+Solo start deficit buckets: 1-75: 0.420, 76-150: 0.291, 151-250: 0.208, 251+: 0.082
+Avg final board read: -0.064
+Avg absolute final board read: 0.085
+Strong harsh board rate: 0.144
+Strong generous board rate: 0.003
+Avg final cutoff estimate: 71.68
+Avg final cutoff uncertainty: 0.524
+Low uncertainty rate: 0.000
+High cutoff rate: 0.635
+Avg final safe floor: 58.53
+Avg final local density read: 0.068
+Avg final surprise read: 0.198
+Avg final near-cutoff hits: 1.78
+Avg final near-cutoff misses: 0.11
+Mode rates: safe=0.625, risky=0.109, blind_risk=0.011, chip_away=0.000, exact_win=0.003, comeback=0.001, high_upside=0.000, desperation=0.002, victory_lap=0.250
+Double window mode rates: safe=0.789, risky=0.211, blind_risk=0.000
+Context rates: open=0.590, dense=0.259, generous=0.356, dense_and_generous=0.024, tight=0.232, uncertain=0.774, 
+Context-action rates: risky_on_open=0.062, risky_on_dense=0.114, risky_on_generous=0.026, risky_on_dense_and_generous=0.077, safe_on_tight=0.953, risky_on_uncertain=0.137, safe_on_uncertain=0.775, risky_on_double_window=0.211, safe_on_double_window=0.789
+Answer-state summary:
+  Contestant 1: knowledge=0.152, recall=0.140, confidence=0.155, safe_candidates=44.1, risky_candidates=91.9, blind_candidates=6.3
+  Contestant 2: knowledge=0.150, recall=0.135, confidence=0.143, safe_candidates=35.6, risky_candidates=90.3, blind_candidates=8.3
+  Contestant 3: knowledge=0.122, recall=0.109, confidence=0.102, safe_candidates=11.8, risky_candidates=69.6, blind_candidates=30.2
+Player mode rates:
+  Contestant 1: safe=0.503, risky=0.061, blind=0.004, victory_lap=0.423
+  Contestant 2: safe=0.741, risky=0.116, blind=0.028, victory_lap=0.112
+  Contestant 3: safe=0.764, risky=0.236, blind=0.000, victory_lap=0.000
+Player mode hit rates:
+  Contestant 1: safe=0.979, risky=0.838, blind=0.055, desperation=0.186
+  Contestant 2: safe=0.945, risky=0.817, blind=0.057, desperation=0.187
+  Contestant 3: safe=0.839, risky=0.754, blind=0.000, desperation=0.133
+Player avg guess values:
+  Contestant 1: safe=36.9, risky=85.9, blind=92.7
+  Contestant 2: safe=37.0, risky=85.6, blind=91.7
+  Contestant 3: safe=25.4, risky=70.6, blind=90.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.603, high_70_89=0.229, deep_90_100=0.168, early_strike=0.072
+  Contestant 2: top_15=0.000, mid_16_69=0.151, high_70_89=0.589, deep_90_100=0.261, early_strike=0.197
+  Contestant 3: top_15=0.129, mid_16_69=0.523, high_70_89=0.337, deep_90_100=0.011, early_strike=0.102
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.552, risky=0.120, blind=0.004, victory_lap=0.323
+  Contestant 1 at 1 strikes: safe=0.519, risky=0.002, blind=0.005, victory_lap=0.463
+  Contestant 1 at 2 strikes: safe=0.178, risky=0.000, blind=0.000, victory_lap=0.792
+  Contestant 2 at 0 strikes: safe=0.636, risky=0.282, blind=0.049, victory_lap=0.033
+  Contestant 2 at 1 strikes: safe=0.739, risky=0.102, blind=0.045, victory_lap=0.112
+  Contestant 2 at 2 strikes: safe=0.823, risky=0.000, blind=0.000, victory_lap=0.173
+  Contestant 3 at 0 strikes: safe=0.423, risky=0.576, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=1.000, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 2 strikes: safe=0.922, risky=0.075, blind=0.000, victory_lap=0.002
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.991, risky=0.839, blind=0.053, desperation=0.053
+  Contestant 1 at 1 strikes: safe=0.977, risky=0.760, blind=0.057, desperation=0.200
+  Contestant 1 at 2 strikes: safe=0.789, risky=0.000, blind=0.000, desperation=0.183
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.838, blind=0.055, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.954, risky=0.761, blind=0.060, desperation=0.111
+  Contestant 2 at 2 strikes: safe=0.918, risky=0.000, blind=0.000, desperation=0.191
+  Contestant 3 at 0 strikes: safe=0.975, risky=0.757, blind=0.000, desperation=0.333
+  Contestant 3 at 1 strikes: safe=0.887, risky=0.000, blind=0.000, desperation=0.200
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.633, blind=0.000, desperation=0.000
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.179, strikeout_next_turn=0.821, avg_survival_turns=3.56, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.636, strikeout_next_turn=0.364, avg_survival_turns=11.33, median_survival_turns=10.0
+  Contestant 3: entries=10000, survival_rate=0.045, strikeout_next_turn=0.955, avg_survival_turns=0.05, median_survival_turns=0.0
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.607, avg_score=1908.4, avg_median_score=1968.0, avg_stdev=323.4, avg_strikes=2.23, avg_first_out_rate=0.038
+Contestant 2: avg_win_rate=0.208, avg_score=1512.0, avg_median_score=1480.0, avg_stdev=227.3, avg_strikes=2.58, avg_first_out_rate=0.288
+Contestant 3: avg_win_rate=0.185, avg_score=1246.4, avg_median_score=1232.4, avg_stdev=201.4, avg_strikes=2.16, avg_first_out_rate=0.403
+Last survivor but lost rate: 0.140
+Solo started behind rate: 0.265
+Solo started behind and lost rate: 0.485
+Avg solo start deficit: 155.3
+Avg solo turns taken: 6.44
+Solo had winning answer rate: 0.099
+Solo had winning answer given started behind rate: 0.433
+Solo start deficit buckets: 1-75: 0.436, 76-150: 0.228, 151-250: 0.141, 251+: 0.194
+Avg final board read: -0.038
+Avg absolute final board read: 0.089
+Avg strong harsh board rate: 0.143
+Avg strong generous board rate: 0.033
+Avg final cutoff estimate: 61.87
+Avg final cutoff uncertainty: 0.365
+Avg low uncertainty rate: 0.134
+Avg high cutoff rate: 0.371
+Avg final safe floor: 49.68
+Avg final local density read: 0.064
+Avg final surprise read: 0.178
+Avg final near-cutoff hits: 2.41
+Avg final near-cutoff misses: 0.05
+Mode rates: safe=0.610, risky=0.305, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.002, victory_lap=0.069
+Double window mode rates: safe=0.636, risky=0.364, blind_risk=0.000
+Context rates: open=0.688, dense=0.431, generous=0.290, dense_and_generous=0.032, tight=0.127, uncertain=0.463, 
+Context-action rates: risky_on_open=0.311, risky_on_dense=0.439, risky_on_generous=0.099, risky_on_dense_and_generous=0.124, safe_on_tight=0.916, risky_on_uncertain=0.325, safe_on_uncertain=0.640, risky_on_double_window=0.364, safe_on_double_window=0.636
+Aggregate answer-state summary:
+Contestant 1: knowledge=0.233, recall=0.212, confidence=0.229, safe_candidates=77.6, risky_candidates=97.4 
+Contestant 2: knowledge=0.226, recall=0.216, confidence=0.252, safe_candidates=73.5, risky_candidates=96.4 
+Contestant 3: knowledge=0.186, recall=0.178, confidence=0.203, safe_candidates=57.7, risky_candidates=89.3 
+Aggregate two-strike summary:
+Contestant 1: entries=77801, survival_rate=0.135, strikeout_next_turn=0.855, avg_survival_turns=0.96, median_survival_turns=0.0
+Contestant 2: entries=94687, survival_rate=0.742, strikeout_next_turn=0.245, avg_survival_turns=12.50, median_survival_turns=12.1
+Contestant 3: entries=77126, survival_rate=0.086, strikeout_next_turn=0.913, avg_survival_turns=0.09, median_survival_turns=0.0
+Aggregate strike-state mode rates:
+Contestant 1 at 0 strikes: safe=0.537, risky=0.369, blind=0.001, victory_lap=0.093
+Contestant 1 at 1 strikes: safe=0.838, risky=0.003, blind=0.004, victory_lap=0.152
+Contestant 1 at 2 strikes: safe=0.522, risky=0.000, blind=0.000, victory_lap=0.447
+Contestant 2 at 0 strikes: safe=0.449, risky=0.495, blind=0.050, victory_lap=0.006
+Contestant 2 at 1 strikes: safe=0.612, risky=0.316, blind=0.049, victory_lap=0.023
+Contestant 2 at 2 strikes: safe=0.958, risky=0.000, blind=0.000, victory_lap=0.039
+Contestant 3 at 0 strikes: safe=0.429, risky=0.567, blind=0.000, victory_lap=0.003
+Contestant 3 at 1 strikes: safe=0.980, risky=0.004, blind=0.001, victory_lap=0.008
+Contestant 3 at 2 strikes: safe=0.484, risky=0.052, blind=0.000, victory_lap=0.266
+Aggregate strike-state hit rates:
+Contestant 1 at 0 strikes: safe=0.978, risky=0.935, desperation=0.005
+Contestant 1 at 1 strikes: safe=0.723, risky=0.547, desperation=0.138
+Contestant 1 at 2 strikes: safe=0.190, risky=0.000, desperation=0.129
+Contestant 2 at 0 strikes: safe=0.981, risky=0.926, desperation=0.000
+Contestant 2 at 1 strikes: safe=0.964, risky=0.896, desperation=0.047
+Contestant 2 at 2 strikes: safe=0.944, risky=0.000, desperation=0.108
+Contestant 3 at 0 strikes: safe=0.982, risky=0.906, desperation=0.070
+Contestant 3 at 1 strikes: safe=0.957, risky=0.644, desperation=0.114
+Contestant 3 at 2 strikes: safe=0.003, risky=0.688, desperation=0.098
+```
+
+**Notes:**
+
+Run 5 is a successful first pass, but it is clearly only a first pass
+- C3 moved in the right direction, but nearly enough to match the real-show behavior yet
+
+**Takeaway:**
+
+Aggregate two-strike summary
+| Contestant | Run 4 | Run 5
+| - | - | -
+| C1 | 0.136 | 0.135
+| C2 | 0.743 | 0.742
+| C3 | 0.040 | 0.086
+
+C3's two-striek survival rate more than doubled, while C1/C2 stayed basically unchanged, meaning the new `two_strike_composure` logic is targeted correctly and not destabilizing the rest of the model.
+
+However, C3 remains far behind C2 in survival rate (0.742 vs 0.086), which shows that although the inversion is less bad, it is still very much present.
+
+1. Category-level signs are good 
+
+C3 OPS+:
+- Run 4: survival_rate=0.055
+- Run 5: survival_rate=0.098
+
+At 2 strikes, C3 now actually takes risky guesses:
+- C3 at 2 strikes: risky=0.061
+- C3 two-strike risky hit rate=0.680
+
+This is overall a good sign as the model is starting to capture "C3 survives through calculated risk", not just generic safe play.
+
+All-Time bWAR:
+- Run 4: survival_rate=0.018
+- Run 5: survival_rate=0.116
+
+This is a much bigger jump, and risk mode at 2 strikes appears with a solid hit rate:
+- C3 at 2 strikes: risky=0.133
+- C3 two-strike risky hit rate=0.732
+
+Overall this proves the concept that C3's two-strike issue was not just his answer pool, but also that the decision layer forced him into generic safe behavior.
+- Allowing C3 to occasionally take composed risky survival shots, his two-strike survivial improved, which aligns with the real show
+
+However, the selection threshold bonus is still tiny.
+- having `two_strike_composure = 0.18`, the safe threshold only drops by `0.03 * 0.18 = 0.0054`
+
+Thus, most of the change likely comes from allowign occasional risky mode, not from the threshold relaxation
+
+**Conclusion:**
+
+Run 5 is thus a successful controlled first pass.
+
+### Run 5.2
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.650, avg_score=1803.2, median_score=1743.0, stdev=296.4, avg_strikes=2.97, first_out_rate=0.092
+Contestant 2: win_rate=0.169, avg_score=1594.4, median_score=1594.0, stdev=193.4, avg_strikes=2.98, first_out_rate=0.498
+Contestant 3: win_rate=0.181, avg_score=1313.6, median_score=1260.0, stdev=272.5, avg_strikes=2.97, first_out_rate=0.400
+Last survivor but lost rate: 0.261
+Solo started behind rate: 0.404
+Solo started behind and lost rate: 0.645
+Avg solo start deficit: 256.6
+Avg solo turns taken: 2.31
+Solo had winning answer rate: 0.116
+Solo had winning answer given started behind rate: 0.286
+Solo start deficit buckets: 1-75: 0.329, 76-150: 0.199, 151-250: 0.123, 251+: 0.350
+Avg final board read: 0.027
+Avg absolute final board read: 0.090
+Strong harsh board rate: 0.064
+Strong generous board rate: 0.110
+Avg final cutoff estimate: 66.33
+Avg final cutoff uncertainty: 0.343
+Low uncertainty rate: 0.054
+High cutoff rate: 0.413
+Avg final safe floor: 54.28
+Avg final local density read: 0.052
+Avg final surprise read: 0.174
+Avg final near-cutoff hits: 2.64
+Avg final near-cutoff misses: 0.06
+Mode rates: safe=0.740, risky=0.219, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.026
+Double window mode rates: safe=0.754, risky=0.246, blind_risk=0.000
+Context rates: open=0.705, dense=0.419, generous=0.336, dense_and_generous=0.051, tight=0.093, uncertain=0.352, 
+Context-action rates: risky_on_open=0.193, risky_on_dense=0.285, risky_on_generous=0.060, risky_on_dense_and_generous=0.074, safe_on_tight=0.941, risky_on_uncertain=0.367, safe_on_uncertain=0.620, risky_on_double_window=0.246, safe_on_double_window=0.754
+Answer-state summary:
+  Contestant 1: knowledge=0.217, recall=0.199, confidence=0.219, safe_candidates=83.4, risky_candidates=98.5, blind_candidates=1.2
+  Contestant 2: knowledge=0.215, recall=0.193, confidence=0.206, safe_candidates=81.6, risky_candidates=97.2, blind_candidates=2.4
+  Contestant 3: knowledge=0.174, recall=0.156, confidence=0.167, safe_candidates=56.4, risky_candidates=90.7, blind_candidates=7.8
+Player mode rates:
+  Contestant 1: safe=0.739, risky=0.201, blind=0.001, victory_lap=0.056
+  Contestant 2: safe=0.768, risky=0.193, blind=0.027, victory_lap=0.010
+  Contestant 3: safe=0.714, risky=0.264, blind=0.001, victory_lap=0.010
+Player mode hit rates:
+  Contestant 1: safe=0.937, risky=0.939, blind=0.028, desperation=0.179
+  Contestant 2: safe=0.953, risky=0.890, blind=0.052, desperation=0.122
+  Contestant 3: safe=0.937, risky=0.916, blind=0.051, desperation=0.130
+Player avg guess values:
+  Contestant 1: safe=45.0, risky=78.0, blind=95.7
+  Contestant 2: safe=43.7, risky=81.5, blind=95.6
+  Contestant 3: safe=33.9, risky=65.2, blind=96.1
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.606, high_70_89=0.029, deep_90_100=0.365, early_strike=0.051
+  Contestant 2: top_15=0.000, mid_16_69=0.061, high_70_89=0.099, deep_90_100=0.837, early_strike=0.207
+  Contestant 3: top_15=0.000, mid_16_69=0.603, high_70_89=0.293, deep_90_100=0.104, early_strike=0.064
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.667, risky=0.323, blind=0.000, victory_lap=0.010
+  Contestant 1 at 1 strikes: safe=0.928, risky=0.003, blind=0.001, victory_lap=0.065
+  Contestant 1 at 2 strikes: safe=0.309, risky=0.000, blind=0.000, victory_lap=0.633
+  Contestant 2 at 0 strikes: safe=0.506, risky=0.443, blind=0.050, victory_lap=0.001
+  Contestant 2 at 1 strikes: safe=0.690, risky=0.250, blind=0.050, victory_lap=0.010
+  Contestant 2 at 2 strikes: safe=0.980, risky=0.000, blind=0.000, victory_lap=0.016
+  Contestant 3 at 0 strikes: safe=0.473, risky=0.522, blind=0.001, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.979, risky=0.005, blind=0.002, victory_lap=0.007
+  Contestant 3 at 2 strikes: safe=0.503, risky=0.099, blind=0.000, victory_lap=0.159
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.968, risky=0.940, blind=0.010, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.937, risky=0.709, blind=0.041, desperation=0.167
+  Contestant 1 at 2 strikes: safe=0.006, risky=0.000, blind=0.000, desperation=0.182
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.900, blind=0.051, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.957, risky=0.872, blind=0.054, desperation=0.062
+  Contestant 2 at 2 strikes: safe=0.942, risky=0.000, blind=0.000, desperation=0.126
+  Contestant 3 at 0 strikes: safe=0.971, risky=0.922, blind=0.052, desperation=0.055
+  Contestant 3 at 1 strikes: safe=0.953, risky=0.695, blind=0.051, desperation=0.124
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.645, blind=0.000, desperation=0.135
+Two-strike summary:
+  Contestant 1: entries=9900, survival_rate=0.188, strikeout_next_turn=0.812, avg_survival_turns=0.62, median_survival_turns=0.0
+  Contestant 2: entries=9949, survival_rate=0.749, strikeout_next_turn=0.249, avg_survival_turns=14.57, median_survival_turns=16.0
+  Contestant 3: entries=9899, survival_rate=0.121, strikeout_next_turn=0.878, avg_survival_turns=0.14, median_survival_turns=0.0
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.836, avg_score=2150.5, median_score=2280.0, stdev=486.4, avg_strikes=3.00, first_out_rate=0.019
+Contestant 2: win_rate=0.114, avg_score=1386.3, median_score=1362.0, stdev=263.5, avg_strikes=3.00, first_out_rate=0.170
+Contestant 3: win_rate=0.050, avg_score=939.4, median_score=866.0, stdev=279.7, avg_strikes=3.00, first_out_rate=0.811
+Last survivor but lost rate: 0.088
+Solo started behind rate: 0.228
+Solo started behind and lost rate: 0.389
+Avg solo start deficit: 134.2
+Avg solo turns taken: 6.38
+Solo had winning answer rate: 0.109
+Solo had winning answer given started behind rate: 0.480
+Solo start deficit buckets: 1-75: 0.429, 76-150: 0.278, 151-250: 0.164, 251+: 0.129
+Avg final board read: 0.029
+Avg absolute final board read: 0.068
+Strong harsh board rate: 0.014
+Strong generous board rate: 0.086
+Avg final cutoff estimate: 70.75
+Avg final cutoff uncertainty: 0.419
+Low uncertainty rate: 0.006
+High cutoff rate: 0.607
+Avg final safe floor: 58.24
+Avg final local density read: 0.050
+Avg final surprise read: 0.176
+Avg final near-cutoff hits: 2.63
+Avg final near-cutoff misses: 0.10
+Mode rates: safe=0.732, risky=0.153, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.102
+Double window mode rates: safe=0.819, risky=0.181, blind_risk=0.000
+Context rates: open=0.629, dense=0.303, generous=0.374, dense_and_generous=0.047, tight=0.119, uncertain=0.596, 
+Context-action rates: risky_on_open=0.117, risky_on_dense=0.199, risky_on_generous=0.041, risky_on_dense_and_generous=0.052, safe_on_tight=0.981, risky_on_uncertain=0.204, safe_on_uncertain=0.781, risky_on_double_window=0.181, safe_on_double_window=0.819
+Answer-state summary:
+  Contestant 1: knowledge=0.181, recall=0.168, confidence=0.188, safe_candidates=69.7, risky_candidates=96.1, blind_candidates=2.9
+  Contestant 2: knowledge=0.170, recall=0.153, confidence=0.163, safe_candidates=56.3, risky_candidates=93.5, blind_candidates=5.3
+  Contestant 3: knowledge=0.145, recall=0.130, confidence=0.139, safe_candidates=36.0, risky_candidates=84.1, blind_candidates=13.5
+Player mode rates:
+  Contestant 1: safe=0.649, risky=0.112, blind=0.002, victory_lap=0.234
+  Contestant 2: safe=0.784, risky=0.164, blind=0.029, victory_lap=0.020
+  Contestant 3: safe=0.795, risky=0.198, blind=0.000, victory_lap=0.003
+Player mode hit rates:
+  Contestant 1: safe=0.974, risky=0.892, blind=0.064, desperation=0.204
+  Contestant 2: safe=0.948, risky=0.875, blind=0.054, desperation=0.185
+  Contestant 3: safe=0.918, risky=0.830, blind=0.064, desperation=0.141
+Player avg guess values:
+  Contestant 1: safe=44.5, risky=84.8, blind=95.2
+  Contestant 2: safe=40.1, risky=83.1, blind=94.5
+  Contestant 3: safe=29.3, risky=70.6, blind=92.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.591, high_70_89=0.101, deep_90_100=0.308, early_strike=0.066
+  Contestant 2: top_15=0.000, mid_16_69=0.084, high_70_89=0.471, deep_90_100=0.445, early_strike=0.181
+  Contestant 3: top_15=0.000, mid_16_69=0.585, high_70_89=0.368, deep_90_100=0.047, early_strike=0.089
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.651, risky=0.203, blind=0.002, victory_lap=0.144
+  Contestant 1 at 1 strikes: safe=0.727, risky=0.003, blind=0.002, victory_lap=0.263
+  Contestant 1 at 2 strikes: safe=0.106, risky=0.000, blind=0.000, victory_lap=0.868
+  Contestant 2 at 0 strikes: safe=0.581, risky=0.365, blind=0.049, victory_lap=0.004
+  Contestant 2 at 1 strikes: safe=0.759, risky=0.172, blind=0.049, victory_lap=0.019
+  Contestant 2 at 2 strikes: safe=0.962, risky=0.000, blind=0.000, victory_lap=0.034
+  Contestant 3 at 0 strikes: safe=0.467, risky=0.531, blind=0.000, victory_lap=0.001
+  Contestant 3 at 1 strikes: safe=0.994, risky=0.002, blind=0.001, victory_lap=0.002
+  Contestant 3 at 2 strikes: safe=0.685, risky=0.228, blind=0.000, victory_lap=0.044
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.986, risky=0.893, blind=0.064, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.973, risky=0.750, blind=0.064, desperation=0.264
+  Contestant 1 at 2 strikes: safe=0.289, risky=0.000, blind=0.000, desperation=0.189
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.889, blind=0.053, desperation=1.000
+  Contestant 2 at 1 strikes: safe=0.955, risky=0.841, blind=0.057, desperation=0.091
+  Contestant 2 at 2 strikes: safe=0.928, risky=0.000, blind=0.000, desperation=0.186
+  Contestant 3 at 0 strikes: safe=0.978, risky=0.838, blind=0.000, desperation=0.037
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.744, blind=0.093, desperation=0.146
+  Contestant 3 at 2 strikes: safe=0.001, risky=0.694, blind=0.000, desperation=0.146
+Two-strike summary:
+  Contestant 1: entries=9999, survival_rate=0.166, strikeout_next_turn=0.834, avg_survival_turns=1.48, median_survival_turns=0.0
+  Contestant 2: entries=9999, survival_rate=0.681, strikeout_next_turn=0.319, avg_survival_turns=11.91, median_survival_turns=11.0
+  Contestant 3: entries=9999, survival_rate=0.176, strikeout_next_turn=0.824, avg_survival_turns=0.22, median_survival_turns=0.0
+
+=== Category: Hitter bWAR since 2000 ===
+Contestant 1: win_rate=0.538, avg_score=1700.4, median_score=1667.0, stdev=286.4, avg_strikes=2.98, first_out_rate=0.116
+Contestant 2: win_rate=0.238, avg_score=1611.8, median_score=1594.0, stdev=214.2, avg_strikes=2.99, first_out_rate=0.496
+Contestant 3: win_rate=0.223, avg_score=1331.4, median_score=1295.5, stdev=264.9, avg_strikes=2.98, first_out_rate=0.382
+Last survivor but lost rate: 0.275
+Solo started behind rate: 0.430
+Solo started behind and lost rate: 0.640
+Avg solo start deficit: 250.8
+Avg solo turns taken: 2.31
+Solo had winning answer rate: 0.118
+Solo had winning answer given started behind rate: 0.275
+Solo start deficit buckets: 1-75: 0.301, 76-150: 0.188, 151-250: 0.133, 251+: 0.378
+Avg final board read: 0.022
+Avg absolute final board read: 0.084
+Strong harsh board rate: 0.062
+Strong generous board rate: 0.078
+Avg final cutoff estimate: 65.46
+Avg final cutoff uncertainty: 0.347
+Low uncertainty rate: 0.053
+High cutoff rate: 0.379
+Avg final safe floor: 53.38
+Avg final local density read: 0.054
+Avg final surprise read: 0.168
+Avg final near-cutoff hits: 2.72
+Avg final near-cutoff misses: 0.07
+Mode rates: safe=0.736, risky=0.224, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.024
+Double window mode rates: safe=0.747, risky=0.253, blind_risk=0.000
+Context rates: open=0.704, dense=0.419, generous=0.336, dense_and_generous=0.051, tight=0.099, uncertain=0.357, 
+Context-action rates: risky_on_open=0.199, risky_on_dense=0.295, risky_on_generous=0.063, risky_on_dense_and_generous=0.091, safe_on_tight=0.941, risky_on_uncertain=0.369, safe_on_uncertain=0.617, risky_on_double_window=0.253, safe_on_double_window=0.747
+Answer-state summary:
+  Contestant 1: knowledge=0.205, recall=0.187, confidence=0.204, safe_candidates=78.8, risky_candidates=97.6, blind_candidates=1.9
+  Contestant 2: knowledge=0.197, recall=0.188, confidence=0.222, safe_candidates=81.5, risky_candidates=97.4, blind_candidates=1.6
+  Contestant 3: knowledge=0.164, recall=0.155, confidence=0.174, safe_candidates=57.6, risky_candidates=91.1, blind_candidates=6.9
+Player mode rates:
+  Contestant 1: safe=0.731, risky=0.219, blind=0.001, victory_lap=0.044
+  Contestant 2: safe=0.763, risky=0.191, blind=0.029, victory_lap=0.015
+  Contestant 3: safe=0.713, risky=0.262, blind=0.001, victory_lap=0.013
+Player mode hit rates:
+  Contestant 1: safe=0.934, risky=0.937, blind=0.057, desperation=0.178
+  Contestant 2: safe=0.953, risky=0.900, blind=0.046, desperation=0.144
+  Contestant 3: safe=0.937, risky=0.919, blind=0.054, desperation=0.149
+Player avg guess values:
+  Contestant 1: safe=42.8, risky=75.6, blind=95.7
+  Contestant 2: safe=43.8, risky=82.8, blind=95.5
+  Contestant 3: safe=34.5, risky=65.9, blind=95.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.597, high_70_89=0.065, deep_90_100=0.338, early_strike=0.058
+  Contestant 2: top_15=0.000, mid_16_69=0.062, high_70_89=0.087, deep_90_100=0.842, early_strike=0.185
+  Contestant 3: top_15=0.000, mid_16_69=0.593, high_70_89=0.289, deep_90_100=0.117, early_strike=0.066
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.628, risky=0.363, blind=0.000, victory_lap=0.008
+  Contestant 1 at 1 strikes: safe=0.942, risky=0.005, blind=0.001, victory_lap=0.048
+  Contestant 1 at 2 strikes: safe=0.373, risky=0.000, blind=0.000, victory_lap=0.543
+  Contestant 2 at 0 strikes: safe=0.523, risky=0.425, blind=0.051, victory_lap=0.001
+  Contestant 2 at 1 strikes: safe=0.702, risky=0.232, blind=0.050, victory_lap=0.015
+  Contestant 2 at 2 strikes: safe=0.972, risky=0.000, blind=0.000, victory_lap=0.025
+  Contestant 3 at 0 strikes: safe=0.485, risky=0.509, blind=0.001, victory_lap=0.004
+  Contestant 3 at 1 strikes: safe=0.977, risky=0.005, blind=0.002, victory_lap=0.009
+  Contestant 3 at 2 strikes: safe=0.487, risky=0.087, blind=0.000, victory_lap=0.192
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.966, risky=0.939, blind=0.087, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.941, risky=0.717, blind=0.039, desperation=0.195
+  Contestant 1 at 2 strikes: safe=0.005, risky=0.000, blind=0.000, desperation=0.174
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.911, blind=0.047, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.958, risky=0.876, blind=0.045, desperation=0.182
+  Contestant 2 at 2 strikes: safe=0.940, risky=0.000, blind=0.000, desperation=0.141
+  Contestant 3 at 0 strikes: safe=0.970, risky=0.924, blind=0.034, desperation=0.020
+  Contestant 3 at 1 strikes: safe=0.953, risky=0.681, blind=0.065, desperation=0.152
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.689, blind=0.000, desperation=0.150
+Two-strike summary:
+  Contestant 1: entries=9928, survival_rate=0.148, strikeout_next_turn=0.852, avg_survival_turns=0.46, median_survival_turns=0.0
+  Contestant 2: entries=9957, survival_rate=0.737, strikeout_next_turn=0.261, avg_survival_turns=13.77, median_survival_turns=14.0
+  Contestant 3: entries=9929, survival_rate=0.125, strikeout_next_turn=0.875, avg_survival_turns=0.15, median_survival_turns=0.0
+
+=== Category: Pitcher bWAR since 2000 ===
+Contestant 1: win_rate=0.872, avg_score=2228.6, median_score=2364.0, stdev=530.2, avg_strikes=3.00, first_out_rate=0.010
+Contestant 2: win_rate=0.066, avg_score=1169.5, median_score=1145.0, stdev=260.3, avg_strikes=3.00, first_out_rate=0.421
+Contestant 3: win_rate=0.063, avg_score=934.1, median_score=867.0, stdev=279.1, avg_strikes=3.00, first_out_rate=0.569
+Last survivor but lost rate: 0.079
+Solo started behind rate: 0.232
+Solo started behind and lost rate: 0.342
+Avg solo start deficit: 138.3
+Avg solo turns taken: 9.80
+Solo had winning answer rate: 0.117
+Solo had winning answer given started behind rate: 0.507
+Solo start deficit buckets: 1-75: 0.437, 76-150: 0.252, 151-250: 0.154, 251+: 0.157
+Avg final board read: 0.002
+Avg absolute final board read: 0.061
+Strong harsh board rate: 0.013
+Strong generous board rate: 0.039
+Avg final cutoff estimate: 70.26
+Avg final cutoff uncertainty: 0.447
+Low uncertainty rate: 0.003
+High cutoff rate: 0.579
+Avg final safe floor: 57.58
+Avg final local density read: 0.049
+Avg final surprise read: 0.174
+Avg final near-cutoff hits: 2.39
+Avg final near-cutoff misses: 0.13
+Mode rates: safe=0.689, risky=0.150, blind_risk=0.009, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.149
+Double window mode rates: safe=0.822, risky=0.178, blind_risk=0.000
+Context rates: open=0.595, dense=0.258, generous=0.371, dense_and_generous=0.034, tight=0.172, uncertain=0.691, 
+Context-action rates: risky_on_open=0.116, risky_on_dense=0.206, risky_on_generous=0.050, risky_on_dense_and_generous=0.083, safe_on_tight=0.974, risky_on_uncertain=0.182, safe_on_uncertain=0.789, risky_on_double_window=0.178, safe_on_double_window=0.822
+Answer-state summary:
+  Contestant 1: knowledge=0.173, recall=0.157, confidence=0.172, safe_candidates=60.8, risky_candidates=94.7, blind_candidates=4.2
+  Contestant 2: knowledge=0.146, recall=0.137, confidence=0.149, safe_candidates=39.9, risky_candidates=91.1, blind_candidates=7.2
+  Contestant 3: knowledge=0.138, recall=0.131, confidence=0.140, safe_candidates=36.7, risky_candidates=84.3, blind_candidates=13.2
+Player mode rates:
+  Contestant 1: safe=0.568, risky=0.099, blind=0.001, victory_lap=0.328
+  Contestant 2: safe=0.777, risky=0.180, blind=0.027, victory_lap=0.015
+  Contestant 3: safe=0.790, risky=0.198, blind=0.003, victory_lap=0.006
+Player mode hit rates:
+  Contestant 1: safe=0.980, risky=0.879, blind=0.068, desperation=0.221
+  Contestant 2: safe=0.940, risky=0.836, blind=0.062, desperation=0.170
+  Contestant 3: safe=0.920, risky=0.820, blind=0.040, desperation=0.185
+Player avg guess values:
+  Contestant 1: safe=41.8, risky=83.9, blind=94.5
+  Contestant 2: safe=37.1, risky=82.7, blind=92.7
+  Contestant 3: safe=30.1, risky=72.4, blind=91.4
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.598, high_70_89=0.158, deep_90_100=0.244, early_strike=0.065
+  Contestant 2: top_15=0.000, mid_16_69=0.084, high_70_89=0.605, deep_90_100=0.311, early_strike=0.202
+  Contestant 3: top_15=0.000, mid_16_69=0.595, high_70_89=0.355, deep_90_100=0.050, early_strike=0.089
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.582, risky=0.179, blind=0.001, victory_lap=0.238
+  Contestant 1 at 1 strikes: safe=0.615, risky=0.004, blind=0.002, victory_lap=0.373
+  Contestant 1 at 2 strikes: safe=0.082, risky=0.000, blind=0.000, victory_lap=0.892
+  Contestant 2 at 0 strikes: safe=0.524, risky=0.423, blind=0.049, victory_lap=0.004
+  Contestant 2 at 1 strikes: safe=0.719, risky=0.216, blind=0.050, victory_lap=0.015
+  Contestant 2 at 2 strikes: safe=0.977, risky=0.000, blind=0.000, victory_lap=0.022
+  Contestant 3 at 0 strikes: safe=0.516, risky=0.479, blind=0.002, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.979, risky=0.013, blind=0.003, victory_lap=0.003
+  Contestant 3 at 2 strikes: safe=0.668, risky=0.202, blind=0.000, victory_lap=0.078
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.991, risky=0.881, blind=0.070, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.979, risky=0.782, blind=0.067, desperation=0.231
+  Contestant 1 at 2 strikes: safe=0.263, risky=0.000, blind=0.000, desperation=0.218
+  Contestant 2 at 0 strikes: safe=0.978, risky=0.856, blind=0.057, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.948, risky=0.795, blind=0.067, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.924, risky=0.000, blind=0.000, desperation=0.179
+  Contestant 3 at 0 strikes: safe=0.980, risky=0.832, blind=0.048, desperation=0.111
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.753, blind=0.037, desperation=0.161
+  Contestant 3 at 2 strikes: safe=0.025, risky=0.635, blind=0.000, desperation=0.196
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.117, strikeout_next_turn=0.883, avg_survival_turns=1.40, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.695, strikeout_next_turn=0.305, avg_survival_turns=11.81, median_survival_turns=14.0
+  Contestant 3: entries=10000, survival_rate=0.173, strikeout_next_turn=0.827, avg_survival_turns=0.25, median_survival_turns=0.0
+
+=== Category: All-Time ERA+ ===
+Contestant 1: win_rate=0.805, avg_score=2262.0, median_score=2488.0, stdev=666.5, avg_strikes=3.00, first_out_rate=0.002
+Contestant 2: win_rate=0.189, avg_score=1271.0, median_score=1141.0, stdev=466.3, avg_strikes=3.00, first_out_rate=0.023
+Contestant 3: win_rate=0.005, avg_score=600.8, median_score=549.0, stdev=232.9, avg_strikes=3.00, first_out_rate=0.975
+Last survivor but lost rate: 0.081
+Solo started behind rate: 0.301
+Solo started behind and lost rate: 0.270
+Avg solo start deficit: 110.4
+Avg solo turns taken: 16.83
+Solo had winning answer rate: 0.166
+Solo had winning answer given started behind rate: 0.552
+Solo start deficit buckets: 1-75: 0.442, 76-150: 0.294, 151-250: 0.174, 251+: 0.090
+Avg final board read: -0.051
+Avg absolute final board read: 0.083
+Strong harsh board rate: 0.096
+Strong generous board rate: 0.008
+Avg final cutoff estimate: 72.24
+Avg final cutoff uncertainty: 0.499
+Low uncertainty rate: 0.000
+High cutoff rate: 0.677
+Avg final safe floor: 59.25
+Avg final local density read: 0.060
+Avg final surprise read: 0.206
+Avg final near-cutoff hits: 1.76
+Avg final near-cutoff misses: 0.10
+Mode rates: safe=0.654, risky=0.120, blind_risk=0.011, chip_away=0.000, exact_win=0.002, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.210
+Double window mode rates: safe=0.807, risky=0.193, blind_risk=0.000
+Context rates: open=0.602, dense=0.257, generous=0.375, dense_and_generous=0.031, tight=0.214, uncertain=0.762, 
+Context-action rates: risky_on_open=0.078, risky_on_dense=0.144, risky_on_generous=0.032, risky_on_dense_and_generous=0.080, safe_on_tight=0.967, risky_on_uncertain=0.150, safe_on_uncertain=0.787, risky_on_double_window=0.193, safe_on_double_window=0.807
+Answer-state summary:
+  Contestant 1: knowledge=0.158, recall=0.145, confidence=0.159, safe_candidates=49.8, risky_candidates=92.9, blind_candidates=5.6
+  Contestant 2: knowledge=0.156, recall=0.141, confidence=0.144, safe_candidates=39.6, risky_candidates=91.1, blind_candidates=8.0
+  Contestant 3: knowledge=0.127, recall=0.114, confidence=0.112, safe_candidates=16.8, risky_candidates=74.4, blind_candidates=24.1
+Player mode rates:
+  Contestant 1: safe=0.527, risky=0.075, blind=0.004, victory_lap=0.388
+  Contestant 2: safe=0.760, risky=0.131, blind=0.029, victory_lap=0.078
+  Contestant 3: safe=0.789, risky=0.210, blind=0.000, victory_lap=0.001
+Player mode hit rates:
+  Contestant 1: safe=0.981, risky=0.858, blind=0.057, desperation=0.198
+  Contestant 2: safe=0.945, risky=0.832, blind=0.052, desperation=0.205
+  Contestant 3: safe=0.876, risky=0.769, blind=0.111, desperation=0.158
+Player avg guess values:
+  Contestant 1: safe=38.5, risky=85.5, blind=93.5
+  Contestant 2: safe=37.9, risky=85.1, blind=92.1
+  Contestant 3: safe=26.7, risky=71.4, blind=91.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.588, high_70_89=0.213, deep_90_100=0.199, early_strike=0.070
+  Contestant 2: top_15=0.000, mid_16_69=0.123, high_70_89=0.587, deep_90_100=0.291, early_strike=0.191
+  Contestant 3: top_15=0.058, mid_16_69=0.554, high_70_89=0.371, deep_90_100=0.017, early_strike=0.104
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.563, risky=0.141, blind=0.003, victory_lap=0.291
+  Contestant 1 at 1 strikes: safe=0.556, risky=0.003, blind=0.005, victory_lap=0.427
+  Contestant 1 at 2 strikes: safe=0.149, risky=0.000, blind=0.000, victory_lap=0.820
+  Contestant 2 at 0 strikes: safe=0.616, risky=0.313, blind=0.050, victory_lap=0.021
+  Contestant 2 at 1 strikes: safe=0.764, risky=0.118, blind=0.046, victory_lap=0.071
+  Contestant 2 at 2 strikes: safe=0.868, risky=0.000, blind=0.000, victory_lap=0.128
+  Contestant 3 at 0 strikes: safe=0.443, risky=0.557, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=0.999, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 2 strikes: safe=0.843, risky=0.145, blind=0.000, victory_lap=0.008
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.992, risky=0.859, blind=0.054, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.979, risky=0.753, blind=0.061, desperation=0.216
+  Contestant 1 at 2 strikes: safe=0.732, risky=0.000, blind=0.000, desperation=0.192
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.852, blind=0.052, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.954, risky=0.775, blind=0.052, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.920, risky=0.000, blind=0.000, desperation=0.212
+  Contestant 3 at 0 strikes: safe=0.979, risky=0.776, blind=0.071, desperation=0.000
+  Contestant 3 at 1 strikes: safe=0.916, risky=0.900, blind=0.154, desperation=0.125
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.595, blind=0.000, desperation=0.185
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.168, strikeout_next_turn=0.832, avg_survival_turns=2.78, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.652, strikeout_next_turn=0.348, avg_survival_turns=11.31, median_survival_turns=11.0
+  Contestant 3: entries=10000, survival_rate=0.082, strikeout_next_turn=0.918, avg_survival_turns=0.10, median_survival_turns=0.0
+
+=== Category: Pitcher Strikeouts since 2010 ===
+Contestant 1: win_rate=0.424, avg_score=1715.9, median_score=1706.0, stdev=81.8, avg_strikes=0.64, first_out_rate=0.000
+Contestant 2: win_rate=0.295, avg_score=1675.6, median_score=1683.0, stdev=90.1, avg_strikes=1.70, first_out_rate=0.148
+Contestant 3: win_rate=0.281, avg_score=1654.7, median_score=1678.0, stdev=105.2, avg_strikes=0.41, first_out_rate=0.015
+Last survivor but lost rate: 0.020
+Solo started behind rate: 0.047
+Solo started behind and lost rate: 0.431
+Avg solo start deficit: 94.5
+Avg solo turns taken: 3.02
+Solo had winning answer rate: 0.026
+Solo had winning answer given started behind rate: 0.569
+Solo start deficit buckets: 1-75: 0.584, 76-150: 0.221, 151-250: 0.101, 251+: 0.094
+Avg final board read: -0.096
+Avg absolute final board read: 0.105
+Strong harsh board rate: 0.260
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 50.97
+Avg final cutoff uncertainty: 0.281
+Low uncertainty rate: 0.295
+High cutoff rate: 0.124
+Avg final safe floor: 39.28
+Avg final local density read: 0.071
+Avg final surprise read: 0.184
+Avg final near-cutoff hits: 2.27
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.450, risky=0.534, blind_risk=0.013, chip_away=0.000, exact_win=0.000, comeback=0.000, high_upside=0.000, desperation=0.000, victory_lap=0.002
+Double window mode rates: safe=0.442, risky=0.558, blind_risk=0.000
+Context rates: open=0.748, dense=0.575, generous=0.189, dense_and_generous=0.016, tight=0.089, uncertain=0.323, 
+Context-action rates: risky_on_open=0.562, risky_on_dense=0.647, risky_on_generous=0.283, risky_on_dense_and_generous=0.328, safe_on_tight=0.823, risky_on_uncertain=0.620, safe_on_uncertain=0.364, risky_on_double_window=0.558, safe_on_double_window=0.442
+Answer-state summary:
+  Contestant 1: knowledge=0.317, recall=0.285, confidence=0.304, safe_candidates=95.3, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.313, recall=0.317, confidence=0.402, safe_candidates=97.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.254, recall=0.257, confidence=0.322, safe_candidates=89.6, risky_candidates=99.3, blind_candidates=0.1
+Player mode rates:
+  Contestant 1: safe=0.416, risky=0.584, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.467, risky=0.492, blind=0.040, victory_lap=0.001
+  Contestant 3: safe=0.467, risky=0.527, blind=0.000, victory_lap=0.004
+Player mode hit rates:
+  Contestant 1: safe=0.969, risky=0.990, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.983, risky=0.997, blind=0.000, desperation=0.000
+  Contestant 3: safe=0.997, risky=0.990, blind=0.000, desperation=0.040
+Player avg guess values:
+  Contestant 1: safe=39.8, risky=58.9, blind=0.0
+  Contestant 2: safe=35.8, risky=66.3, blind=0.0
+  Contestant 3: safe=41.5, risky=55.7, blind=98.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.526, high_70_89=0.000, deep_90_100=0.474, early_strike=0.000
+  Contestant 2: top_15=0.000, mid_16_69=0.034, high_70_89=0.000, deep_90_100=0.917, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.002, deep_90_100=0.473, early_strike=0.035
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.414, risky=0.586, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.995, risky=0.000, blind=0.005, victory_lap=0.000
+  Contestant 1 at 2 strikes: safe=0.993, risky=0.000, blind=0.000, victory_lap=0.007
+  Contestant 2 at 0 strikes: safe=0.256, risky=0.693, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.410, risky=0.538, blind=0.052, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.997, risky=0.000, blind=0.000, victory_lap=0.002
+  Contestant 3 at 0 strikes: safe=0.375, risky=0.622, blind=0.000, victory_lap=0.002
+  Contestant 3 at 1 strikes: safe=0.986, risky=0.002, blind=0.000, victory_lap=0.009
+  Contestant 3 at 2 strikes: safe=0.174, risky=0.011, blind=0.000, victory_lap=0.561
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.980, risky=0.990, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.995, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.991, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.980, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 3 at 0 strikes: safe=0.999, risky=0.990, blind=0.000, desperation=0.026
+  Contestant 3 at 1 strikes: safe=0.996, risky=0.824, blind=0.000, desperation=0.051
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.889, blind=0.000, desperation=0.040
+Two-strike summary:
+  Contestant 1: entries=911, survival_rate=0.002, strikeout_next_turn=0.878, avg_survival_turns=0.00, median_survival_turns=0.0
+  Contestant 2: entries=5724, survival_rate=0.921, strikeout_next_turn=0.040, avg_survival_turns=12.99, median_survival_turns=13.0
+  Contestant 3: entries=815, survival_rate=0.036, strikeout_next_turn=0.960, avg_survival_turns=0.04, median_survival_turns=0.0
+
+=== Category: Home Runs since 2020 ===
+Contestant 1: win_rate=0.401, avg_score=1707.0, median_score=1701.0, stdev=75.3, avg_strikes=0.48, first_out_rate=0.000
+Contestant 2: win_rate=0.278, avg_score=1665.5, median_score=1675.0, stdev=88.0, avg_strikes=1.59, first_out_rate=0.068
+Contestant 3: win_rate=0.322, avg_score=1676.8, median_score=1690.0, stdev=87.3, avg_strikes=0.16, first_out_rate=0.002
+Last survivor but lost rate: 0.004
+Solo started behind rate: 0.009
+Solo started behind and lost rate: 0.426
+Avg solo start deficit: 98.4
+Avg solo turns taken: 3.15
+Solo had winning answer rate: 0.005
+Solo had winning answer given started behind rate: 0.574
+Solo start deficit buckets: 1-75: 0.596, 76-150: 0.181, 151-250: 0.128, 251+: 0.096
+Avg final board read: -0.103
+Avg absolute final board read: 0.109
+Strong harsh board rate: 0.253
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 50.05
+Avg final cutoff uncertainty: 0.280
+Low uncertainty rate: 0.285
+High cutoff rate: 0.095
+Avg final safe floor: 38.37
+Avg final local density read: 0.069
+Avg final surprise read: 0.190
+Avg final near-cutoff hits: 2.24
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.425, risky=0.561, blind_risk=0.013, chip_away=0.000, exact_win=0.000, comeback=0.000, high_upside=0.000, desperation=0.000, victory_lap=0.000
+Double window mode rates: safe=0.419, risky=0.581, blind_risk=0.000
+Context rates: open=0.750, dense=0.578, generous=0.186, dense_and_generous=0.014, tight=0.083, uncertain=0.322, 
+Context-action rates: risky_on_open=0.590, risky_on_dense=0.669, risky_on_generous=0.329, risky_on_dense_and_generous=0.386, safe_on_tight=0.820, risky_on_uncertain=0.639, safe_on_uncertain=0.345, risky_on_double_window=0.581, safe_on_double_window=0.419
+Answer-state summary:
+  Contestant 1: knowledge=0.346, recall=0.311, confidence=0.332, safe_candidates=97.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.341, recall=0.346, confidence=0.438, safe_candidates=98.7, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.277, recall=0.280, confidence=0.352, safe_candidates=92.2, risky_candidates=99.8, blind_candidates=0.0
+Player mode rates:
+  Contestant 1: safe=0.395, risky=0.605, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.437, risky=0.522, blind=0.040, victory_lap=0.000
+  Contestant 3: safe=0.443, risky=0.555, blind=0.000, victory_lap=0.001
+Player mode hit rates:
+  Contestant 1: safe=0.980, risky=0.989, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.991, risky=0.996, blind=0.000, desperation=0.000
+  Contestant 3: safe=0.999, risky=0.994, blind=0.000, desperation=0.034
+Player avg guess values:
+  Contestant 1: safe=39.7, risky=58.0, blind=0.0
+  Contestant 2: safe=35.0, risky=64.9, blind=0.0
+  Contestant 3: safe=41.7, risky=55.9, blind=0.0
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.525, high_70_89=0.000, deep_90_100=0.475, early_strike=0.000
+  Contestant 2: top_15=0.000, mid_16_69=0.019, high_70_89=0.000, deep_90_100=0.932, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.000, deep_90_100=0.476, early_strike=0.020
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.395, risky=0.605, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.985, risky=0.000, blind=0.015, victory_lap=0.000
+  Contestant 1 at 2 strikes: safe=1.000, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 2 at 0 strikes: safe=0.221, risky=0.727, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.361, risky=0.587, blind=0.052, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.999, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 0 strikes: safe=0.388, risky=0.611, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=0.995, risky=0.001, blind=0.000, victory_lap=0.004
+  Contestant 3 at 2 strikes: safe=0.123, risky=0.011, blind=0.000, victory_lap=0.637
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.983, risky=0.989, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.983, risky=0.994, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.998, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.991, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 3 at 0 strikes: safe=0.999, risky=0.995, blind=0.000, desperation=0.083
+  Contestant 3 at 1 strikes: safe=0.999, risky=0.720, blind=0.000, desperation=0.042
+  Contestant 3 at 2 strikes: safe=0.000, risky=1.000, blind=0.000, desperation=0.000
+Two-strike summary:
+  Contestant 1: entries=198, survival_rate=0.000, strikeout_next_turn=0.889, avg_survival_turns=0.00, median_survival_turns=0.0
+  Contestant 2: entries=5405, survival_rate=0.960, strikeout_next_turn=0.011, avg_survival_turns=14.00, median_survival_turns=14.0
+  Contestant 3: entries=180, survival_rate=0.017, strikeout_next_turn=0.972, avg_survival_turns=0.02, median_survival_turns=0.0
+
+=== Category: Stolen Bases since 2000 ===
+Contestant 1: win_rate=0.402, avg_score=1690.3, median_score=1694.0, stdev=139.0, avg_strikes=2.21, first_out_rate=0.105
+Contestant 2: win_rate=0.244, avg_score=1661.5, median_score=1664.5, stdev=126.9, avg_strikes=2.56, first_out_rate=0.534
+Contestant 3: win_rate=0.354, avg_score=1609.5, median_score=1653.0, stdev=164.2, avg_strikes=2.14, first_out_rate=0.088
+Last survivor but lost rate: 0.266
+Solo started behind rate: 0.377
+Solo started behind and lost rate: 0.706
+Avg solo start deficit: 191.5
+Avg solo turns taken: 2.31
+Solo had winning answer rate: 0.098
+Solo had winning answer given started behind rate: 0.260
+Solo start deficit buckets: 1-75: 0.366, 76-150: 0.191, 151-250: 0.138, 251+: 0.305
+Avg final board read: -0.057
+Avg absolute final board read: 0.092
+Strong harsh board rate: 0.208
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 55.21
+Avg final cutoff uncertainty: 0.292
+Low uncertainty rate: 0.252
+High cutoff rate: 0.221
+Avg final safe floor: 43.45
+Avg final local density read: 0.078
+Avg final surprise read: 0.152
+Avg final near-cutoff hits: 2.82
+Avg final near-cutoff misses: 0.01
+Mode rates: safe=0.581, risky=0.391, blind_risk=0.012, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.005, victory_lap=0.009
+Double window mode rates: safe=0.568, risky=0.432, blind_risk=0.000
+Context rates: open=0.735, dense=0.536, generous=0.229, dense_and_generous=0.030, tight=0.112, uncertain=0.323, 
+Context-action rates: risky_on_open=0.403, risky_on_dense=0.504, risky_on_generous=0.134, risky_on_dense_and_generous=0.167, safe_on_tight=0.842, risky_on_uncertain=0.513, safe_on_uncertain=0.472, risky_on_double_window=0.432, safe_on_double_window=0.568
+Answer-state summary:
+  Contestant 1: knowledge=0.253, recall=0.228, confidence=0.243, safe_candidates=89.4, risky_candidates=99.7, blind_candidates=0.4
+  Contestant 2: knowledge=0.250, recall=0.244, confidence=0.293, safe_candidates=91.9, risky_candidates=99.8, blind_candidates=0.0
+  Contestant 3: knowledge=0.203, recall=0.197, confidence=0.235, safe_candidates=77.7, risky_candidates=96.2, blind_candidates=2.5
+Player mode rates:
+  Contestant 1: safe=0.584, risky=0.411, blind=0.000, victory_lap=0.004
+  Contestant 2: safe=0.621, risky=0.339, blind=0.035, victory_lap=0.004
+  Contestant 3: safe=0.541, risky=0.422, blind=0.001, victory_lap=0.019
+Player mode hit rates:
+  Contestant 1: safe=0.911, risky=0.981, blind=0.012, desperation=0.121
+  Contestant 2: safe=0.953, risky=0.979, blind=0.001, desperation=0.020
+  Contestant 3: safe=0.970, risky=0.973, blind=0.033, desperation=0.083
+Player avg guess values:
+  Contestant 1: safe=41.3, risky=63.7, blind=96.8
+  Contestant 2: safe=39.5, risky=73.4, blind=96.5
+  Contestant 3: safe=40.0, risky=58.0, blind=97.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.546, high_70_89=0.012, deep_90_100=0.442, early_strike=0.032
+  Contestant 2: top_15=0.000, mid_16_69=0.061, high_70_89=0.001, deep_90_100=0.890, early_strike=0.088
+  Contestant 3: top_15=0.000, mid_16_69=0.543, high_70_89=0.122, deep_90_100=0.335, early_strike=0.064
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.488, risky=0.512, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.986, risky=0.005, blind=0.001, victory_lap=0.007
+  Contestant 1 at 2 strikes: safe=0.831, risky=0.000, blind=0.000, victory_lap=0.130
+  Contestant 2 at 0 strikes: safe=0.387, risky=0.562, blind=0.051, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.568, risky=0.381, blind=0.050, victory_lap=0.001
+  Contestant 2 at 2 strikes: safe=0.985, risky=0.000, blind=0.000, victory_lap=0.011
+  Contestant 3 at 0 strikes: safe=0.398, risky=0.591, blind=0.001, victory_lap=0.006
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.007, blind=0.002, victory_lap=0.024
+  Contestant 3 at 2 strikes: safe=0.180, risky=0.027, blind=0.000, victory_lap=0.409
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.961, risky=0.981, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.890, risky=0.766, blind=0.019, desperation=0.125
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.120
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.980, blind=0.001, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.955, risky=0.976, blind=0.001, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.938, risky=0.000, blind=0.000, desperation=0.020
+  Contestant 3 at 0 strikes: safe=0.981, risky=0.976, blind=0.035, desperation=0.024
+  Contestant 3 at 1 strikes: safe=0.972, risky=0.554, blind=0.031, desperation=0.100
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.512, blind=0.000, desperation=0.084
+Two-strike summary:
+  Contestant 1: entries=7083, survival_rate=0.047, strikeout_next_turn=0.918, avg_survival_turns=0.09, median_survival_turns=0.0
+  Contestant 2: entries=8532, survival_rate=0.732, strikeout_next_turn=0.234, avg_survival_turns=11.52, median_survival_turns=9.0
+  Contestant 3: entries=6880, survival_rate=0.086, strikeout_next_turn=0.911, avg_survival_turns=0.10, median_survival_turns=0.0
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.468, avg_score=1729.2, median_score=1717.0, stdev=88.3, avg_strikes=0.92, first_out_rate=0.001
+Contestant 2: win_rate=0.278, avg_score=1679.9, median_score=1686.0, stdev=96.8, avg_strikes=1.87, first_out_rate=0.249
+Contestant 3: win_rate=0.254, avg_score=1629.9, median_score=1664.0, stdev=124.4, avg_strikes=0.77, first_out_rate=0.036
+Last survivor but lost rate: 0.057
+Solo started behind rate: 0.112
+Solo started behind and lost rate: 0.507
+Avg solo start deficit: 119.2
+Avg solo turns taken: 2.76
+Solo had winning answer rate: 0.054
+Solo had winning answer given started behind rate: 0.482
+Solo start deficit buckets: 1-75: 0.516, 76-150: 0.211, 151-250: 0.114, 251+: 0.159
+Avg final board read: -0.086
+Avg absolute final board read: 0.101
+Strong harsh board rate: 0.259
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 52.04
+Avg final cutoff uncertainty: 0.282
+Low uncertainty rate: 0.295
+High cutoff rate: 0.157
+Avg final safe floor: 40.35
+Avg final local density read: 0.073
+Avg final surprise read: 0.176
+Avg final near-cutoff hits: 2.38
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.480, risky=0.501, blind_risk=0.013, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.003
+Double window mode rates: safe=0.472, risky=0.528, blind_risk=0.000
+Context rates: open=0.746, dense=0.569, generous=0.196, dense_and_generous=0.019, tight=0.095, uncertain=0.323, 
+Context-action rates: risky_on_open=0.526, risky_on_dense=0.617, risky_on_generous=0.237, risky_on_dense_and_generous=0.265, safe_on_tight=0.820, risky_on_uncertain=0.595, safe_on_uncertain=0.389, risky_on_double_window=0.528, safe_on_double_window=0.472
+Answer-state summary:
+  Contestant 1: knowledge=0.304, recall=0.274, confidence=0.292, safe_candidates=94.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.300, recall=0.292, confidence=0.351, safe_candidates=95.9, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.243, recall=0.237, confidence=0.282, safe_candidates=86.7, risky_candidates=98.6, blind_candidates=0.7
+Player mode rates:
+  Contestant 1: safe=0.448, risky=0.552, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.501, risky=0.458, blind=0.040, victory_lap=0.001
+  Contestant 3: safe=0.493, risky=0.494, blind=0.000, victory_lap=0.008
+Player mode hit rates:
+  Contestant 1: safe=0.951, risky=0.992, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.975, risky=0.997, blind=0.000, desperation=0.056
+  Contestant 3: safe=0.993, risky=0.985, blind=0.000, desperation=0.051
+Player avg guess values:
+  Contestant 1: safe=40.3, risky=60.2, blind=0.0
+  Contestant 2: safe=36.5, risky=67.9, blind=0.0
+  Contestant 3: safe=41.2, risky=55.7, blind=97.6
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.528, high_70_89=0.000, deep_90_100=0.472, early_strike=0.001
+  Contestant 2: top_15=0.000, mid_16_69=0.052, high_70_89=0.000, deep_90_100=0.899, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.015, deep_90_100=0.461, early_strike=0.056
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.439, risky=0.561, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.995, risky=0.000, blind=0.003, victory_lap=0.002
+  Contestant 1 at 2 strikes: safe=0.983, risky=0.000, blind=0.000, victory_lap=0.016
+  Contestant 2 at 0 strikes: safe=0.294, risky=0.655, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.461, risky=0.488, blind=0.051, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.992, risky=0.000, blind=0.000, victory_lap=0.005
+  Contestant 3 at 0 strikes: safe=0.360, risky=0.635, blind=0.000, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.978, risky=0.004, blind=0.001, victory_lap=0.012
+  Contestant 3 at 2 strikes: safe=0.181, risky=0.018, blind=0.000, victory_lap=0.492
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.976, risky=0.992, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.411, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.996, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.981, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.967, risky=0.000, blind=0.000, desperation=0.056
+  Contestant 3 at 0 strikes: safe=0.997, risky=0.985, blind=0.000, desperation=0.031
+  Contestant 3 at 1 strikes: safe=0.993, risky=0.712, blind=0.000, desperation=0.066
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.743, blind=0.000, desperation=0.050
+Two-strike summary:
+  Contestant 1: entries=2099, survival_rate=0.005, strikeout_next_turn=0.877, avg_survival_turns=0.01, median_survival_turns=0.0
+  Contestant 2: entries=6187, survival_rate=0.871, strikeout_next_turn=0.083, avg_survival_turns=11.97, median_survival_turns=11.0
+  Contestant 3: entries=1886, survival_rate=0.055, strikeout_next_turn=0.943, avg_survival_turns=0.06, median_survival_turns=0.0
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.503, avg_score=1728.9, median_score=1719.0, stdev=146.0, avg_strikes=2.36, first_out_rate=0.080
+Contestant 2: win_rate=0.193, avg_score=1649.6, median_score=1656.0, stdev=138.7, avg_strikes=2.66, first_out_rate=0.596
+Contestant 3: win_rate=0.304, avg_score=1569.3, median_score=1627.0, stdev=188.4, avg_strikes=2.33, first_out_rate=0.111
+Last survivor but lost rate: 0.324
+Solo started behind rate: 0.439
+Solo started behind and lost rate: 0.737
+Avg solo start deficit: 219.5
+Avg solo turns taken: 2.20
+Solo had winning answer rate: 0.097
+Solo had winning answer given started behind rate: 0.222
+Solo start deficit buckets: 1-75: 0.344, 76-150: 0.205, 151-250: 0.114, 251+: 0.337
+Avg final board read: -0.048
+Avg absolute final board read: 0.094
+Strong harsh board rate: 0.196
+Strong generous board rate: 0.011
+Avg final cutoff estimate: 56.02
+Avg final cutoff uncertainty: 0.297
+Low uncertainty rate: 0.232
+High cutoff rate: 0.232
+Avg final safe floor: 44.24
+Avg final local density read: 0.076
+Avg final surprise read: 0.151
+Avg final near-cutoff hits: 2.87
+Avg final near-cutoff misses: 0.01
+Mode rates: safe=0.597, risky=0.375, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.006, victory_lap=0.009
+Double window mode rates: safe=0.583, risky=0.417, blind_risk=0.000
+Context rates: open=0.733, dense=0.526, generous=0.239, dense_and_generous=0.032, tight=0.110, uncertain=0.324, 
+Context-action rates: risky_on_open=0.383, risky_on_dense=0.487, risky_on_generous=0.122, risky_on_dense_and_generous=0.150, safe_on_tight=0.846, risky_on_uncertain=0.505, safe_on_uncertain=0.480, risky_on_double_window=0.417, safe_on_double_window=0.583
+Answer-state summary:
+  Contestant 1: knowledge=0.253, recall=0.233, confidence=0.255, safe_candidates=90.3, risky_candidates=99.8, blind_candidates=0.2
+  Contestant 2: knowledge=0.250, recall=0.234, confidence=0.264, safe_candidates=90.4, risky_candidates=99.6, blind_candidates=0.2
+  Contestant 3: knowledge=0.203, recall=0.188, confidence=0.209, safe_candidates=73.4, risky_candidates=95.0, blind_candidates=3.8
+Player mode rates:
+  Contestant 1: safe=0.603, risky=0.389, blind=0.000, victory_lap=0.007
+  Contestant 2: safe=0.640, risky=0.321, blind=0.033, victory_lap=0.004
+  Contestant 3: safe=0.550, risky=0.414, blind=0.001, victory_lap=0.017
+Player mode hit rates:
+  Contestant 1: safe=0.907, risky=0.984, blind=0.000, desperation=0.173
+  Contestant 2: safe=0.953, risky=0.968, blind=0.007, desperation=0.014
+  Contestant 3: safe=0.964, risky=0.968, blind=0.027, desperation=0.084
+Player avg guess values:
+  Contestant 1: safe=42.1, risky=65.8, blind=95.5
+  Contestant 2: safe=40.0, risky=74.0, blind=96.1
+  Contestant 3: safe=38.8, risky=57.9, blind=97.4
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.556, high_70_89=0.005, deep_90_100=0.439, early_strike=0.022
+  Contestant 2: top_15=0.000, mid_16_69=0.057, high_70_89=0.001, deep_90_100=0.902, early_strike=0.109
+  Contestant 3: top_15=0.000, mid_16_69=0.553, high_70_89=0.192, deep_90_100=0.255, early_strike=0.060
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.531, risky=0.469, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.976, risky=0.005, blind=0.001, victory_lap=0.017
+  Contestant 1 at 2 strikes: safe=0.769, risky=0.000, blind=0.000, victory_lap=0.196
+  Contestant 2 at 0 strikes: safe=0.395, risky=0.555, blind=0.050, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.560, risky=0.388, blind=0.051, victory_lap=0.001
+  Contestant 2 at 2 strikes: safe=0.984, risky=0.000, blind=0.000, victory_lap=0.009
+  Contestant 3 at 0 strikes: safe=0.390, risky=0.600, blind=0.001, victory_lap=0.005
+  Contestant 3 at 1 strikes: safe=0.952, risky=0.007, blind=0.003, victory_lap=0.018
+  Contestant 3 at 2 strikes: safe=0.212, risky=0.033, blind=0.000, victory_lap=0.338
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.960, risky=0.984, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.859, risky=0.731, blind=0.000, desperation=0.143
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.180
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.969, blind=0.007, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.953, risky=0.965, blind=0.006, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.940, risky=0.000, blind=0.000, desperation=0.014
+  Contestant 3 at 0 strikes: safe=0.979, risky=0.971, blind=0.019, desperation=0.046
+  Contestant 3 at 1 strikes: safe=0.967, risky=0.504, blind=0.032, desperation=0.091
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.551, blind=0.000, desperation=0.088
+Two-strike summary:
+  Contestant 1: entries=7682, survival_rate=0.060, strikeout_next_turn=0.913, avg_survival_turns=0.13, median_survival_turns=0.0
+  Contestant 2: entries=8931, survival_rate=0.742, strikeout_next_turn=0.226, avg_survival_turns=12.23, median_survival_turns=11.0
+  Contestant 3: entries=7538, survival_rate=0.085, strikeout_next_turn=0.911, avg_survival_turns=0.09, median_survival_turns=0.0
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.775, avg_score=2255.3, median_score=2547.0, stdev=752.8, avg_strikes=3.00, first_out_rate=0.001
+Contestant 2: win_rate=0.224, avg_score=1263.1, median_score=1080.0, stdev=554.6, avg_strikes=3.00, first_out_rate=0.007
+Contestant 3: win_rate=0.002, avg_score=471.9, median_score=428.0, stdev=212.8, avg_strikes=3.00, first_out_rate=0.993
+Last survivor but lost rate: 0.098
+Solo started behind rate: 0.342
+Solo started behind and lost rate: 0.286
+Avg solo start deficit: 113.5
+Avg solo turns taken: 19.65
+Solo had winning answer rate: 0.177
+Solo had winning answer given started behind rate: 0.517
+Solo start deficit buckets: 1-75: 0.415, 76-150: 0.300, 151-250: 0.202, 251+: 0.083
+Avg final board read: -0.065
+Avg absolute final board read: 0.086
+Strong harsh board rate: 0.146
+Strong generous board rate: 0.003
+Avg final cutoff estimate: 71.77
+Avg final cutoff uncertainty: 0.524
+Low uncertainty rate: 0.000
+High cutoff rate: 0.642
+Avg final safe floor: 58.63
+Avg final local density read: 0.068
+Avg final surprise read: 0.198
+Avg final near-cutoff hits: 1.77
+Avg final near-cutoff misses: 0.11
+Mode rates: safe=0.624, risky=0.110, blind_risk=0.011, chip_away=0.000, exact_win=0.003, comeback=0.001, high_upside=0.000, desperation=0.002, victory_lap=0.250
+Double window mode rates: safe=0.788, risky=0.212, blind_risk=0.000
+Context rates: open=0.589, dense=0.257, generous=0.355, dense_and_generous=0.023, tight=0.235, uncertain=0.774, 
+Context-action rates: risky_on_open=0.064, risky_on_dense=0.116, risky_on_generous=0.027, risky_on_dense_and_generous=0.083, safe_on_tight=0.951, risky_on_uncertain=0.138, safe_on_uncertain=0.774, risky_on_double_window=0.212, safe_on_double_window=0.788
+Answer-state summary:
+  Contestant 1: knowledge=0.152, recall=0.140, confidence=0.155, safe_candidates=44.1, risky_candidates=91.9, blind_candidates=6.3
+  Contestant 2: knowledge=0.150, recall=0.135, confidence=0.143, safe_candidates=35.6, risky_candidates=90.3, blind_candidates=8.3
+  Contestant 3: knowledge=0.122, recall=0.109, confidence=0.102, safe_candidates=11.8, risky_candidates=69.6, blind_candidates=30.2
+Player mode rates:
+  Contestant 1: safe=0.504, risky=0.061, blind=0.004, victory_lap=0.422
+  Contestant 2: safe=0.740, risky=0.116, blind=0.028, victory_lap=0.113
+  Contestant 3: safe=0.760, risky=0.239, blind=0.000, victory_lap=0.000
+Player mode hit rates:
+  Contestant 1: safe=0.979, risky=0.838, blind=0.056, desperation=0.187
+  Contestant 2: safe=0.945, risky=0.817, blind=0.056, desperation=0.174
+  Contestant 3: safe=0.841, risky=0.750, blind=0.000, desperation=0.133
+Player avg guess values:
+  Contestant 1: safe=36.9, risky=85.9, blind=92.7
+  Contestant 2: safe=37.0, risky=85.5, blind=91.7
+  Contestant 3: safe=25.5, risky=70.6, blind=90.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.603, high_70_89=0.229, deep_90_100=0.168, early_strike=0.072
+  Contestant 2: top_15=0.000, mid_16_69=0.151, high_70_89=0.589, deep_90_100=0.261, early_strike=0.197
+  Contestant 3: top_15=0.129, mid_16_69=0.523, high_70_89=0.337, deep_90_100=0.011, early_strike=0.102
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.551, risky=0.119, blind=0.004, victory_lap=0.324
+  Contestant 1 at 1 strikes: safe=0.520, risky=0.002, blind=0.005, victory_lap=0.462
+  Contestant 1 at 2 strikes: safe=0.179, risky=0.000, blind=0.000, victory_lap=0.791
+  Contestant 2 at 0 strikes: safe=0.636, risky=0.282, blind=0.049, victory_lap=0.033
+  Contestant 2 at 1 strikes: safe=0.739, risky=0.102, blind=0.045, victory_lap=0.113
+  Contestant 2 at 2 strikes: safe=0.820, risky=0.000, blind=0.000, victory_lap=0.176
+  Contestant 3 at 0 strikes: safe=0.423, risky=0.576, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=1.000, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 2 strikes: safe=0.867, risky=0.130, blind=0.000, victory_lap=0.002
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.991, risky=0.839, blind=0.053, desperation=0.045
+  Contestant 1 at 1 strikes: safe=0.977, risky=0.771, blind=0.060, desperation=0.200
+  Contestant 1 at 2 strikes: safe=0.787, risky=0.000, blind=0.000, desperation=0.185
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.838, blind=0.053, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.954, risky=0.761, blind=0.059, desperation=0.125
+  Contestant 2 at 2 strikes: safe=0.918, risky=0.000, blind=0.000, desperation=0.177
+  Contestant 3 at 0 strikes: safe=0.975, risky=0.757, blind=0.000, desperation=0.333
+  Contestant 3 at 1 strikes: safe=0.887, risky=0.000, blind=0.000, desperation=0.200
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.565, blind=0.000, desperation=0.000
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.178, strikeout_next_turn=0.822, avg_survival_turns=3.52, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.637, strikeout_next_turn=0.362, avg_survival_turns=11.36, median_survival_turns=10.0
+  Contestant 3: entries=10000, survival_rate=0.068, strikeout_next_turn=0.932, avg_survival_turns=0.08, median_survival_turns=0.0
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.607, avg_score=1906.5, avg_median_score=1966.0, avg_stdev=322.6, avg_strikes=2.23, avg_first_out_rate=0.039
+Contestant 2: avg_win_rate=0.208, avg_score=1511.6, avg_median_score=1480.0, avg_stdev=226.6, avg_strikes=2.58, avg_first_out_rate=0.292
+Contestant 3: avg_win_rate=0.185, avg_score=1248.3, avg_median_score=1234.3, avg_stdev=201.0, avg_strikes=2.16, avg_first_out_rate=0.398
+Last survivor but lost rate: 0.141
+Solo started behind rate: 0.266
+Solo started behind and lost rate: 0.489
+Avg solo start deficit: 157.0
+Avg solo turns taken: 6.43
+Solo had winning answer rate: 0.099
+Solo had winning answer given started behind rate: 0.429
+Solo start deficit buckets: 1-75: 0.433, 76-150: 0.229, 151-250: 0.140, 251+: 0.198
+Avg final board read: -0.039
+Avg absolute final board read: 0.088
+Avg strong harsh board rate: 0.143
+Avg strong generous board rate: 0.030
+Avg final cutoff estimate: 61.92
+Avg final cutoff uncertainty: 0.365
+Avg low uncertainty rate: 0.134
+Avg high cutoff rate: 0.375
+Avg final safe floor: 49.73
+Avg final local density read: 0.064
+Avg final surprise read: 0.177
+Avg final near-cutoff hits: 2.41
+Avg final near-cutoff misses: 0.05
+Mode rates: safe=0.610, risky=0.306, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.002, victory_lap=0.069
+Double window mode rates: safe=0.636, risky=0.364, blind_risk=0.000
+Context rates: open=0.686, dense=0.430, generous=0.289, dense_and_generous=0.032, tight=0.128, uncertain=0.463, 
+Context-action rates: risky_on_open=0.312, risky_on_dense=0.440, risky_on_generous=0.101, risky_on_dense_and_generous=0.125, safe_on_tight=0.915, risky_on_uncertain=0.326, safe_on_uncertain=0.640, risky_on_double_window=0.364, safe_on_double_window=0.636
+Aggregate answer-state summary:
+Contestant 1: knowledge=0.233, recall=0.212, confidence=0.229, safe_candidates=77.6, risky_candidates=97.4 
+Contestant 2: knowledge=0.226, recall=0.216, confidence=0.252, safe_candidates=73.5, risky_candidates=96.4 
+Contestant 3: knowledge=0.186, recall=0.178, confidence=0.203, safe_candidates=57.7, risky_candidates=89.3 
+Aggregate two-strike summary:
+Contestant 1: entries=77800, survival_rate=0.134, strikeout_next_turn=0.855, avg_survival_turns=0.95, median_survival_turns=0.0
+Contestant 2: entries=94684, survival_rate=0.741, strikeout_next_turn=0.245, avg_survival_turns=12.50, median_survival_turns=12.2
+Contestant 3: entries=77126, survival_rate=0.114, strikeout_next_turn=0.885, avg_survival_turns=0.11, median_survival_turns=0.0
+Aggregate strike-state mode rates:
+Contestant 1 at 0 strikes: safe=0.537, risky=0.369, blind=0.001, victory_lap=0.092
+Contestant 1 at 1 strikes: safe=0.839, risky=0.003, blind=0.004, victory_lap=0.151
+Contestant 1 at 2 strikes: safe=0.525, risky=0.000, blind=0.000, victory_lap=0.445
+Contestant 2 at 0 strikes: safe=0.449, risky=0.495, blind=0.050, victory_lap=0.006
+Contestant 2 at 1 strikes: safe=0.612, risky=0.316, blind=0.049, victory_lap=0.022
+Contestant 2 at 2 strikes: safe=0.958, risky=0.000, blind=0.000, victory_lap=0.039
+Contestant 3 at 0 strikes: safe=0.429, risky=0.567, blind=0.000, victory_lap=0.003
+Contestant 3 at 1 strikes: safe=0.980, risky=0.004, blind=0.001, victory_lap=0.008
+Contestant 3 at 2 strikes: safe=0.447, risky=0.090, blind=0.000, victory_lap=0.265
+Aggregate strike-state hit rates:
+Contestant 1 at 0 strikes: safe=0.978, risky=0.935, desperation=0.004
+Contestant 1 at 1 strikes: safe=0.722, risky=0.544, desperation=0.140
+Contestant 1 at 2 strikes: safe=0.189, risky=0.000, desperation=0.131
+Contestant 2 at 0 strikes: safe=0.981, risky=0.926, desperation=0.091
+Contestant 2 at 1 strikes: safe=0.964, risky=0.896, desperation=0.042
+Contestant 2 at 2 strikes: safe=0.944, risky=0.000, desperation=0.101
+Contestant 3 at 0 strikes: safe=0.982, risky=0.906, desperation=0.070
+Contestant 3 at 1 strikes: safe=0.957, risky=0.644, desperation=0.114
+Contestant 3 at 2 strikes: safe=0.002, risky=0.683, desperation=0.098
+```
+
+**Notes:**
+
+- Changed C3's two strike composure from `0.18` to `0.30`
+  - clean improvement, but not a full fix
+  - It made C3 more willing/able to take calculated two-strike risks without really moving C1 or C2
+
+**Takeaway:**
+
+Aggregate two-strike survival:
+| Contestant | Run 5.1 | Run 5.2
+|- | - | -
+| C1 | 0.135 | 0.135
+| C2 | 0.742 | 0.742
+| C3 | 0.086 | 0.130
+
+This is the clearest comparison as C3 improved again while, C1 and C2 stayed identital.
+- C2's two strike increased meaningfully in specific categories, like OPS+, All-Time bWAR, and Pitcher bWAR
+- Risky hit rates at two strikes are also still solid, around the mid/high 0.600s
+
+However, C3 remains nowhere near C2
+
+**Conclusion:**
+
+Run 5.2 increased C3's two-strike composure from 0.18 to 0.30. This produced a clear targeted improvement: C3's aggregate two-strike survival rose from 0.086 to 0.130, while C1 and C2 remained effectively unchanged. The improvement came mostly from C3 taking more calculated risky guesses at two strikes, especially in bWAR and pitcher bWAR categories.
+
+However, C3 remains far behind C2 as a two-strike survivor, meaning the current two-strike composure system is directionally correct but not sufficient by itself.
+
+### Run 5.3
+
+```
+=== Category: All-Time OPS+ ===
+Contestant 1: win_rate=0.650, avg_score=1803.2, median_score=1743.0, stdev=296.1, avg_strikes=2.97, first_out_rate=0.091
+Contestant 2: win_rate=0.169, avg_score=1594.6, median_score=1594.0, stdev=193.2, avg_strikes=2.98, first_out_rate=0.495
+Contestant 3: win_rate=0.181, avg_score=1313.8, median_score=1261.0, stdev=272.2, avg_strikes=2.97, first_out_rate=0.404
+Last survivor but lost rate: 0.260
+Solo started behind rate: 0.404
+Solo started behind and lost rate: 0.644
+Avg solo start deficit: 255.8
+Avg solo turns taken: 2.31
+Solo had winning answer rate: 0.116
+Solo had winning answer given started behind rate: 0.286
+Solo start deficit buckets: 1-75: 0.329, 76-150: 0.199, 151-250: 0.125, 251+: 0.347
+Avg final board read: 0.027
+Avg absolute final board read: 0.090
+Strong harsh board rate: 0.064
+Strong generous board rate: 0.111
+Avg final cutoff estimate: 66.38
+Avg final cutoff uncertainty: 0.342
+Low uncertainty rate: 0.054
+High cutoff rate: 0.416
+Avg final safe floor: 54.32
+Avg final local density read: 0.052
+Avg final surprise read: 0.174
+Avg final near-cutoff hits: 2.63
+Avg final near-cutoff misses: 0.06
+Mode rates: safe=0.740, risky=0.219, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.026
+Double window mode rates: safe=0.754, risky=0.246, blind_risk=0.000
+Context rates: open=0.705, dense=0.419, generous=0.336, dense_and_generous=0.051, tight=0.093, uncertain=0.352, 
+Context-action rates: risky_on_open=0.193, risky_on_dense=0.285, risky_on_generous=0.060, risky_on_dense_and_generous=0.074, safe_on_tight=0.941, risky_on_uncertain=0.367, safe_on_uncertain=0.620, risky_on_double_window=0.246, safe_on_double_window=0.754
+Answer-state summary:
+  Contestant 1: knowledge=0.217, recall=0.199, confidence=0.219, safe_candidates=83.4, risky_candidates=98.5, blind_candidates=1.2
+  Contestant 2: knowledge=0.215, recall=0.193, confidence=0.206, safe_candidates=81.6, risky_candidates=97.2, blind_candidates=2.4
+  Contestant 3: knowledge=0.174, recall=0.156, confidence=0.167, safe_candidates=56.4, risky_candidates=90.7, blind_candidates=7.8
+Player mode rates:
+  Contestant 1: safe=0.739, risky=0.201, blind=0.001, victory_lap=0.056
+  Contestant 2: safe=0.768, risky=0.193, blind=0.027, victory_lap=0.010
+  Contestant 3: safe=0.714, risky=0.264, blind=0.001, victory_lap=0.010
+Player mode hit rates:
+  Contestant 1: safe=0.938, risky=0.939, blind=0.031, desperation=0.183
+  Contestant 2: safe=0.953, risky=0.890, blind=0.052, desperation=0.136
+  Contestant 3: safe=0.937, risky=0.916, blind=0.051, desperation=0.130
+Player avg guess values:
+  Contestant 1: safe=45.0, risky=78.0, blind=95.7
+  Contestant 2: safe=43.7, risky=81.5, blind=95.6
+  Contestant 3: safe=33.9, risky=65.3, blind=96.1
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.606, high_70_89=0.029, deep_90_100=0.365, early_strike=0.051
+  Contestant 2: top_15=0.000, mid_16_69=0.061, high_70_89=0.099, deep_90_100=0.837, early_strike=0.207
+  Contestant 3: top_15=0.000, mid_16_69=0.603, high_70_89=0.293, deep_90_100=0.104, early_strike=0.064
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.666, risky=0.323, blind=0.000, victory_lap=0.010
+  Contestant 1 at 1 strikes: safe=0.928, risky=0.003, blind=0.001, victory_lap=0.065
+  Contestant 1 at 2 strikes: safe=0.310, risky=0.000, blind=0.000, victory_lap=0.632
+  Contestant 2 at 0 strikes: safe=0.506, risky=0.443, blind=0.050, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.690, risky=0.250, blind=0.050, victory_lap=0.010
+  Contestant 2 at 2 strikes: safe=0.980, risky=0.000, blind=0.000, victory_lap=0.016
+  Contestant 3 at 0 strikes: safe=0.473, risky=0.522, blind=0.001, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.979, risky=0.005, blind=0.002, victory_lap=0.007
+  Contestant 3 at 2 strikes: safe=0.503, risky=0.099, blind=0.000, victory_lap=0.159
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.968, risky=0.940, blind=0.019, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.938, risky=0.713, blind=0.040, desperation=0.172
+  Contestant 1 at 2 strikes: safe=0.007, risky=0.000, blind=0.000, desperation=0.186
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.900, blind=0.051, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.957, risky=0.872, blind=0.054, desperation=0.062
+  Contestant 2 at 2 strikes: safe=0.942, risky=0.000, blind=0.000, desperation=0.140
+  Contestant 3 at 0 strikes: safe=0.971, risky=0.922, blind=0.052, desperation=0.055
+  Contestant 3 at 1 strikes: safe=0.953, risky=0.695, blind=0.051, desperation=0.124
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.615, blind=0.000, desperation=0.135
+Two-strike summary:
+  Contestant 1: entries=9899, survival_rate=0.187, strikeout_next_turn=0.812, avg_survival_turns=0.61, median_survival_turns=0.0
+  Contestant 2: entries=9949, survival_rate=0.749, strikeout_next_turn=0.249, avg_survival_turns=14.57, median_survival_turns=16.0
+  Contestant 3: entries=9899, survival_rate=0.118, strikeout_next_turn=0.881, avg_survival_turns=0.14, median_survival_turns=0.0
+
+=== Category: All-Time bWAR ===
+Contestant 1: win_rate=0.837, avg_score=2151.6, median_score=2280.5, stdev=485.6, avg_strikes=3.00, first_out_rate=0.019
+Contestant 2: win_rate=0.114, avg_score=1385.7, median_score=1361.0, stdev=264.1, avg_strikes=3.00, first_out_rate=0.169
+Contestant 3: win_rate=0.050, avg_score=939.8, median_score=865.0, stdev=279.7, avg_strikes=3.00, first_out_rate=0.812
+Last survivor but lost rate: 0.089
+Solo started behind rate: 0.227
+Solo started behind and lost rate: 0.391
+Avg solo start deficit: 135.7
+Avg solo turns taken: 6.38
+Solo had winning answer rate: 0.108
+Solo had winning answer given started behind rate: 0.478
+Solo start deficit buckets: 1-75: 0.430, 76-150: 0.275, 151-250: 0.164, 251+: 0.131
+Avg final board read: 0.029
+Avg absolute final board read: 0.068
+Strong harsh board rate: 0.014
+Strong generous board rate: 0.086
+Avg final cutoff estimate: 70.75
+Avg final cutoff uncertainty: 0.419
+Low uncertainty rate: 0.006
+High cutoff rate: 0.606
+Avg final safe floor: 58.24
+Avg final local density read: 0.050
+Avg final surprise read: 0.176
+Avg final near-cutoff hits: 2.64
+Avg final near-cutoff misses: 0.10
+Mode rates: safe=0.732, risky=0.153, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.102
+Double window mode rates: safe=0.819, risky=0.181, blind_risk=0.000
+Context rates: open=0.630, dense=0.303, generous=0.374, dense_and_generous=0.047, tight=0.119, uncertain=0.596, 
+Context-action rates: risky_on_open=0.117, risky_on_dense=0.199, risky_on_generous=0.041, risky_on_dense_and_generous=0.052, safe_on_tight=0.981, risky_on_uncertain=0.204, safe_on_uncertain=0.781, risky_on_double_window=0.181, safe_on_double_window=0.819
+Answer-state summary:
+  Contestant 1: knowledge=0.181, recall=0.168, confidence=0.188, safe_candidates=69.7, risky_candidates=96.1, blind_candidates=2.9
+  Contestant 2: knowledge=0.170, recall=0.153, confidence=0.163, safe_candidates=56.3, risky_candidates=93.5, blind_candidates=5.3
+  Contestant 3: knowledge=0.145, recall=0.130, confidence=0.139, safe_candidates=36.0, risky_candidates=84.1, blind_candidates=13.5
+Player mode rates:
+  Contestant 1: safe=0.648, risky=0.112, blind=0.002, victory_lap=0.235
+  Contestant 2: safe=0.784, risky=0.164, blind=0.029, victory_lap=0.020
+  Contestant 3: safe=0.795, risky=0.198, blind=0.000, victory_lap=0.003
+Player mode hit rates:
+  Contestant 1: safe=0.974, risky=0.892, blind=0.058, desperation=0.204
+  Contestant 2: safe=0.948, risky=0.875, blind=0.054, desperation=0.198
+  Contestant 3: safe=0.918, risky=0.831, blind=0.064, desperation=0.144
+Player avg guess values:
+  Contestant 1: safe=44.5, risky=84.8, blind=95.1
+  Contestant 2: safe=40.1, risky=83.1, blind=94.5
+  Contestant 3: safe=29.3, risky=70.6, blind=92.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.591, high_70_89=0.101, deep_90_100=0.308, early_strike=0.066
+  Contestant 2: top_15=0.000, mid_16_69=0.084, high_70_89=0.471, deep_90_100=0.445, early_strike=0.181
+  Contestant 3: top_15=0.000, mid_16_69=0.585, high_70_89=0.368, deep_90_100=0.047, early_strike=0.089
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.651, risky=0.203, blind=0.001, victory_lap=0.145
+  Contestant 1 at 1 strikes: safe=0.727, risky=0.003, blind=0.002, victory_lap=0.263
+  Contestant 1 at 2 strikes: safe=0.106, risky=0.000, blind=0.000, victory_lap=0.867
+  Contestant 2 at 0 strikes: safe=0.581, risky=0.365, blind=0.049, victory_lap=0.004
+  Contestant 2 at 1 strikes: safe=0.758, risky=0.172, blind=0.049, victory_lap=0.020
+  Contestant 2 at 2 strikes: safe=0.963, risky=0.000, blind=0.000, victory_lap=0.033
+  Contestant 3 at 0 strikes: safe=0.467, risky=0.531, blind=0.000, victory_lap=0.001
+  Contestant 3 at 1 strikes: safe=0.994, risky=0.002, blind=0.001, victory_lap=0.002
+  Contestant 3 at 2 strikes: safe=0.686, risky=0.228, blind=0.000, victory_lap=0.042
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.987, risky=0.893, blind=0.059, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.973, risky=0.752, blind=0.058, desperation=0.223
+  Contestant 1 at 2 strikes: safe=0.295, risky=0.000, blind=0.000, desperation=0.199
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.889, blind=0.052, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.955, risky=0.841, blind=0.057, desperation=0.111
+  Contestant 2 at 2 strikes: safe=0.928, risky=0.000, blind=0.000, desperation=0.201
+  Contestant 3 at 0 strikes: safe=0.978, risky=0.838, blind=0.000, desperation=0.037
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.744, blind=0.093, desperation=0.146
+  Contestant 3 at 2 strikes: safe=0.001, risky=0.710, blind=0.000, desperation=0.150
+Two-strike summary:
+  Contestant 1: entries=9999, survival_rate=0.165, strikeout_next_turn=0.835, avg_survival_turns=1.48, median_survival_turns=0.0
+  Contestant 2: entries=9999, survival_rate=0.679, strikeout_next_turn=0.321, avg_survival_turns=11.90, median_survival_turns=11.0
+  Contestant 3: entries=9999, survival_rate=0.181, strikeout_next_turn=0.819, avg_survival_turns=0.22, median_survival_turns=0.0
+
+=== Category: Hitter bWAR since 2000 ===
+Contestant 1: win_rate=0.539, avg_score=1701.2, median_score=1667.0, stdev=286.7, avg_strikes=2.98, first_out_rate=0.115
+Contestant 2: win_rate=0.238, avg_score=1612.5, median_score=1594.0, stdev=215.1, avg_strikes=2.99, first_out_rate=0.494
+Contestant 3: win_rate=0.223, avg_score=1331.3, median_score=1296.0, stdev=265.0, avg_strikes=2.98, first_out_rate=0.385
+Last survivor but lost rate: 0.273
+Solo started behind rate: 0.428
+Solo started behind and lost rate: 0.637
+Avg solo start deficit: 249.0
+Avg solo turns taken: 2.32
+Solo had winning answer rate: 0.119
+Solo had winning answer given started behind rate: 0.278
+Solo start deficit buckets: 1-75: 0.303, 76-150: 0.190, 151-250: 0.133, 251+: 0.375
+Avg final board read: 0.022
+Avg absolute final board read: 0.084
+Strong harsh board rate: 0.062
+Strong generous board rate: 0.078
+Avg final cutoff estimate: 65.49
+Avg final cutoff uncertainty: 0.347
+Low uncertainty rate: 0.053
+High cutoff rate: 0.382
+Avg final safe floor: 53.41
+Avg final local density read: 0.054
+Avg final surprise read: 0.168
+Avg final near-cutoff hits: 2.72
+Avg final near-cutoff misses: 0.07
+Mode rates: safe=0.736, risky=0.224, blind_risk=0.010, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.004, victory_lap=0.024
+Double window mode rates: safe=0.747, risky=0.253, blind_risk=0.000
+Context rates: open=0.704, dense=0.418, generous=0.336, dense_and_generous=0.051, tight=0.099, uncertain=0.357, 
+Context-action rates: risky_on_open=0.199, risky_on_dense=0.295, risky_on_generous=0.063, risky_on_dense_and_generous=0.091, safe_on_tight=0.941, risky_on_uncertain=0.369, safe_on_uncertain=0.617, risky_on_double_window=0.253, safe_on_double_window=0.747
+Answer-state summary:
+  Contestant 1: knowledge=0.205, recall=0.187, confidence=0.204, safe_candidates=78.8, risky_candidates=97.6, blind_candidates=1.9
+  Contestant 2: knowledge=0.197, recall=0.188, confidence=0.222, safe_candidates=81.5, risky_candidates=97.4, blind_candidates=1.6
+  Contestant 3: knowledge=0.164, recall=0.155, confidence=0.174, safe_candidates=57.6, risky_candidates=91.1, blind_candidates=6.9
+Player mode rates:
+  Contestant 1: safe=0.731, risky=0.219, blind=0.001, victory_lap=0.044
+  Contestant 2: safe=0.763, risky=0.191, blind=0.029, victory_lap=0.015
+  Contestant 3: safe=0.713, risky=0.262, blind=0.001, victory_lap=0.013
+Player mode hit rates:
+  Contestant 1: safe=0.935, risky=0.937, blind=0.052, desperation=0.180
+  Contestant 2: safe=0.953, risky=0.900, blind=0.046, desperation=0.146
+  Contestant 3: safe=0.937, risky=0.919, blind=0.054, desperation=0.150
+Player avg guess values:
+  Contestant 1: safe=42.8, risky=75.6, blind=95.7
+  Contestant 2: safe=43.8, risky=82.8, blind=95.5
+  Contestant 3: safe=34.5, risky=66.0, blind=95.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.597, high_70_89=0.065, deep_90_100=0.338, early_strike=0.058
+  Contestant 2: top_15=0.000, mid_16_69=0.062, high_70_89=0.087, deep_90_100=0.842, early_strike=0.185
+  Contestant 3: top_15=0.000, mid_16_69=0.593, high_70_89=0.289, deep_90_100=0.117, early_strike=0.066
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.628, risky=0.363, blind=0.000, victory_lap=0.008
+  Contestant 1 at 1 strikes: safe=0.942, risky=0.005, blind=0.001, victory_lap=0.048
+  Contestant 1 at 2 strikes: safe=0.370, risky=0.000, blind=0.000, victory_lap=0.546
+  Contestant 2 at 0 strikes: safe=0.523, risky=0.425, blind=0.051, victory_lap=0.001
+  Contestant 2 at 1 strikes: safe=0.702, risky=0.231, blind=0.050, victory_lap=0.016
+  Contestant 2 at 2 strikes: safe=0.971, risky=0.000, blind=0.000, victory_lap=0.025
+  Contestant 3 at 0 strikes: safe=0.485, risky=0.509, blind=0.001, victory_lap=0.004
+  Contestant 3 at 1 strikes: safe=0.977, risky=0.005, blind=0.002, victory_lap=0.009
+  Contestant 3 at 2 strikes: safe=0.488, risky=0.086, blind=0.000, victory_lap=0.193
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.966, risky=0.939, blind=0.075, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.941, risky=0.718, blind=0.039, desperation=0.203
+  Contestant 1 at 2 strikes: safe=0.006, risky=0.000, blind=0.000, desperation=0.174
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.911, blind=0.047, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.958, risky=0.876, blind=0.045, desperation=0.100
+  Contestant 2 at 2 strikes: safe=0.940, risky=0.000, blind=0.000, desperation=0.149
+  Contestant 3 at 0 strikes: safe=0.970, risky=0.924, blind=0.034, desperation=0.020
+  Contestant 3 at 1 strikes: safe=0.953, risky=0.681, blind=0.065, desperation=0.152
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.636, blind=0.000, desperation=0.152
+Two-strike summary:
+  Contestant 1: entries=9928, survival_rate=0.149, strikeout_next_turn=0.850, avg_survival_turns=0.46, median_survival_turns=0.0
+  Contestant 2: entries=9957, survival_rate=0.738, strikeout_next_turn=0.260, avg_survival_turns=13.78, median_survival_turns=14.0
+  Contestant 3: entries=9929, survival_rate=0.120, strikeout_next_turn=0.879, avg_survival_turns=0.14, median_survival_turns=0.0
+
+=== Category: Pitcher bWAR since 2000 ===
+Contestant 1: win_rate=0.869, avg_score=2223.3, median_score=2362.0, stdev=532.7, avg_strikes=3.00, first_out_rate=0.010
+Contestant 2: win_rate=0.067, avg_score=1169.8, median_score=1145.0, stdev=261.3, avg_strikes=3.00, first_out_rate=0.428
+Contestant 3: win_rate=0.064, avg_score=935.5, median_score=868.5, stdev=279.0, avg_strikes=3.00, first_out_rate=0.562
+Last survivor but lost rate: 0.081
+Solo started behind rate: 0.233
+Solo started behind and lost rate: 0.349
+Avg solo start deficit: 139.0
+Avg solo turns taken: 9.65
+Solo had winning answer rate: 0.117
+Solo had winning answer given started behind rate: 0.502
+Solo start deficit buckets: 1-75: 0.438, 76-150: 0.245, 151-250: 0.158, 251+: 0.159
+Avg final board read: 0.002
+Avg absolute final board read: 0.061
+Strong harsh board rate: 0.013
+Strong generous board rate: 0.039
+Avg final cutoff estimate: 70.16
+Avg final cutoff uncertainty: 0.447
+Low uncertainty rate: 0.003
+High cutoff rate: 0.571
+Avg final safe floor: 57.48
+Avg final local density read: 0.050
+Avg final surprise read: 0.174
+Avg final near-cutoff hits: 2.42
+Avg final near-cutoff misses: 0.13
+Mode rates: safe=0.690, risky=0.150, blind_risk=0.009, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.148
+Double window mode rates: safe=0.822, risky=0.178, blind_risk=0.000
+Context rates: open=0.596, dense=0.259, generous=0.372, dense_and_generous=0.034, tight=0.172, uncertain=0.691, 
+Context-action rates: risky_on_open=0.116, risky_on_dense=0.206, risky_on_generous=0.051, risky_on_dense_and_generous=0.083, safe_on_tight=0.974, risky_on_uncertain=0.182, safe_on_uncertain=0.789, risky_on_double_window=0.178, safe_on_double_window=0.822
+Answer-state summary:
+  Contestant 1: knowledge=0.173, recall=0.157, confidence=0.172, safe_candidates=60.8, risky_candidates=94.7, blind_candidates=4.2
+  Contestant 2: knowledge=0.146, recall=0.137, confidence=0.149, safe_candidates=39.9, risky_candidates=91.1, blind_candidates=7.2
+  Contestant 3: knowledge=0.138, recall=0.131, confidence=0.140, safe_candidates=36.7, risky_candidates=84.3, blind_candidates=13.2
+Player mode rates:
+  Contestant 1: safe=0.569, risky=0.099, blind=0.001, victory_lap=0.327
+  Contestant 2: safe=0.776, risky=0.180, blind=0.028, victory_lap=0.015
+  Contestant 3: safe=0.790, risky=0.198, blind=0.003, victory_lap=0.006
+Player mode hit rates:
+  Contestant 1: safe=0.980, risky=0.879, blind=0.064, desperation=0.205
+  Contestant 2: safe=0.940, risky=0.836, blind=0.062, desperation=0.207
+  Contestant 3: safe=0.919, risky=0.826, blind=0.040, desperation=0.180
+Player avg guess values:
+  Contestant 1: safe=41.8, risky=83.9, blind=94.6
+  Contestant 2: safe=37.1, risky=82.7, blind=92.7
+  Contestant 3: safe=30.1, risky=72.1, blind=91.4
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.598, high_70_89=0.158, deep_90_100=0.244, early_strike=0.065
+  Contestant 2: top_15=0.000, mid_16_69=0.084, high_70_89=0.605, deep_90_100=0.311, early_strike=0.202
+  Contestant 3: top_15=0.000, mid_16_69=0.595, high_70_89=0.355, deep_90_100=0.050, early_strike=0.089
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.583, risky=0.179, blind=0.001, victory_lap=0.237
+  Contestant 1 at 1 strikes: safe=0.616, risky=0.004, blind=0.002, victory_lap=0.371
+  Contestant 1 at 2 strikes: safe=0.082, risky=0.000, blind=0.000, victory_lap=0.892
+  Contestant 2 at 0 strikes: safe=0.524, risky=0.423, blind=0.049, victory_lap=0.003
+  Contestant 2 at 1 strikes: safe=0.718, risky=0.216, blind=0.050, victory_lap=0.015
+  Contestant 2 at 2 strikes: safe=0.976, risky=0.000, blind=0.000, victory_lap=0.023
+  Contestant 3 at 0 strikes: safe=0.516, risky=0.479, blind=0.002, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.979, risky=0.013, blind=0.003, victory_lap=0.003
+  Contestant 3 at 2 strikes: safe=0.669, risky=0.203, blind=0.000, victory_lap=0.076
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.991, risky=0.881, blind=0.062, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.979, risky=0.781, blind=0.065, desperation=0.239
+  Contestant 1 at 2 strikes: safe=0.252, risky=0.000, blind=0.000, desperation=0.192
+  Contestant 2 at 0 strikes: safe=0.978, risky=0.856, blind=0.057, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.948, risky=0.795, blind=0.067, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.924, risky=0.000, blind=0.000, desperation=0.216
+  Contestant 3 at 0 strikes: safe=0.980, risky=0.832, blind=0.048, desperation=0.111
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.753, blind=0.037, desperation=0.161
+  Contestant 3 at 2 strikes: safe=0.026, risky=0.759, blind=0.000, desperation=0.188
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.116, strikeout_next_turn=0.884, avg_survival_turns=1.39, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.696, strikeout_next_turn=0.304, avg_survival_turns=11.82, median_survival_turns=14.0
+  Contestant 3: entries=10000, survival_rate=0.202, strikeout_next_turn=0.798, avg_survival_turns=0.29, median_survival_turns=0.0
+
+=== Category: All-Time ERA+ ===
+Contestant 1: win_rate=0.804, avg_score=2259.5, median_score=2486.0, stdev=667.1, avg_strikes=3.00, first_out_rate=0.002
+Contestant 2: win_rate=0.190, avg_score=1271.1, median_score=1142.0, stdev=466.1, avg_strikes=3.00, first_out_rate=0.023
+Contestant 3: win_rate=0.006, avg_score=601.1, median_score=550.0, stdev=233.1, avg_strikes=3.00, first_out_rate=0.975
+Last survivor but lost rate: 0.082
+Solo started behind rate: 0.303
+Solo started behind and lost rate: 0.272
+Avg solo start deficit: 110.5
+Avg solo turns taken: 16.73
+Solo had winning answer rate: 0.167
+Solo had winning answer given started behind rate: 0.552
+Solo start deficit buckets: 1-75: 0.442, 76-150: 0.291, 151-250: 0.178, 251+: 0.088
+Avg final board read: -0.051
+Avg absolute final board read: 0.083
+Strong harsh board rate: 0.096
+Strong generous board rate: 0.008
+Avg final cutoff estimate: 72.24
+Avg final cutoff uncertainty: 0.499
+Low uncertainty rate: 0.000
+High cutoff rate: 0.677
+Avg final safe floor: 59.25
+Avg final local density read: 0.060
+Avg final surprise read: 0.206
+Avg final near-cutoff hits: 1.76
+Avg final near-cutoff misses: 0.10
+Mode rates: safe=0.655, risky=0.120, blind_risk=0.011, chip_away=0.000, exact_win=0.002, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.210
+Double window mode rates: safe=0.807, risky=0.193, blind_risk=0.000
+Context rates: open=0.602, dense=0.257, generous=0.376, dense_and_generous=0.031, tight=0.214, uncertain=0.762, 
+Context-action rates: risky_on_open=0.078, risky_on_dense=0.144, risky_on_generous=0.032, risky_on_dense_and_generous=0.080, safe_on_tight=0.967, risky_on_uncertain=0.150, safe_on_uncertain=0.787, risky_on_double_window=0.193, safe_on_double_window=0.807
+Answer-state summary:
+  Contestant 1: knowledge=0.158, recall=0.145, confidence=0.159, safe_candidates=49.8, risky_candidates=92.9, blind_candidates=5.6
+  Contestant 2: knowledge=0.156, recall=0.141, confidence=0.144, safe_candidates=39.6, risky_candidates=91.1, blind_candidates=8.0
+  Contestant 3: knowledge=0.127, recall=0.114, confidence=0.112, safe_candidates=16.8, risky_candidates=74.4, blind_candidates=24.1
+Player mode rates:
+  Contestant 1: safe=0.528, risky=0.075, blind=0.004, victory_lap=0.387
+  Contestant 2: safe=0.760, risky=0.131, blind=0.029, victory_lap=0.078
+  Contestant 3: safe=0.789, risky=0.210, blind=0.000, victory_lap=0.001
+Player mode hit rates:
+  Contestant 1: safe=0.980, risky=0.858, blind=0.059, desperation=0.199
+  Contestant 2: safe=0.945, risky=0.832, blind=0.051, desperation=0.200
+  Contestant 3: safe=0.876, risky=0.770, blind=0.111, desperation=0.162
+Player avg guess values:
+  Contestant 1: safe=38.5, risky=85.5, blind=93.5
+  Contestant 2: safe=37.9, risky=85.1, blind=92.1
+  Contestant 3: safe=26.7, risky=71.5, blind=91.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.588, high_70_89=0.213, deep_90_100=0.199, early_strike=0.070
+  Contestant 2: top_15=0.000, mid_16_69=0.123, high_70_89=0.587, deep_90_100=0.291, early_strike=0.191
+  Contestant 3: top_15=0.058, mid_16_69=0.554, high_70_89=0.371, deep_90_100=0.017, early_strike=0.104
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.564, risky=0.141, blind=0.003, victory_lap=0.290
+  Contestant 1 at 1 strikes: safe=0.555, risky=0.003, blind=0.005, victory_lap=0.427
+  Contestant 1 at 2 strikes: safe=0.150, risky=0.000, blind=0.000, victory_lap=0.819
+  Contestant 2 at 0 strikes: safe=0.617, risky=0.313, blind=0.050, victory_lap=0.021
+  Contestant 2 at 1 strikes: safe=0.764, risky=0.118, blind=0.046, victory_lap=0.071
+  Contestant 2 at 2 strikes: safe=0.868, risky=0.000, blind=0.000, victory_lap=0.128
+  Contestant 3 at 0 strikes: safe=0.443, risky=0.557, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=0.999, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 2 strikes: safe=0.844, risky=0.144, blind=0.000, victory_lap=0.008
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.992, risky=0.859, blind=0.054, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.979, risky=0.745, blind=0.064, desperation=0.220
+  Contestant 1 at 2 strikes: safe=0.731, risky=0.000, blind=0.000, desperation=0.193
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.852, blind=0.051, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.954, risky=0.775, blind=0.051, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.920, risky=0.000, blind=0.000, desperation=0.207
+  Contestant 3 at 0 strikes: safe=0.979, risky=0.776, blind=0.071, desperation=0.000
+  Contestant 3 at 1 strikes: safe=0.916, risky=0.900, blind=0.154, desperation=0.125
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.615, blind=0.000, desperation=0.192
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.168, strikeout_next_turn=0.832, avg_survival_turns=2.76, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.651, strikeout_next_turn=0.349, avg_survival_turns=11.31, median_survival_turns=11.0
+  Contestant 3: entries=10000, survival_rate=0.083, strikeout_next_turn=0.917, avg_survival_turns=0.10, median_survival_turns=0.0
+
+=== Category: Pitcher Strikeouts since 2010 ===
+Contestant 1: win_rate=0.424, avg_score=1715.9, median_score=1706.0, stdev=81.8, avg_strikes=0.64, first_out_rate=0.000
+Contestant 2: win_rate=0.295, avg_score=1675.6, median_score=1683.0, stdev=90.1, avg_strikes=1.70, first_out_rate=0.148
+Contestant 3: win_rate=0.281, avg_score=1654.7, median_score=1678.0, stdev=105.2, avg_strikes=0.41, first_out_rate=0.015
+Last survivor but lost rate: 0.020
+Solo started behind rate: 0.047
+Solo started behind and lost rate: 0.431
+Avg solo start deficit: 94.5
+Avg solo turns taken: 3.02
+Solo had winning answer rate: 0.026
+Solo had winning answer given started behind rate: 0.569
+Solo start deficit buckets: 1-75: 0.584, 76-150: 0.221, 151-250: 0.101, 251+: 0.094
+Avg final board read: -0.096
+Avg absolute final board read: 0.105
+Strong harsh board rate: 0.260
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 50.97
+Avg final cutoff uncertainty: 0.281
+Low uncertainty rate: 0.295
+High cutoff rate: 0.124
+Avg final safe floor: 39.28
+Avg final local density read: 0.071
+Avg final surprise read: 0.184
+Avg final near-cutoff hits: 2.27
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.450, risky=0.534, blind_risk=0.013, chip_away=0.000, exact_win=0.000, comeback=0.000, high_upside=0.000, desperation=0.000, victory_lap=0.002
+Double window mode rates: safe=0.442, risky=0.558, blind_risk=0.000
+Context rates: open=0.748, dense=0.575, generous=0.189, dense_and_generous=0.016, tight=0.089, uncertain=0.323, 
+Context-action rates: risky_on_open=0.562, risky_on_dense=0.647, risky_on_generous=0.283, risky_on_dense_and_generous=0.328, safe_on_tight=0.823, risky_on_uncertain=0.620, safe_on_uncertain=0.364, risky_on_double_window=0.558, safe_on_double_window=0.442
+Answer-state summary:
+  Contestant 1: knowledge=0.317, recall=0.285, confidence=0.304, safe_candidates=95.3, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.313, recall=0.317, confidence=0.402, safe_candidates=97.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.254, recall=0.257, confidence=0.322, safe_candidates=89.6, risky_candidates=99.3, blind_candidates=0.1
+Player mode rates:
+  Contestant 1: safe=0.416, risky=0.584, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.467, risky=0.492, blind=0.040, victory_lap=0.001
+  Contestant 3: safe=0.467, risky=0.527, blind=0.000, victory_lap=0.004
+Player mode hit rates:
+  Contestant 1: safe=0.969, risky=0.990, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.983, risky=0.997, blind=0.000, desperation=0.000
+  Contestant 3: safe=0.997, risky=0.990, blind=0.000, desperation=0.040
+Player avg guess values:
+  Contestant 1: safe=39.8, risky=58.9, blind=0.0
+  Contestant 2: safe=35.8, risky=66.3, blind=0.0
+  Contestant 3: safe=41.5, risky=55.7, blind=98.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.526, high_70_89=0.000, deep_90_100=0.474, early_strike=0.000
+  Contestant 2: top_15=0.000, mid_16_69=0.034, high_70_89=0.000, deep_90_100=0.917, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.002, deep_90_100=0.473, early_strike=0.035
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.414, risky=0.586, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.995, risky=0.000, blind=0.005, victory_lap=0.000
+  Contestant 1 at 2 strikes: safe=0.993, risky=0.000, blind=0.000, victory_lap=0.007
+  Contestant 2 at 0 strikes: safe=0.256, risky=0.693, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.410, risky=0.538, blind=0.052, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.997, risky=0.000, blind=0.000, victory_lap=0.002
+  Contestant 3 at 0 strikes: safe=0.375, risky=0.622, blind=0.000, victory_lap=0.002
+  Contestant 3 at 1 strikes: safe=0.986, risky=0.002, blind=0.000, victory_lap=0.009
+  Contestant 3 at 2 strikes: safe=0.174, risky=0.011, blind=0.000, victory_lap=0.561
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.980, risky=0.990, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.995, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.991, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.980, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 3 at 0 strikes: safe=0.999, risky=0.990, blind=0.000, desperation=0.026
+  Contestant 3 at 1 strikes: safe=0.996, risky=0.824, blind=0.000, desperation=0.051
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.889, blind=0.000, desperation=0.040
+Two-strike summary:
+  Contestant 1: entries=911, survival_rate=0.002, strikeout_next_turn=0.878, avg_survival_turns=0.00, median_survival_turns=0.0
+  Contestant 2: entries=5724, survival_rate=0.921, strikeout_next_turn=0.040, avg_survival_turns=12.99, median_survival_turns=13.0
+  Contestant 3: entries=815, survival_rate=0.036, strikeout_next_turn=0.960, avg_survival_turns=0.04, median_survival_turns=0.0
+
+=== Category: Home Runs since 2020 ===
+Contestant 1: win_rate=0.401, avg_score=1707.0, median_score=1701.0, stdev=75.3, avg_strikes=0.48, first_out_rate=0.000
+Contestant 2: win_rate=0.278, avg_score=1665.5, median_score=1675.0, stdev=88.0, avg_strikes=1.59, first_out_rate=0.068
+Contestant 3: win_rate=0.322, avg_score=1676.8, median_score=1690.0, stdev=87.3, avg_strikes=0.16, first_out_rate=0.002
+Last survivor but lost rate: 0.004
+Solo started behind rate: 0.009
+Solo started behind and lost rate: 0.426
+Avg solo start deficit: 98.4
+Avg solo turns taken: 3.15
+Solo had winning answer rate: 0.005
+Solo had winning answer given started behind rate: 0.574
+Solo start deficit buckets: 1-75: 0.596, 76-150: 0.181, 151-250: 0.128, 251+: 0.096
+Avg final board read: -0.103
+Avg absolute final board read: 0.109
+Strong harsh board rate: 0.253
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 50.05
+Avg final cutoff uncertainty: 0.280
+Low uncertainty rate: 0.285
+High cutoff rate: 0.095
+Avg final safe floor: 38.37
+Avg final local density read: 0.069
+Avg final surprise read: 0.190
+Avg final near-cutoff hits: 2.24
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.425, risky=0.561, blind_risk=0.013, chip_away=0.000, exact_win=0.000, comeback=0.000, high_upside=0.000, desperation=0.000, victory_lap=0.000
+Double window mode rates: safe=0.419, risky=0.581, blind_risk=0.000
+Context rates: open=0.750, dense=0.578, generous=0.186, dense_and_generous=0.014, tight=0.083, uncertain=0.322, 
+Context-action rates: risky_on_open=0.590, risky_on_dense=0.669, risky_on_generous=0.329, risky_on_dense_and_generous=0.386, safe_on_tight=0.820, risky_on_uncertain=0.639, safe_on_uncertain=0.345, risky_on_double_window=0.581, safe_on_double_window=0.419
+Answer-state summary:
+  Contestant 1: knowledge=0.346, recall=0.311, confidence=0.332, safe_candidates=97.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.341, recall=0.346, confidence=0.438, safe_candidates=98.7, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.277, recall=0.280, confidence=0.352, safe_candidates=92.2, risky_candidates=99.8, blind_candidates=0.0
+Player mode rates:
+  Contestant 1: safe=0.395, risky=0.605, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.437, risky=0.522, blind=0.040, victory_lap=0.000
+  Contestant 3: safe=0.443, risky=0.555, blind=0.000, victory_lap=0.001
+Player mode hit rates:
+  Contestant 1: safe=0.980, risky=0.989, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.991, risky=0.996, blind=0.000, desperation=0.000
+  Contestant 3: safe=0.999, risky=0.994, blind=0.000, desperation=0.034
+Player avg guess values:
+  Contestant 1: safe=39.7, risky=58.0, blind=0.0
+  Contestant 2: safe=35.0, risky=64.9, blind=0.0
+  Contestant 3: safe=41.7, risky=55.9, blind=0.0
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.525, high_70_89=0.000, deep_90_100=0.475, early_strike=0.000
+  Contestant 2: top_15=0.000, mid_16_69=0.019, high_70_89=0.000, deep_90_100=0.932, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.000, deep_90_100=0.476, early_strike=0.020
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.395, risky=0.605, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.985, risky=0.000, blind=0.015, victory_lap=0.000
+  Contestant 1 at 2 strikes: safe=1.000, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 2 at 0 strikes: safe=0.221, risky=0.727, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.361, risky=0.587, blind=0.052, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.999, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 0 strikes: safe=0.388, risky=0.611, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=0.995, risky=0.001, blind=0.000, victory_lap=0.004
+  Contestant 3 at 2 strikes: safe=0.123, risky=0.011, blind=0.000, victory_lap=0.637
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.983, risky=0.989, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.983, risky=0.994, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.998, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.991, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 3 at 0 strikes: safe=0.999, risky=0.995, blind=0.000, desperation=0.083
+  Contestant 3 at 1 strikes: safe=0.999, risky=0.720, blind=0.000, desperation=0.042
+  Contestant 3 at 2 strikes: safe=0.000, risky=1.000, blind=0.000, desperation=0.000
+Two-strike summary:
+  Contestant 1: entries=198, survival_rate=0.000, strikeout_next_turn=0.889, avg_survival_turns=0.00, median_survival_turns=0.0
+  Contestant 2: entries=5405, survival_rate=0.960, strikeout_next_turn=0.011, avg_survival_turns=14.00, median_survival_turns=14.0
+  Contestant 3: entries=180, survival_rate=0.017, strikeout_next_turn=0.972, avg_survival_turns=0.02, median_survival_turns=0.0
+
+=== Category: Stolen Bases since 2000 ===
+Contestant 1: win_rate=0.401, avg_score=1690.3, median_score=1694.0, stdev=139.0, avg_strikes=2.21, first_out_rate=0.105
+Contestant 2: win_rate=0.244, avg_score=1661.5, median_score=1664.5, stdev=126.9, avg_strikes=2.56, first_out_rate=0.534
+Contestant 3: win_rate=0.355, avg_score=1609.6, median_score=1653.0, stdev=164.2, avg_strikes=2.14, first_out_rate=0.089
+Last survivor but lost rate: 0.266
+Solo started behind rate: 0.377
+Solo started behind and lost rate: 0.705
+Avg solo start deficit: 191.4
+Avg solo turns taken: 2.31
+Solo had winning answer rate: 0.098
+Solo had winning answer given started behind rate: 0.260
+Solo start deficit buckets: 1-75: 0.366, 76-150: 0.191, 151-250: 0.138, 251+: 0.305
+Avg final board read: -0.057
+Avg absolute final board read: 0.092
+Strong harsh board rate: 0.208
+Strong generous board rate: 0.001
+Avg final cutoff estimate: 55.21
+Avg final cutoff uncertainty: 0.292
+Low uncertainty rate: 0.252
+High cutoff rate: 0.222
+Avg final safe floor: 43.46
+Avg final local density read: 0.078
+Avg final surprise read: 0.152
+Avg final near-cutoff hits: 2.82
+Avg final near-cutoff misses: 0.01
+Mode rates: safe=0.581, risky=0.391, blind_risk=0.012, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.005, victory_lap=0.009
+Double window mode rates: safe=0.568, risky=0.432, blind_risk=0.000
+Context rates: open=0.735, dense=0.536, generous=0.229, dense_and_generous=0.030, tight=0.112, uncertain=0.323, 
+Context-action rates: risky_on_open=0.403, risky_on_dense=0.504, risky_on_generous=0.134, risky_on_dense_and_generous=0.167, safe_on_tight=0.842, risky_on_uncertain=0.513, safe_on_uncertain=0.472, risky_on_double_window=0.432, safe_on_double_window=0.568
+Answer-state summary:
+  Contestant 1: knowledge=0.253, recall=0.228, confidence=0.243, safe_candidates=89.4, risky_candidates=99.7, blind_candidates=0.4
+  Contestant 2: knowledge=0.250, recall=0.244, confidence=0.293, safe_candidates=91.9, risky_candidates=99.8, blind_candidates=0.0
+  Contestant 3: knowledge=0.203, recall=0.197, confidence=0.235, safe_candidates=77.7, risky_candidates=96.2, blind_candidates=2.5
+Player mode rates:
+  Contestant 1: safe=0.584, risky=0.411, blind=0.000, victory_lap=0.004
+  Contestant 2: safe=0.621, risky=0.339, blind=0.035, victory_lap=0.004
+  Contestant 3: safe=0.541, risky=0.422, blind=0.001, victory_lap=0.019
+Player mode hit rates:
+  Contestant 1: safe=0.911, risky=0.981, blind=0.013, desperation=0.122
+  Contestant 2: safe=0.953, risky=0.979, blind=0.001, desperation=0.020
+  Contestant 3: safe=0.970, risky=0.973, blind=0.033, desperation=0.083
+Player avg guess values:
+  Contestant 1: safe=41.3, risky=63.7, blind=96.8
+  Contestant 2: safe=39.5, risky=73.4, blind=96.5
+  Contestant 3: safe=40.0, risky=58.0, blind=97.5
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.546, high_70_89=0.012, deep_90_100=0.442, early_strike=0.032
+  Contestant 2: top_15=0.000, mid_16_69=0.061, high_70_89=0.001, deep_90_100=0.890, early_strike=0.088
+  Contestant 3: top_15=0.000, mid_16_69=0.543, high_70_89=0.122, deep_90_100=0.335, early_strike=0.064
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.488, risky=0.512, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.986, risky=0.005, blind=0.001, victory_lap=0.007
+  Contestant 1 at 2 strikes: safe=0.831, risky=0.000, blind=0.000, victory_lap=0.130
+  Contestant 2 at 0 strikes: safe=0.387, risky=0.562, blind=0.051, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.568, risky=0.381, blind=0.050, victory_lap=0.001
+  Contestant 2 at 2 strikes: safe=0.985, risky=0.000, blind=0.000, victory_lap=0.011
+  Contestant 3 at 0 strikes: safe=0.398, risky=0.591, blind=0.001, victory_lap=0.006
+  Contestant 3 at 1 strikes: safe=0.946, risky=0.007, blind=0.002, victory_lap=0.024
+  Contestant 3 at 2 strikes: safe=0.180, risky=0.027, blind=0.000, victory_lap=0.409
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.961, risky=0.981, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.890, risky=0.766, blind=0.019, desperation=0.125
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.121
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.980, blind=0.001, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.955, risky=0.976, blind=0.001, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.938, risky=0.000, blind=0.000, desperation=0.020
+  Contestant 3 at 0 strikes: safe=0.981, risky=0.976, blind=0.035, desperation=0.024
+  Contestant 3 at 1 strikes: safe=0.972, risky=0.554, blind=0.031, desperation=0.100
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.512, blind=0.000, desperation=0.084
+Two-strike summary:
+  Contestant 1: entries=7083, survival_rate=0.046, strikeout_next_turn=0.919, avg_survival_turns=0.09, median_survival_turns=0.0
+  Contestant 2: entries=8532, survival_rate=0.732, strikeout_next_turn=0.234, avg_survival_turns=11.52, median_survival_turns=9.0
+  Contestant 3: entries=6880, survival_rate=0.086, strikeout_next_turn=0.911, avg_survival_turns=0.10, median_survival_turns=0.0
+
+=== Category: Home Runs since 2000 ===
+Contestant 1: win_rate=0.468, avg_score=1729.2, median_score=1717.0, stdev=88.3, avg_strikes=0.92, first_out_rate=0.001
+Contestant 2: win_rate=0.278, avg_score=1679.9, median_score=1686.0, stdev=96.8, avg_strikes=1.87, first_out_rate=0.249
+Contestant 3: win_rate=0.254, avg_score=1629.9, median_score=1664.0, stdev=124.4, avg_strikes=0.77, first_out_rate=0.036
+Last survivor but lost rate: 0.057
+Solo started behind rate: 0.112
+Solo started behind and lost rate: 0.507
+Avg solo start deficit: 119.2
+Avg solo turns taken: 2.76
+Solo had winning answer rate: 0.054
+Solo had winning answer given started behind rate: 0.482
+Solo start deficit buckets: 1-75: 0.516, 76-150: 0.211, 151-250: 0.114, 251+: 0.159
+Avg final board read: -0.086
+Avg absolute final board read: 0.101
+Strong harsh board rate: 0.259
+Strong generous board rate: 0.000
+Avg final cutoff estimate: 52.04
+Avg final cutoff uncertainty: 0.282
+Low uncertainty rate: 0.295
+High cutoff rate: 0.157
+Avg final safe floor: 40.35
+Avg final local density read: 0.073
+Avg final surprise read: 0.176
+Avg final near-cutoff hits: 2.38
+Avg final near-cutoff misses: 0.00
+Mode rates: safe=0.480, risky=0.501, blind_risk=0.013, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.001, victory_lap=0.003
+Double window mode rates: safe=0.472, risky=0.528, blind_risk=0.000
+Context rates: open=0.746, dense=0.569, generous=0.196, dense_and_generous=0.019, tight=0.095, uncertain=0.323, 
+Context-action rates: risky_on_open=0.526, risky_on_dense=0.617, risky_on_generous=0.237, risky_on_dense_and_generous=0.265, safe_on_tight=0.820, risky_on_uncertain=0.595, safe_on_uncertain=0.389, risky_on_double_window=0.528, safe_on_double_window=0.472
+Answer-state summary:
+  Contestant 1: knowledge=0.304, recall=0.274, confidence=0.292, safe_candidates=94.4, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 2: knowledge=0.300, recall=0.292, confidence=0.351, safe_candidates=95.9, risky_candidates=100.0, blind_candidates=0.0
+  Contestant 3: knowledge=0.243, recall=0.237, confidence=0.282, safe_candidates=86.7, risky_candidates=98.6, blind_candidates=0.7
+Player mode rates:
+  Contestant 1: safe=0.448, risky=0.552, blind=0.000, victory_lap=0.000
+  Contestant 2: safe=0.501, risky=0.458, blind=0.040, victory_lap=0.001
+  Contestant 3: safe=0.493, risky=0.494, blind=0.000, victory_lap=0.008
+Player mode hit rates:
+  Contestant 1: safe=0.951, risky=0.992, blind=0.000, desperation=0.000
+  Contestant 2: safe=0.975, risky=0.997, blind=0.000, desperation=0.056
+  Contestant 3: safe=0.993, risky=0.985, blind=0.000, desperation=0.051
+Player avg guess values:
+  Contestant 1: safe=40.3, risky=60.2, blind=0.0
+  Contestant 2: safe=36.5, risky=67.9, blind=0.0
+  Contestant 3: safe=41.2, risky=55.7, blind=97.6
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.528, high_70_89=0.000, deep_90_100=0.472, early_strike=0.001
+  Contestant 2: top_15=0.000, mid_16_69=0.052, high_70_89=0.000, deep_90_100=0.899, early_strike=0.049
+  Contestant 3: top_15=0.000, mid_16_69=0.524, high_70_89=0.015, deep_90_100=0.461, early_strike=0.056
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.439, risky=0.561, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.995, risky=0.000, blind=0.003, victory_lap=0.002
+  Contestant 1 at 2 strikes: safe=0.983, risky=0.000, blind=0.000, victory_lap=0.016
+  Contestant 2 at 0 strikes: safe=0.294, risky=0.655, blind=0.052, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.461, risky=0.488, blind=0.051, victory_lap=0.000
+  Contestant 2 at 2 strikes: safe=0.992, risky=0.000, blind=0.000, victory_lap=0.005
+  Contestant 3 at 0 strikes: safe=0.360, risky=0.635, blind=0.000, victory_lap=0.003
+  Contestant 3 at 1 strikes: safe=0.978, risky=0.004, blind=0.001, victory_lap=0.012
+  Contestant 3 at 2 strikes: safe=0.181, risky=0.018, blind=0.000, victory_lap=0.492
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.976, risky=0.992, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.411, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.000
+  Contestant 2 at 0 strikes: safe=0.982, risky=0.996, blind=0.000, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.981, risky=1.000, blind=0.000, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.967, risky=0.000, blind=0.000, desperation=0.056
+  Contestant 3 at 0 strikes: safe=0.997, risky=0.985, blind=0.000, desperation=0.031
+  Contestant 3 at 1 strikes: safe=0.993, risky=0.712, blind=0.000, desperation=0.066
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.743, blind=0.000, desperation=0.050
+Two-strike summary:
+  Contestant 1: entries=2099, survival_rate=0.005, strikeout_next_turn=0.877, avg_survival_turns=0.01, median_survival_turns=0.0
+  Contestant 2: entries=6187, survival_rate=0.871, strikeout_next_turn=0.083, avg_survival_turns=11.97, median_survival_turns=11.0
+  Contestant 3: entries=1886, survival_rate=0.055, strikeout_next_turn=0.943, avg_survival_turns=0.06, median_survival_turns=0.0
+
+=== Category: Hits since 1900 ===
+Contestant 1: win_rate=0.503, avg_score=1729.0, median_score=1719.0, stdev=146.1, avg_strikes=2.36, first_out_rate=0.080
+Contestant 2: win_rate=0.193, avg_score=1649.6, median_score=1656.0, stdev=138.6, avg_strikes=2.66, first_out_rate=0.596
+Contestant 3: win_rate=0.304, avg_score=1569.2, median_score=1627.0, stdev=188.4, avg_strikes=2.33, first_out_rate=0.111
+Last survivor but lost rate: 0.324
+Solo started behind rate: 0.439
+Solo started behind and lost rate: 0.738
+Avg solo start deficit: 219.6
+Avg solo turns taken: 2.20
+Solo had winning answer rate: 0.097
+Solo had winning answer given started behind rate: 0.222
+Solo start deficit buckets: 1-75: 0.344, 76-150: 0.204, 151-250: 0.115, 251+: 0.338
+Avg final board read: -0.048
+Avg absolute final board read: 0.094
+Strong harsh board rate: 0.196
+Strong generous board rate: 0.011
+Avg final cutoff estimate: 56.02
+Avg final cutoff uncertainty: 0.297
+Low uncertainty rate: 0.232
+High cutoff rate: 0.232
+Avg final safe floor: 44.24
+Avg final local density read: 0.076
+Avg final surprise read: 0.151
+Avg final near-cutoff hits: 2.87
+Avg final near-cutoff misses: 0.01
+Mode rates: safe=0.597, risky=0.375, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.006, victory_lap=0.009
+Double window mode rates: safe=0.583, risky=0.417, blind_risk=0.000
+Context rates: open=0.733, dense=0.526, generous=0.239, dense_and_generous=0.032, tight=0.110, uncertain=0.324, 
+Context-action rates: risky_on_open=0.383, risky_on_dense=0.487, risky_on_generous=0.122, risky_on_dense_and_generous=0.150, safe_on_tight=0.846, risky_on_uncertain=0.505, safe_on_uncertain=0.480, risky_on_double_window=0.417, safe_on_double_window=0.583
+Answer-state summary:
+  Contestant 1: knowledge=0.253, recall=0.233, confidence=0.255, safe_candidates=90.3, risky_candidates=99.8, blind_candidates=0.2
+  Contestant 2: knowledge=0.250, recall=0.234, confidence=0.264, safe_candidates=90.4, risky_candidates=99.6, blind_candidates=0.2
+  Contestant 3: knowledge=0.203, recall=0.188, confidence=0.209, safe_candidates=73.4, risky_candidates=95.0, blind_candidates=3.8
+Player mode rates:
+  Contestant 1: safe=0.603, risky=0.389, blind=0.000, victory_lap=0.007
+  Contestant 2: safe=0.640, risky=0.321, blind=0.033, victory_lap=0.004
+  Contestant 3: safe=0.550, risky=0.414, blind=0.001, victory_lap=0.017
+Player mode hit rates:
+  Contestant 1: safe=0.907, risky=0.984, blind=0.000, desperation=0.176
+  Contestant 2: safe=0.953, risky=0.968, blind=0.007, desperation=0.014
+  Contestant 3: safe=0.964, risky=0.968, blind=0.027, desperation=0.084
+Player avg guess values:
+  Contestant 1: safe=42.1, risky=65.8, blind=95.5
+  Contestant 2: safe=40.0, risky=74.0, blind=96.1
+  Contestant 3: safe=38.8, risky=57.9, blind=97.4
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.556, high_70_89=0.005, deep_90_100=0.439, early_strike=0.022
+  Contestant 2: top_15=0.000, mid_16_69=0.057, high_70_89=0.001, deep_90_100=0.902, early_strike=0.109
+  Contestant 3: top_15=0.000, mid_16_69=0.553, high_70_89=0.192, deep_90_100=0.255, early_strike=0.060
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.531, risky=0.469, blind=0.000, victory_lap=0.000
+  Contestant 1 at 1 strikes: safe=0.976, risky=0.005, blind=0.001, victory_lap=0.017
+  Contestant 1 at 2 strikes: safe=0.769, risky=0.000, blind=0.000, victory_lap=0.197
+  Contestant 2 at 0 strikes: safe=0.395, risky=0.555, blind=0.050, victory_lap=0.000
+  Contestant 2 at 1 strikes: safe=0.560, risky=0.388, blind=0.051, victory_lap=0.001
+  Contestant 2 at 2 strikes: safe=0.985, risky=0.000, blind=0.000, victory_lap=0.009
+  Contestant 3 at 0 strikes: safe=0.390, risky=0.600, blind=0.001, victory_lap=0.005
+  Contestant 3 at 1 strikes: safe=0.952, risky=0.007, blind=0.003, victory_lap=0.018
+  Contestant 3 at 2 strikes: safe=0.211, risky=0.033, blind=0.000, victory_lap=0.339
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.960, risky=0.984, blind=0.000, desperation=0.000
+  Contestant 1 at 1 strikes: safe=0.859, risky=0.730, blind=0.000, desperation=0.150
+  Contestant 1 at 2 strikes: safe=0.000, risky=0.000, blind=0.000, desperation=0.182
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.969, blind=0.007, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.953, risky=0.965, blind=0.006, desperation=0.000
+  Contestant 2 at 2 strikes: safe=0.940, risky=0.000, blind=0.000, desperation=0.014
+  Contestant 3 at 0 strikes: safe=0.979, risky=0.971, blind=0.019, desperation=0.046
+  Contestant 3 at 1 strikes: safe=0.967, risky=0.504, blind=0.032, desperation=0.091
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.529, blind=0.000, desperation=0.088
+Two-strike summary:
+  Contestant 1: entries=7680, survival_rate=0.060, strikeout_next_turn=0.912, avg_survival_turns=0.14, median_survival_turns=0.0
+  Contestant 2: entries=8930, survival_rate=0.742, strikeout_next_turn=0.226, avg_survival_turns=12.23, median_survival_turns=11.0
+  Contestant 3: entries=7538, survival_rate=0.085, strikeout_next_turn=0.912, avg_survival_turns=0.09, median_survival_turns=0.0
+
+=== Category: Every MVP Winner ===
+Contestant 1: win_rate=0.777, avg_score=2256.1, median_score=2547.0, stdev=751.5, avg_strikes=3.00, first_out_rate=0.001
+Contestant 2: win_rate=0.222, avg_score=1262.3, median_score=1081.0, stdev=553.4, avg_strikes=3.00, first_out_rate=0.006
+Contestant 3: win_rate=0.002, avg_score=472.2, median_score=428.0, stdev=212.4, avg_strikes=3.00, first_out_rate=0.993
+Last survivor but lost rate: 0.098
+Solo started behind rate: 0.341
+Solo started behind and lost rate: 0.286
+Avg solo start deficit: 113.7
+Avg solo turns taken: 19.64
+Solo had winning answer rate: 0.177
+Solo had winning answer given started behind rate: 0.517
+Solo start deficit buckets: 1-75: 0.415, 76-150: 0.301, 151-250: 0.202, 251+: 0.082
+Avg final board read: -0.065
+Avg absolute final board read: 0.086
+Strong harsh board rate: 0.146
+Strong generous board rate: 0.002
+Avg final cutoff estimate: 71.76
+Avg final cutoff uncertainty: 0.524
+Low uncertainty rate: 0.000
+High cutoff rate: 0.642
+Avg final safe floor: 58.62
+Avg final local density read: 0.068
+Avg final surprise read: 0.198
+Avg final near-cutoff hits: 1.77
+Avg final near-cutoff misses: 0.11
+Mode rates: safe=0.624, risky=0.110, blind_risk=0.011, chip_away=0.000, exact_win=0.003, comeback=0.001, high_upside=0.000, desperation=0.002, victory_lap=0.250
+Double window mode rates: safe=0.788, risky=0.212, blind_risk=0.000
+Context rates: open=0.589, dense=0.257, generous=0.355, dense_and_generous=0.024, tight=0.235, uncertain=0.774, 
+Context-action rates: risky_on_open=0.064, risky_on_dense=0.117, risky_on_generous=0.027, risky_on_dense_and_generous=0.083, safe_on_tight=0.951, risky_on_uncertain=0.138, safe_on_uncertain=0.774, risky_on_double_window=0.212, safe_on_double_window=0.788
+Answer-state summary:
+  Contestant 1: knowledge=0.152, recall=0.140, confidence=0.155, safe_candidates=44.1, risky_candidates=91.9, blind_candidates=6.3
+  Contestant 2: knowledge=0.150, recall=0.135, confidence=0.143, safe_candidates=35.6, risky_candidates=90.3, blind_candidates=8.3
+  Contestant 3: knowledge=0.122, recall=0.109, confidence=0.102, safe_candidates=11.8, risky_candidates=69.6, blind_candidates=30.2
+Player mode rates:
+  Contestant 1: safe=0.504, risky=0.061, blind=0.004, victory_lap=0.422
+  Contestant 2: safe=0.740, risky=0.116, blind=0.028, victory_lap=0.113
+  Contestant 3: safe=0.760, risky=0.239, blind=0.000, victory_lap=0.000
+Player mode hit rates:
+  Contestant 1: safe=0.979, risky=0.838, blind=0.058, desperation=0.187
+  Contestant 2: safe=0.945, risky=0.817, blind=0.056, desperation=0.168
+  Contestant 3: safe=0.841, risky=0.751, blind=0.000, desperation=0.133
+Player avg guess values:
+  Contestant 1: safe=36.9, risky=85.9, blind=92.7
+  Contestant 2: safe=37.0, risky=85.5, blind=91.7
+  Contestant 3: safe=25.5, risky=70.6, blind=90.7
+Early guess profile:
+  Contestant 1: top_15=0.000, mid_16_69=0.603, high_70_89=0.229, deep_90_100=0.168, early_strike=0.072
+  Contestant 2: top_15=0.000, mid_16_69=0.151, high_70_89=0.589, deep_90_100=0.261, early_strike=0.197
+  Contestant 3: top_15=0.129, mid_16_69=0.523, high_70_89=0.337, deep_90_100=0.011, early_strike=0.102
+Strike-state mode rates:
+  Contestant 1 at 0 strikes: safe=0.551, risky=0.120, blind=0.004, victory_lap=0.323
+  Contestant 1 at 1 strikes: safe=0.520, risky=0.002, blind=0.005, victory_lap=0.462
+  Contestant 1 at 2 strikes: safe=0.180, risky=0.000, blind=0.000, victory_lap=0.791
+  Contestant 2 at 0 strikes: safe=0.636, risky=0.282, blind=0.049, victory_lap=0.033
+  Contestant 2 at 1 strikes: safe=0.741, risky=0.103, blind=0.045, victory_lap=0.110
+  Contestant 2 at 2 strikes: safe=0.819, risky=0.000, blind=0.000, victory_lap=0.176
+  Contestant 3 at 0 strikes: safe=0.423, risky=0.576, blind=0.000, victory_lap=0.000
+  Contestant 3 at 1 strikes: safe=1.000, risky=0.000, blind=0.000, victory_lap=0.000
+  Contestant 3 at 2 strikes: safe=0.866, risky=0.131, blind=0.000, victory_lap=0.002
+Strike-state hit rates:
+  Contestant 1 at 0 strikes: safe=0.991, risky=0.839, blind=0.056, desperation=0.048
+  Contestant 1 at 1 strikes: safe=0.977, risky=0.772, blind=0.060, desperation=0.196
+  Contestant 1 at 2 strikes: safe=0.789, risky=0.000, blind=0.000, desperation=0.186
+  Contestant 2 at 0 strikes: safe=0.981, risky=0.838, blind=0.053, desperation=0.000
+  Contestant 2 at 1 strikes: safe=0.954, risky=0.761, blind=0.059, desperation=0.125
+  Contestant 2 at 2 strikes: safe=0.918, risky=0.000, blind=0.000, desperation=0.170
+  Contestant 3 at 0 strikes: safe=0.975, risky=0.757, blind=0.000, desperation=0.333
+  Contestant 3 at 1 strikes: safe=0.887, risky=0.000, blind=0.000, desperation=0.200
+  Contestant 3 at 2 strikes: safe=0.000, risky=0.599, blind=0.000, desperation=0.000
+Two-strike summary:
+  Contestant 1: entries=10000, survival_rate=0.178, strikeout_next_turn=0.822, avg_survival_turns=3.55, median_survival_turns=0.0
+  Contestant 2: entries=10000, survival_rate=0.637, strikeout_next_turn=0.363, avg_survival_turns=11.36, median_survival_turns=10.0
+  Contestant 3: entries=10000, survival_rate=0.074, strikeout_next_turn=0.926, avg_survival_turns=0.09, median_survival_turns=0.0
+
+ === Aggregate Summary Across Validation Suite ===
+Contestant 1: avg_win_rate=0.607, avg_score=1906.0, avg_median_score=1965.7, avg_stdev=322.7, avg_strikes=2.23, avg_first_out_rate=0.039
+Contestant 2: avg_win_rate=0.208, avg_score=1511.6, avg_median_score=1480.1, avg_stdev=226.7, avg_strikes=2.58, avg_first_out_rate=0.292
+Contestant 3: avg_win_rate=0.186, avg_score=1248.5, avg_median_score=1234.6, avg_stdev=201.0, avg_strikes=2.16, avg_first_out_rate=0.399
+Last survivor but lost rate: 0.141
+Solo started behind rate: 0.265
+Solo started behind and lost rate: 0.490
+Avg solo start deficit: 157.0
+Avg solo turns taken: 6.41
+Solo had winning answer rate: 0.099
+Solo had winning answer given started behind rate: 0.429
+Solo start deficit buckets: 1-75: 0.433, 76-150: 0.228, 151-250: 0.141, 251+: 0.198
+Avg final board read: -0.039
+Avg absolute final board read: 0.088
+Avg strong harsh board rate: 0.143
+Avg strong generous board rate: 0.031
+Avg final cutoff estimate: 61.92
+Avg final cutoff uncertainty: 0.365
+Avg low uncertainty rate: 0.134
+Avg high cutoff rate: 0.375
+Avg final safe floor: 49.73
+Avg final local density read: 0.064
+Avg final surprise read: 0.177
+Avg final near-cutoff hits: 2.41
+Avg final near-cutoff misses: 0.05
+Mode rates: safe=0.610, risky=0.306, blind_risk=0.011, chip_away=0.000, exact_win=0.001, comeback=0.000, high_upside=0.000, desperation=0.002, victory_lap=0.069
+Double window mode rates: safe=0.636, risky=0.364, blind_risk=0.000
+Context rates: open=0.687, dense=0.430, generous=0.289, dense_and_generous=0.032, tight=0.128, uncertain=0.463, 
+Context-action rates: risky_on_open=0.312, risky_on_dense=0.440, risky_on_generous=0.101, risky_on_dense_and_generous=0.125, safe_on_tight=0.915, risky_on_uncertain=0.326, safe_on_uncertain=0.640, risky_on_double_window=0.364, safe_on_double_window=0.636
+Aggregate answer-state summary:
+Contestant 1: knowledge=0.233, recall=0.212, confidence=0.229, safe_candidates=77.6, risky_candidates=97.4 
+Contestant 2: knowledge=0.226, recall=0.216, confidence=0.252, safe_candidates=73.5, risky_candidates=96.4 
+Contestant 3: knowledge=0.186, recall=0.178, confidence=0.203, safe_candidates=57.7, risky_candidates=89.3 
+Aggregate two-strike summary:
+Contestant 1: entries=77797, survival_rate=0.134, strikeout_next_turn=0.855, avg_survival_turns=0.95, median_survival_turns=0.0
+Contestant 2: entries=94683, survival_rate=0.741, strikeout_next_turn=0.246, avg_survival_turns=12.50, median_survival_turns=12.2
+Contestant 3: entries=77126, survival_rate=0.118, strikeout_next_turn=0.881, avg_survival_turns=0.12, median_survival_turns=0.0
+Aggregate strike-state mode rates:
+Contestant 1 at 0 strikes: safe=0.537, risky=0.369, blind=0.001, victory_lap=0.092
+Contestant 1 at 1 strikes: safe=0.839, risky=0.003, blind=0.004, victory_lap=0.151
+Contestant 1 at 2 strikes: safe=0.525, risky=0.000, blind=0.000, victory_lap=0.445
+Contestant 2 at 0 strikes: safe=0.449, risky=0.495, blind=0.050, victory_lap=0.006
+Contestant 2 at 1 strikes: safe=0.612, risky=0.316, blind=0.049, victory_lap=0.022
+Contestant 2 at 2 strikes: safe=0.958, risky=0.000, blind=0.000, victory_lap=0.039
+Contestant 3 at 0 strikes: safe=0.429, risky=0.567, blind=0.000, victory_lap=0.003
+Contestant 3 at 1 strikes: safe=0.980, risky=0.004, blind=0.001, victory_lap=0.008
+Contestant 3 at 2 strikes: safe=0.448, risky=0.090, blind=0.000, victory_lap=0.265
+Aggregate strike-state hit rates:
+Contestant 1 at 0 strikes: safe=0.978, risky=0.935, desperation=0.004
+Contestant 1 at 1 strikes: safe=0.722, risky=0.543, desperation=0.139
+Contestant 1 at 2 strikes: safe=0.189, risky=0.000, desperation=0.130
+Contestant 2 at 0 strikes: safe=0.981, risky=0.926, desperation=0.000
+Contestant 2 at 1 strikes: safe=0.964, risky=0.896, desperation=0.036
+Contestant 2 at 2 strikes: safe=0.944, risky=0.000, desperation=0.107
+Contestant 3 at 0 strikes: safe=0.982, risky=0.906, desperation=0.070
+Contestant 3 at 1 strikes: safe=0.957, risky=0.644, desperation=0.114
+Contestant 3 at 2 strikes: safe=0.002, risky=0.692, desperation=0.098
+```
+
+**Notes:**
+
+New added branch allowed composed two-strike players to take a more survivable risky guess:
+
+```
+if player_state.strikes >= 2 and profile.two_strike_composure > 0:
+  survival_risky_pool = [
+    answer for answer, ans in candidates.items()
+    if ans.recall >= risky_recall_threshold
+    and ans.confidence >= risky_confidence_threshold
+    and answer >= player_state.cutoff - (14 + 8 * player_state.cutoff_uncertainty)
+  ]
+
+  if survival_risky_pool:
+    survival_risky_pool.sort(reverse=True)
+    return choose_from_bottom(survival_risky_pool, n=6, rng=rng)
+```
+
+C3 is no longer taking "normal risky" shots at two strikes, but instead is looking for survival-risk answers
+
+**Takeaway:**
+
+There are overall mixed results
+
+In some categories, Run 5.3 helped C3:
+- Pitcher bWAR since 2000 (meaningful improvement):
+  - two-strike survival: 0.173 &rarr; 0.202
+  - two-strike risky hit rate: 0.635 &rarr; 0.759
+
+New survival-risk branch helped C3 choose better two-strike risky answers in a hard category
+
+- All Time bWAR (slight improvement):
+  - two-strike survival: 0.178 &rarr; 0.181
+
+This isn't that large of an improvement, but it is still directionally positive
+
+In other categories, however, it barely helped or actually hurt C3:
+- OPS+ (small drop):
+  - two-strike survival: 0.121 &rarr; 0.118
+
+Might be due to noise or small tradeoff
+
+- Hitter bWAR since 2000 (more noticable):
+  - two-strike survival: 0.125 &rarr; 0.120
+
+It's still small but there's no noticable improvement
+
+This all might be due to the survival-risk branch doing something real, but it may be too dependent on the cutoff estimate / safe-floor logic:
+
+```
+answer >= player_state.cutoff_estimate - (14 + 8 * player_state.cutoff_uncertainty)
+```
+
+This condition is trying to select risky answers near the estimated line, which workes better when the model's cutoff estimate is meaningful.
+
+However, in some categories, especially where the board read is noisy or where C3's ansewr pool is weaker, it may accidentally narrow the risky pool in a weird way
+  - It can turn "risky but playable" into "too constrained", which may explain why some categories barely move or regress
+
+**Conclusion:**
+
+Run 5.3 introduced a two-strike survival-risk selection branch. This improved C3’s two-strike performance in some harder categories, especially Pitcher bWAR, where C3’s risky hit rate at two strikes rose substantially. However, the effect was inconsistent across the suite, with smaller or negative movement in OPS+ and Hitter bWAR. This suggests that survival-risk selection is conceptually useful, but the current cutoff-based filter may be too narrow or too dependent on noisy board inference.
 
 **M5 Outcomes:**
 fill out when complete

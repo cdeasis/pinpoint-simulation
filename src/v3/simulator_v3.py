@@ -82,6 +82,7 @@ class PlayerProfile:
     board_read_trust: float = 1.0
     pressure_composure: float = 0.0
     risk_identity: float = 0.0
+    two_strike_composure: float = 0.0
 
 @dataclass
 class AnswerState:
@@ -185,7 +186,13 @@ class SimulationResult:
     player_mode_guess_value_sums: Dict[str, Dict[str, int]] = field(default_factory=dict) # how often each mode succeeded by player
     player_mode_guess_counts: Dict[str, Dict[str, int]] = field(default_factory=dict) # avg guess value by mode and player
     early_guess_counts: Dict[str, Dict[str, int]] = field(default_factory=dict) # early-game guess bands by player, useful for C3 volatility
-
+    strike_state_mode_counts: Dict[str, Dict[int, Dict[str, int]]] = field(default_factory=dict)
+    strike_state_hit_counts: Dict[str, Dict[int, Dict[str, int]]] = field(default_factory=dict)
+    strike_state_turn_counts: Dict[str, Dict[int, int]] = field(default_factory=dict)
+    two_strike_entries: Dict[str, int] = field(default_factory=dict)
+    two_strike_survived_next_turns: Dict[str, int] = field(default_factory=dict)
+    two_strike_struck_out_next_turns: Dict[str, int] = field(default_factory=dict)
+    two_strike_survival_turns: Dict[str, List[int]] = field(default_factory=dict)
 
 #==============================
 # HELPERS
@@ -613,8 +620,19 @@ def decide_pick_mode(
         
         return "safe"
     
-    # At 2 strikes, generic play becomes conservative
+    # M5 Run 5: player-specific two-strike behavior
     if player_state.strikes >= 2:
+        ctx = get_board_context(player_state)
+
+        # highly composed players can still take calculated survival risks when the board feels playable, instead of always collapsing into safe mode
+        if (
+            profile.two_strike_composure > 0.10
+            and (ctx["dense"] or ctx["generous"])
+            and not ctx["tight"]
+            and rng.random() < profile.two_strike_composure
+        ):
+            return "risky"
+        
         return "safe"
     
     # Baseline style tendencies
@@ -642,6 +660,7 @@ def decide_pick_mode(
 def choose_guess_for_mode(
         mode: str,
         player_state: PlayerState,
+        profile: PlayerProfile,
         remaining_answers: Set[int],
         rng: random.Random,
 ) -> Optional[int]:
@@ -657,6 +676,24 @@ def choose_guess_for_mode(
     if not candidates:
         return None
     
+    two_strike_bonus = profile.two_strike_composure if player_state.strikes >= 2 else 0.0
+
+    safe_recall_threshold = 0.14
+    safe_confidence_threshold = 0.14
+    risky_recall_threshold = 0.07
+    risky_confidence_threshold = 0.07
+
+    if player_state.strikes >= 2:
+        safe_recall_threshold -= 0.03 * two_strike_bonus
+        safe_confidence_threshold -= 0.03 * two_strike_bonus
+        risky_recall_threshold -= 0.02 * two_strike_bonus
+        risky_confidence_threshold -= 0.02 * two_strike_bonus
+
+    safe_recall_threshold = clamp(safe_recall_threshold, 0.11, 0.14)
+    safe_confidence_threshold = clamp(safe_confidence_threshold, 0.11, 0.14)
+    risky_recall_threshold = clamp(risky_recall_threshold, 0.05, 0.07)
+    risky_confidence_threshold = clamp(risky_confidence_threshold, 0.05, 0.07)
+    
     # selection
     
     # Safe: high recall + high confidence
@@ -666,13 +703,13 @@ def choose_guess_for_mode(
         
         safe_pool = [
             answer for answer, ans in candidates.items()
-            if ans.recall >= 0.14 and ans.confidence >= 0.14 and answer >= safe_floor
+            if ans.recall >= safe_recall_threshold and ans.confidence >= safe_confidence_threshold and answer >= safe_floor
         ]
 
         if not safe_pool:
             safe_pool = [
                 answer for answer, ans in candidates.items()
-                if ans.recall >= 0.14 and ans.confidence >= 0.14
+                if ans.recall >= safe_recall_threshold and ans.confidence >= safe_confidence_threshold
             ]
         
         safe_pool.sort(reverse=True)
@@ -683,13 +720,28 @@ def choose_guess_for_mode(
     if mode == "risky":
         risky_pool = [
             answer for answer, ans in candidates.items()
-            if ans.recall >= 0.07 and ans.confidence >= 0.07
+            if ans.recall >= risky_recall_threshold and ans.confidence >= risky_confidence_threshold
         ]
         risky_pool.sort(reverse=True)
 
         if not risky_pool:
             return None
         
+        # M5 run 5.3: composed two-strike players take survival risks not maximum-upside risks
+        if player_state.strikes >= 2 and profile.two_strike_composure > 0:
+            survival_risky_pool = [
+                answer for answer, ans in candidates.items()
+                if ans.recall >= risky_recall_threshold 
+                and ans.confidence >= risky_confidence_threshold 
+                and answer >= player_state.cutoff_estimate - (14 + 8 * player_state.cutoff_uncertainty)
+            ]
+
+            if survival_risky_pool:
+                survival_risky_pool.sort(reverse=True)
+
+                # choose from lower/mid part of playable risky answers, not the most extreme top of the board
+                return choose_from_bottom(survival_risky_pool, n=6, rng=rng)
+
         # mid-high slice instead of always the absolute top
         top_slice = risky_pool[:min(12, len(risky_pool))]
         if len(top_slice) > 4:
@@ -879,6 +931,55 @@ class PinpointGameSimulator:
             }
             for p in profiles
         }
+
+        modes = [
+            "safe",
+            "risky",
+            "blind_risk",
+            "chip_away",
+            "exact_win",
+            "comeback",
+            "high_upside",
+            "desperation",
+            "victory_lap",
+        ]
+
+        self.strike_state_mode_counts = {
+            p.name: {
+                0: {mode: 0 for mode in modes},
+                1: {mode: 0 for mode in modes},
+                2: {mode: 0 for mode in modes},
+            }
+            for p in profiles
+        }
+
+        self.strike_state_hit_counts = {
+            p.name: {
+                0: {mode: 0 for mode in modes},
+                1: {mode: 0 for mode in modes},
+                2: {mode: 0 for mode in modes},
+            }
+            for p in profiles
+        }
+
+        self.strike_state_turn_counts = {
+            p.name: {
+                0: 0,
+                1: 0,
+                2: 0,
+            }
+            for p in profiles
+        }
+
+        # tracks two-strike life cycles
+        self.two_strike_entries = {p.name: 0 for p in profiles}
+        self.two_strike_survived_next_turns = {p.name: 0 for p in profiles}
+        self.two_strike_struck_out_next_turns = {p.name: 0 for p in profiles}
+        self.two_strike_survival_turns = {p.name: [] for p in profiles}
+
+        # internal per-game trackers (do not need to be returned directly)
+        self.current_two_strike_survival_turns = {p.name: None for p in profiles}
+        self.pending_two_strike_next_turn = {p.name: False for p in profiles}
         
     def alive_players(self) -> List[str]:
         """REturn players still alive in seating order"""
@@ -1278,6 +1379,9 @@ class PinpointGameSimulator:
         if not state.alive:
             return
         
+        starting_strikes = min(state.strikes, 2)
+        was_already_on_two_strikes = state.strikes == 2
+        
         # Choose mode
         if forced_mode is not None:
             mode = forced_mode
@@ -1295,6 +1399,12 @@ class PinpointGameSimulator:
         self.player_mode_counts[player_name][mode] = (
             self.player_mode_counts[player_name].get(mode, 0) + 1
         )
+
+        self.strike_state_mode_counts[player_name][starting_strikes][mode] = (
+            self.strike_state_mode_counts[player_name][starting_strikes].get(mode, 0) + 1
+        )
+
+        self.strike_state_turn_counts[player_name][starting_strikes] += 1
 
         if is_part_of_double_pick_window:
             self.double_window_mode_counts[mode] = self.double_window_mode_counts.get(mode, 0) + 1
@@ -1349,6 +1459,7 @@ class PinpointGameSimulator:
             guess = choose_guess_for_mode(
                 mode=mode,
                 player_state=state,
+                profile=profile,
                 remaining_answers=self.remaining_answers,
                 rng=self.rng,
             )
@@ -1393,11 +1504,37 @@ class PinpointGameSimulator:
             state.strikes += 1
             state.wrong_guesses += 1
 
+        # M5 Run 4: detect newly entering two-strike state
+        if state.alive and state.strikes == 2 and not was_already_on_two_strikes:
+            self.two_strike_entries[player_name] += 1
+            self.current_two_strike_survival_turns[player_name] = 0
+            self.pending_two_strike_next_turn[player_name] = True
+
         # M5: per-player mode hit and guess-value diagnostics
         if was_correct:
             self.player_mode_hit_counts[player_name][mode] = (
                 self.player_mode_hit_counts[player_name].get(mode, 0) + 1
             )
+        
+        if was_correct:
+            self.strike_state_hit_counts[player_name][starting_strikes][mode] = (
+                self.strike_state_hit_counts[player_name][starting_strikes].get(mode, 0) + 1
+            )
+        
+        # M5 Run 4: if this was a turn that began at 2 strikes, track survival
+        if starting_strikes == 2:
+            if was_correct:
+                if self.current_two_strike_survival_turns[player_name] is not None:
+                    self.current_two_strike_survival_turns[player_name] += 1
+                
+                if self.pending_two_strike_next_turn[player_name]:
+                    self.two_strike_survived_next_turns[player_name] += 1
+                    self.pending_two_strike_next_turn[player_name] = False
+            
+            else:
+                if self.pending_two_strike_next_turn[player_name]:
+                    self.two_strike_struck_out_next_turns[player_name] += 1
+                    self.pending_two_strike_next_turn[player_name] = False
 
         if guess is not None:
             self.player_mode_guess_value_sums[player_name][mode] = (
@@ -1426,6 +1563,11 @@ class PinpointGameSimulator:
                     self.early_guess_counts[player_name]["deep_90_100"] += 1    
                 
         if state.strikes >= 3 and state.alive:
+            if self.current_two_strike_survival_turns[player_name] is not None:
+                self.two_strike_survival_turns[player_name].append(self.current_two_strike_survival_turns[player_name])
+                self.current_two_strike_survival_turns[player_name] = None
+                self.pending_two_strike_next_turn[player_name] = False
+ 
             state.alive = False
             self.elimination_order.append(player_name)
 
@@ -1571,6 +1713,15 @@ class PinpointGameSimulator:
         context_counts = self.context_counts
         context_action_counts = self.context_action_counts
 
+        # if a player reaches two strikes and the game ends before their next turn, they count as a two-strike entry, but they do NOT count as either:
+        # survived next turn
+        # struck out next turn
+        for name, turns in self.current_two_strike_survival_turns.items():
+            if turns is not None:
+                self.two_strike_survival_turns[name].append(turns)
+                self.current_two_strike_survival_turns[name] = None
+                self.pending_two_strike_next_turn[name] = False
+
         return SimulationResult(
             scores=scores,
             strikes=strikes,
@@ -1605,6 +1756,13 @@ class PinpointGameSimulator:
             player_mode_guess_value_sums=self.player_mode_guess_value_sums,
             player_mode_guess_counts=self.player_mode_guess_counts,
             early_guess_counts=self.early_guess_counts,
+            strike_state_mode_counts=self.strike_state_mode_counts,
+            strike_state_hit_counts=self.strike_state_hit_counts,
+            strike_state_turn_counts=self.strike_state_turn_counts,
+            two_strike_entries=self.two_strike_entries,
+            two_strike_survived_next_turns=self.two_strike_survived_next_turns,
+            two_strike_struck_out_next_turns=self.two_strike_struck_out_next_turns,
+            two_strike_survival_turns=self.two_strike_survival_turns,
         )
     
 #=============================
@@ -1768,6 +1926,50 @@ def simulate_many(
         for p in profiles
     }
 
+    modes = [
+        "safe",
+        "risky",
+        "blind_risk",
+        "chip_away",
+        "exact_win",
+        "comeback",
+        "high_upside",
+        "desperation",
+        "victory_lap",
+    ]
+
+    strike_state_mode_counts = {
+        p.name: {
+            0: {mode: 0 for mode in modes},
+            1: {mode: 0 for mode in modes},
+            2: {mode: 0 for mode in modes},
+        }
+        for p in profiles
+    }
+
+    strike_state_hit_counts = {
+        p.name: {
+            0: {mode: 0 for mode in modes},
+            1: {mode: 0 for mode in modes},
+            2: {mode: 0 for mode in modes},
+        }
+        for p in profiles
+    }
+
+    strike_state_turn_counts = {
+        p.name: {
+            0: 0,
+            1: 0,
+            2: 0,
+        }
+        for p in profiles
+    }
+
+    two_strike_entries = {p.name: 0 for p in profiles}
+    two_strike_survived_next_turns = {p.name: 0 for p in profiles}
+    two_strike_struck_out_next_turns = {p.name: 0 for p in profiles}
+    two_strike_survival_turns = {p.name: [] for p in profiles}
+
     for _ in range(n_sims):
         sim_seed = rng.randint(1, 10**9)
         
@@ -1780,6 +1982,24 @@ def simulate_many(
         )
 
         result = game.run()
+
+        for name in strike_state_mode_counts:
+            for strike_count in [0, 1, 2]:
+                for mode, count in result.strike_state_mode_counts[name][strike_count].items():
+                    strike_state_mode_counts[name][strike_count][mode] += count
+                
+                for mode, count in result.strike_state_hit_counts[name][strike_count].items():
+                    strike_state_hit_counts[name][strike_count][mode] += count
+                
+                strike_state_turn_counts[name][strike_count] += (
+                    result.strike_state_turn_counts[name][strike_count]
+                )
+
+        for name in two_strike_entries:
+            two_strike_entries[name] += result.two_strike_entries[name]
+            two_strike_survived_next_turns[name] += result.two_strike_survived_next_turns[name]
+            two_strike_struck_out_next_turns[name] += result.two_strike_struck_out_next_turns[name]
+            two_strike_survival_turns[name].extend(result.two_strike_survival_turns[name])
 
         # M5 answer-state diagnostics
         for name, metrics in result.answer_state_summaries.items():
@@ -1974,6 +2194,47 @@ def simulate_many(
             "early_strike_rate": counts.get("strikes", 0) / total if total > 0 else 0.0,
         }
 
+    strike_state_mode_rates = {}
+    strike_state_hit_rates = {}
+
+    for name in strike_state_mode_counts:
+        strike_state_mode_rates[name] = {}
+        strike_state_hit_rates[name] = {}
+
+        for strike_count in [0, 1, 2]:
+            total_turns = strike_state_turn_counts[name][strike_count]
+
+            strike_state_mode_rates[name][strike_count] = {
+                mode: (
+                    count / total_turns if total_turns > 0 else 0.0
+                )
+                for mode, count in strike_state_mode_counts[name][strike_count].items()
+            }
+
+            strike_state_hit_rates[name][strike_count] = {
+                mode: (
+                    strike_state_hit_counts[name][strike_count].get(mode, 0)
+                    / strike_state_mode_counts[name][strike_count].get(mode, 0)
+                    if strike_state_mode_counts[name][strike_count].get(mode, 0) > 0 else 0.0
+                )
+                for mode in strike_state_mode_counts[name][strike_count]
+            }
+    
+    two_strike_summary = {}
+
+    for name in two_strike_entries:
+        entries = two_strike_entries[name]
+
+        two_strike_summary[name] = {
+            "entries": entries,
+            "survived_next_turns": two_strike_survived_next_turns[name],
+            "struck_out_next_turns": two_strike_struck_out_next_turns[name],
+            "survival_rate": two_strike_survived_next_turns[name] / entries if entries > 0 else 0.0,
+            "strikeout_next_turn_rate": two_strike_struck_out_next_turns[name] / entries if entries > 0 else 0.0,
+            "avg_survival_turns": statistics.mean(two_strike_survival_turns[name]) if two_strike_survival_turns[name] else 0.0,
+            "median_survival_turns": statistics.median(two_strike_survival_turns[name]) if two_strike_survival_turns[name] else 0.0,
+        }
+
     # Build the final summary object
     summary = {
         "win_rate": {name: win_counts[name] / n_sims for name in win_counts},
@@ -2028,6 +2289,12 @@ def simulate_many(
         "player_mode_avg_guess_values": player_mode_avg_guess_values,
         "early_guess_counts": early_guess_counts,
         "early_guess_rates": early_guess_rates,
+        "strike_state_mode_counts": strike_state_mode_counts,
+        "strike_state_mode_rates": strike_state_mode_rates,
+        "strike_state_hit_counts": strike_state_hit_counts,
+        "strike_state_hit_rates": strike_state_hit_rates,
+        "strike_state_turn_counts": strike_state_turn_counts,
+        "two_strike_summary": two_strike_summary,
     }
 
     return summary
@@ -2071,6 +2338,7 @@ def main() -> None:
             "star": 1.01,
             "deep_cut": 1.00,
         },
+        two_strike_composure=-0.05,
     )
 
     contestant_2 = PlayerProfile(
@@ -2113,6 +2381,7 @@ def main() -> None:
             "star": 1.04,
             "deep_cut": 0.99,
         },
+        two_strike_composure=0.00,
     )
 
     contestant_3 = PlayerProfile(
@@ -2148,7 +2417,8 @@ def main() -> None:
             "regular": 0.99,
             "star": 1.04,
             "deep_cut": 0.96,
-        }
+        },
+        two_strike_composure=0.30,
     )
 
     profiles = [contestant_1, contestant_2, contestant_3]
@@ -2366,6 +2636,41 @@ def main() -> None:
                     f"early_strike={r.get('early_strike_rate', 0.0):.3f}"
                 )
 
+            print("Strike-state mode rates:")
+            for name in [p.name for p in profiles]:
+                for strike_count in [0, 1, 2]:
+                    r = summary["strike_state_mode_rates"][name][strike_count]
+                    print(
+                        f"  {name} at {strike_count} strikes: "
+                        f"safe={r.get('safe', 0.0):.3f}, "
+                        f"risky={r.get('risky', 0.0):.3f}, "
+                        f"blind={r.get('blind_risk', 0.0):.3f}, "
+                        f"victory_lap={r.get('victory_lap', 0.0):.3f}"
+                    )
+
+            print("Strike-state hit rates:")
+            for name in [p.name for p in profiles]:
+                for strike_count in [0, 1, 2]:
+                    r = summary["strike_state_hit_rates"][name][strike_count]
+                    print(
+                        f"  {name} at {strike_count} strikes: "
+                        f"safe={r.get('safe', 0.0):.3f}, "
+                        f"risky={r.get('risky', 0.0):.3f}, "
+                        f"blind={r.get('blind_risk', 0.0):.3f}, "
+                        f"desperation={r.get('desperation', 0.0):.3f}"
+                    )
+
+            print("Two-strike summary:")
+            for name in [p.name for p in profiles]:
+                r = summary["two_strike_summary"][name]
+                print(
+                    f"  {name}: "
+                    f"entries={r['entries']}, "
+                    f"survival_rate={r['survival_rate']:.3f}, "
+                    f"strikeout_next_turn={r['strikeout_next_turn_rate']:.3f}, "
+                    f"avg_survival_turns={r['avg_survival_turns']:.2f}, "
+                    f"median_survival_turns={r['median_survival_turns']:.1f}"
+                )
         
         # aggregate summary across categories
         print("\n === Aggregate Summary Across Validation Suite ===")
@@ -2585,6 +2890,74 @@ def main() -> None:
                 f"safe_candidates={statistics.mean(values_by_key['safe_candidates']):.1f}, "
                 f"risky_candidates={statistics.mean(values_by_key['risky_candidates']):.1f} "
             )
+
+        print("Aggregate two-strike summary:")
+        for name in [p.name for p in profiles]:
+            entries = sum(summary["two_strike_summary"][name]["entries"] for _, summary in all_summaries)
+            survived = sum(summary["two_strike_summary"][name]["survived_next_turns"] for _, summary in all_summaries)
+            struck_out = sum(summary["two_strike_summary"][name]["struck_out_next_turns"] for _, summary in all_summaries)
+
+            avg_survival_turns = statistics.mean(
+                summary["two_strike_summary"][name]["avg_survival_turns"]
+                for _, summary in all_summaries
+            )
+
+            median_survival_turns = statistics.mean(
+                summary["two_strike_summary"][name]["median_survival_turns"]
+                for _, summary in all_summaries
+            )
+
+            print(
+                f"{name}: "
+                f"entries={entries}, "
+                f"survival_rate={(survived / entries if entries > 0 else 0.0):.3f}, "
+                f"strikeout_next_turn={(struck_out / entries if entries > 0 else 0.0):.3f}, "
+                f"avg_survival_turns={avg_survival_turns:.2f}, "
+                f"median_survival_turns={median_survival_turns:.1f}"
+            )
+
+        print("Aggregate strike-state mode rates:")
+        for name in [p.name for p in profiles]:
+            for strike_count in [0, 1, 2]:
+                safe_vals = []
+                risky_vals = []
+                blind_vals = []
+                victory_vals = []
+
+                for _, summary in all_summaries:
+                    r = summary["strike_state_mode_rates"][name][strike_count]
+                    safe_vals.append(r.get("safe", 0.0))
+                    risky_vals.append(r.get("risky", 0.0))
+                    blind_vals.append(r.get("blind_risk", 0.0))
+                    victory_vals.append(r.get("victory_lap", 0.0))
+
+                print(
+                    f"{name} at {strike_count} strikes: "
+                    f"safe={statistics.mean(safe_vals):.3f}, "
+                    f"risky={statistics.mean(risky_vals):.3f}, "
+                    f"blind={statistics.mean(blind_vals):.3f}, "
+                    f"victory_lap={statistics.mean(victory_vals):.3f}"
+                )
+
+        print("Aggregate strike-state hit rates:")
+        for name in [p.name for p in profiles]:
+            for strike_count in [0, 1, 2]:
+                safe_vals = []
+                risky_vals = []
+                desperation_vals = []
+
+                for _, summary in all_summaries:
+                    r = summary["strike_state_hit_rates"][name][strike_count]
+                    safe_vals.append(r.get("safe", 0.0))
+                    risky_vals.append(r.get("risky", 0.0))
+                    desperation_vals.append(r.get("desperation", 0.0))
+
+                print(
+                    f"{name} at {strike_count} strikes: "
+                    f"safe={statistics.mean(safe_vals):.3f}, "
+                    f"risky={statistics.mean(risky_vals):.3f}, "
+                    f"desperation={statistics.mean(desperation_vals):.3f}"
+                )
 
     run_validation_suite(profiles)
 
