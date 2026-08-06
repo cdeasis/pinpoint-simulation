@@ -727,19 +727,21 @@ def choose_guess_for_mode(
         if not risky_pool:
             return None
         
-        # M5 run 5.3: composed two-strike players take survival risks not maximum-upside risks
+        # M5 run 5.4: softened two-strike survival-risk selection
         if player_state.strikes >= 2 and profile.two_strike_composure > 0:
+            survival_floor = player_state.cutoff_estimate - (18 + 10 * player_state.cutoff_uncertainty)
+
             survival_risky_pool = [
                 answer for answer, ans in candidates.items()
-                if ans.recall >= risky_recall_threshold 
-                and ans.confidence >= risky_confidence_threshold 
-                and answer >= player_state.cutoff_estimate - (14 + 8 * player_state.cutoff_uncertainty)
+                if ans.recall >= risky_recall_threshold and ans.confidence >= risky_confidence_threshold and answer >= survival_floor
             ]
 
-            if survival_risky_pool:
+            # only use special survival-risk behavior when pool is meaningfully populated
+            # if pool is too small, fall back to normal risky behavior instead of over-constratining the pick
+            if len(survival_risky_pool) >= 4:
                 survival_risky_pool.sort(reverse=True)
 
-                # choose from lower/mid part of playable risky answers, not the most extreme top of the board
+                # Choose from lower/mid part of playable risky answers, not the most extreme top of the board
                 return choose_from_bottom(survival_risky_pool, n=6, rng=rng)
 
         # mid-high slice instead of always the absolute top

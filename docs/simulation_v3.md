@@ -76,12 +76,26 @@ These improve how players respond to different board types and game states.
 
 This introduces human tendencies and non-optimal behavior patterns.
 
-### Phsae 4 (finalization):
-6. Milestone 6 - Calibration
+### Phsae 4 (Finalization):
+6. Milestone 6 - Foul Off Rule and Final Validation
 
-This ensures that the system remains stable, balanced, and introduces interpretable results across categories.
+This implements the real game's new two strike foul off rule and validates the final V3 system before the V4 refactor.
 
 ---
+
+## Roadmap Update: Foul Off Rule
+
+During M5 development, the real game introduced a new two strike "foul off" rule:
+
+> If a contestant is at 2 strikes and guesses an answer ranked 101-110, the guess earns 0 points but does not produce a strike. The contestant remains alive on two strikes.
+
+This rule immediately affected gameplay and has since continued to be used in later episodes. Becaus ethe rule changes the structure of two strike survival, near cutoff misses, and late game strategy, it is treated as a fundamental game change rather than a small player identity tuning parameter.
+
+Run 5 will remain the final old rule M5 pass. Its purpose is to preserve the best version of the original V3 player identity model before the rule change.
+
+Milestone 6 will now focus on implementing the foul-off rule and validiating that the simulator remains stable afterward. Any larger strategic extensions that were originally considered for late M5 or M6, such as richer two-strike scoring diagnostics, eliminated-score targeting, victory-lap realism, or deeper calibration/exclusion category behavior, will be documented as future work and reserved for V5 or later.
+
+V4 will remain a structural refactor only.
 
 ## V3 Current State Summary
 
@@ -348,34 +362,42 @@ Remaining limitations are better suited for later milestones:
 - richer category modeling
 
 ### Milestone 5 - Human Bias and Player Identity
-**Status**: In Progress
+**Status**: Completed
 
-[high level notes below pre M5 implementation, can revise this later once it's done]
 #### Purpose
 
-To introduce more human-like, non-optimal behavior into player decision-making.
+To introduce lightweight player identity into the simulator without turing the model into a full human behavior engine.
 
-M1-M4 focused on board interpretation and strategic adaptation. M5 focuses on the players themselves. The goal is to make contestants feel less like generic agents and more like distinct players with preferences, biases, comfort zones, and pressure habits.
+M1-M4 focusd on broad interpretation and contextual strategy. M5 shifted the focus toward the contestants themselves: what kinds of categories they are comfortable with, what kinds of answers they trust, how they behave under pressure, and how their decision making changes by strike state.
 
-M5 should not make the simulator fully realistic or overly complex. Instead, it should add lightweight player-identity signals that influence which answers players trust and how they behave under uncertainty.
+The goal was not to make each contestant perfectly realisitic. Instead, M5 aimed to make player differences more visible, interpretable, and measurable while preserving the stability of the existing V3 system.
 
 #### Core Changes
-Players should be more likely to trust answers that feel familiar or comfortable.
 
-Possible examples:
-- recently active players
-- stars / household names
-- players from familiar eras
-- answers connected to a player's category strengths
-- “this guy is always on the list” style picks
+1. **Player Identity Fields**
 
-This does not necessarily mean the answer is correct. It means the player is more willing to recall it, trust it, or choose it under pressure.
+M5 added new profile level fields that allow contestants to differ beyond raw knowledge and baseline risk style:
 
-2. **Category and Archetype Bias**
+- `comfort_bias`
+- `archetype_bias`
+- `category_confidence`
+- `familiarity_bias`
+- `defensive_survival_bias`
+- `safe_fallback_bias`
+- `reaction_influence`
+- `board_read_trust`
+- `pressure_composure`
+- `risk_identity`
+- `two_strike_composure`
 
-Players should have mild strengths and weaknesses based on category type.
+Not every field became behaviorally central during M5. Some fields remain structural placeholders for future versions, but the milestone established the broader identity framework.
 
-Examples:
+2. **Category Confidence and Familiarity**
+
+M5 made category tags more meaningful by allowing them to influence answer-state formation.
+
+Players can now be more or less comfortable with category types such as:
+
 - modern categories
 - all-time categories
 - WAR / advanced-stat categories
@@ -383,91 +405,126 @@ Examples:
 - counting-stat categories
 - recent-player categories
 
-This can allow players to behave differently depending on what kind of list they are playing, rather than only changing the global category difficulty.
+These modifiers affect not only whether a player knows an answer, but also whether they recall it and trust it enough to guess.
 
-3. **Player-Specific Risk Identity**
+3. **Answer Archetype Bias**
 
-Players should differ in how they respond to the same context.
+M5 added lightweight answer archetype behavior based on point-value bands.
 
-Examples:
-- one player may trust their board read more
-- one player may press harder when behind
-- one player may become more conservative with strikes
-- one player may be more willing to throw out a speculative name
-- one player may be better at game-show style pressure
+Answers can function as broad archetypes such as:
 
-This should build on existing fields like `content_bias`, `pressure_sensitivity`, `blind_risk_base`, and category modifiers.
+- safe / low-value answers
+- regular / mid-value answers
+- star / high-value answers
+- deep-cut / extreme high-value answers
 
-4. **Hesitation / Default Safe Behavior**
+This allows players to differ in what kinds of answers they tend to access and trust, even within the same category.
 
-Players sometimes choose safe answers not because safe is optimal, but because they cannot think of anything better in the moment.
+4. **Improved Diagnostic Visibility**
 
-M5 should allow occasional safe fallback behavior when:
-- recall is weak
-- confidence is low
-- the player has strikes
-- the board is tight
-- the player is under pressure
+M5 added several diagnostic views that make player behavior easier to explain:
 
-This models real behavior like:
-> “I’ll just go safe because I can’t think of anything else.”
+- answer-state summaries
+- safe / risky / blind candidate counts
+- per-player mode rates
+- per-player mode hit rates
+- average guess values by mode
+- early-guess profiles
+- strike-state mode rates
+- strike-state hit rates
+- two-strike survival summaries
 
-5. **Reaction Trust / Table Influence**
+These diagnostics became one of the most important parts of the milestone because they showed whether a player was losing due to knowledge, confidence, selection behavior, or strike-state strategy.
 
-Players may be lightly influenced by table reactions, but should not treat them as perfectly reliable.
+5. **Category Suite Expansion and Profile Refinement**
 
-Possible future signals:
-- whether other players call a pick safe or risky
-- whether recent reactions were misleading
-- whether a player trusts table consensus
-- whether the table reaction affects confidence
+M5 expanded the validation suite so that player identity could be tested across more category shapes.
 
-This should remain lightweight in V3. The goal is not to model full conversation, but to create a place for table influence to exist.
+The milestone also refined C2’s WAR profile. The earlier broad WAR penalty was too blunt and made C2 nearly non-competitive in bWAR categories. Replacing it with more specific WAR subtype modifiers created a healthier distinction between hitter WAR, pitcher WAR, and all-time WAR behavior.
 
-6. **Defensive Survival Strategy**
+6. **Two-Strike Composure and C3 Identity**
 
-Players should sometimes choose safe play even while trailing if they have a strike advantage over the leader.
+The largest behavioral focus of M5 became two-strike identity.
 
-This models situations where a trailing player may not need to immediately chase points. If the leader is on two strikes, the board is late or difficult, and the trailing player has more strike cushion, the trailing player can play defensively and force the leader to continue answering.
+Strike-state diagnostics showed that the simulator’s two-strike behavior was inverted from observed real-game behavior. C2 was surviving extremely well on two strikes, while C3 was collapsing. This happened because C3 was being forced into generic safe behavior at two strikes, despite having a weaker safe pool.
 
-This creates a distinction between:
-- trailing with no leverage: press for points
-- trailing with strike leverage: survive and apply pressure
+M5 added `two_strike_composure` so that composed two-strike players, especially C3, could take calculated survival risks instead of always defaulting to safe play.
+
+Later runs refined this further through survival-risk selection. Instead of taking maximum-upside risky guesses at two strikes, C3 could select from a more playable risky pool near the estimated board line.
 
 #### Key Outcome
-M5 should make player behavior more individualized without destabilizing the simulator.
+M5 successfully added player identity without destabilizing the simulator.
 
-The desired outcome is that contestants differ not only in raw knowledge and risk level, but also in:
-- what kinds of categories they prefer
-- what kinds of answers they trust
-- how they behave under pressure
-- how often they default to comfort or safety
-- how strongly they react to board and table signals
+The final M5 state allows contestants to differ in:
 
-M5 should also help address the current contestant-balance issue, especially the fact that C2 appears too weak relative to observed real-game behavior.
+- category comfort
+- answer familiarity
+- confidence and trust
+- safe/risky candidate pools
+- early-game volatility
+- strike-state behavior
+- two-strike composure
 
-M5 should allow players to recognize that survival can be a valid comeback path. A player who is behind on score but ahead in strike count may play conservatively to force the leader into a mistake, especially late in the game.
+The milestone also clarified that player realism cannot be represented only through global knowledge levels. A player may know an answer, fail to recall it, recall it but not trust it, or trust it only in certain category contexts. The M5 answer-state system gives the simulator a way to represent those differences while remaining interpretable.
+
+Run 5.4 was selected as the final M5 state. It preserved the old-rule model while refining C3’s two-strike survival-risk behavior. The improvement was modest, but targeted: C3’s two-strike risky guesses became better selected, while C1 and C2 remained stable.
+
+M5 does not fully solve every observed player behavior. Larger systems such as eliminated-score targeting, victory-lap realism, deeper calibration/exclusion behavior, table-reaction modeling, and foul-off-aware strategy are deferred to future versions.
 
 #### Notes
-M5 should avoid large structural rewrites.
+M5 is considered complete after Run 5.4.
 
-The main priority is to add player identity in a controlled, interpretable way. Any new behavior should be measurable through existing validation metrics, and larger balance changes should be saved for M6 calibration.
+The final M5 model should be understood as the best old-rule version of the V3 player-identity system. During M5 development, the real game introduced and retained the new two-strike foul-off rule. Because that rule changes the game’s fundamental two-strike outcome structure, it is not treated as a late M5 player-identity tweak.
+
+Instead, M6 will implement the foul-off rule as the final major V3 gameplay addition and validate that the simulator remains stable afterward.
 
 ### Milestone 6 - Calibration and Validation Pass
 **Status**: Not complete
 
-[high level notes below pre M6 implementation, can revise this later once it's done]
 #### Purpose
-To stabilize and validate the full V3 system after all major inference, strategy, and player-identity layers have been added.
 
-M6 should not introduce major new mechanics unless a serious issue is found. Its purpose is to tune, compare, and document the final V3 behavior.
+To implement the real game’s new two-strike foul-off rule and validate the final V3 system after that rule change.
+
+Originally, M6 was intended to be a pure calibration pass. However, during M5 development, the real game introduced and retained a new foul-off rule for near-miss guesses at two strikes. Because this rule directly affects two-strike survival, sudden-death behavior, and near-cutoff misses, it is now treated as the final major V3 gameplay addition.
+
+M6 should remain narrow. Its purpose is not to add a large new strategic layer, but to add the foul-off rule, verify that existing M5 behavior remains stable, and document the final V3 state before V4.
 
 #### Core Changes
-1. **Full Validation Suite**
 
-Rerun the full category validation suite using the final M5 system.
+1. **Foul-Off Rule Implementation**
+
+Implement the new two-strike foul-off rule:
+
+- If a contestant begins a turn on two strikes and makes a near-board miss in the 101-110 range, the guess earns 0 points but does not produce a strike.
+- The contestant remains alive on two strikes.
+- The foul-off consumes the contestant’s turn.
+
+This creates a third two-strike outcome:
+
+- correct answer: points + survive
+- foul off: 0 points + survive
+- normal miss: strikeout / elimination
+
+This rule should apply globally rather than as a C3-specific bonus. Player identity should influence how often each contestant produces near-line guesses, but the rule itself is part of the game structure.
+
+2. **Post-Rule Stability Check**
+
+Compare M6 behavior against the final Run 5.4 old-rule state.
+
+Important questions:
+
+- Does two-strike survival increase for structural reasons?
+- Does C3 benefit from near-line survivability without becoming artificially overpowered?
+- Do C1 and C2 remain stable?
+- Does sudden-death behavior become longer or more forgiving in a believable way?
+- Does the rule create obvious distortions in win rate, first-out rate, or average score?
+
+3. **Validation Suite Rerun**
+
+Rerun the full category validation suite after implementing the foul-off rule.
 
 Track the same major metrics used throughout V3:
+
 - win rates
 - average scores
 - score variance
@@ -480,69 +537,61 @@ Track the same major metrics used throughout V3:
 - cutoff estimate / uncertainty
 - density / generosity / tightness signals
 - mode and context-action rates
+- strike-state behavior
+- two-strike survival behavior
 
-2. **Contestant Balance Calibration**
+4. **Final Regression Check**
 
-Tune player profiles so the final model better reflects expected contestant strength.
-
-Primary goals:
-- reduce excessive C1 dominance if present
-- make C2 more competitive
-- preserve C3 as volatile but capable of strong wins
-- avoid making all contestants feel identical
-
-This should be done carefully, using small adjustments rather than large rewrites.
-
-3. **Category Behavior Calibration**
-
-Check whether each validation category produces sensible behavior.
-
-Expected patterns:
-- HR / modern counting-stat categories should be more aggressive and dense
-- bWAR / awards categories should be harder and more conservative
-- Hits / OPS+ should sit between those extremes
-- MVP should remain high-variance and more player-dependent
-
-4. **Solo and Endgame Validation**
-
-Recheck solo/endgame behavior after M5 changes.
-
-Important questions:
-- Are solo deficits reasonable?
-- Does the solo player lose too often when starting behind?
-- Are large-deficit solo states mostly caused by upstream game flow rather than bad solo logic?
-- Does victory-lap behavior remain stable?
-- Are defensive/survival dynamics believable?
-
-5. **Final Regression Check**
-
-Compare the final V3 system against earlier V3 baselines.
+Compare the final M6 state against earlier V3 baselines.
 
 Useful comparison points:
+
 - final M2 state
 - final M3 state
 - final M4 state
 - final M5 state
-- final V3 calibrated state
+- final M6 / final V3 state
 
 The goal is to show what V3 gained over time without hiding tradeoffs.
 
+5. **Document Future Work**
+
+Any larger behavioral systems that remain incomplete should be documented as future work rather than added to V3.
+
+Future work may include:
+
+- eliminated-score targeting
+- victory-lap realism
+- deeper calibration/exclusion category behavior
+- foul-off-aware strategy
+- table-reaction modeling
+- richer category modeling
+- cleaner answer/rank representation
+- real-data integration
+
+These are better suited for V5 or later, after V4 refactors the codebase.
+
 #### Key Outcome
+
 M6 should produce the final stable V3 baseline.
 
 The final V3 system should be:
+
 - more realistic than V2
 - more interpretable than earlier V3 milestones
 - stable across multiple category types
-- capable of explaining why players choose safe, risky, or defensive strategies
-- balanced enough that player outcomes are believable
+- capable of explaining why players choose safe, risky, or survival-oriented strategies
+- capable of modeling the real game’s current two-strike foul-off rule
+- balanced enough that player outcomes remain believable
 
 M6 should end with a clear final V3 state that can be preserved before moving into V4.
 
 #### Notes
-M6 is primarily a calibration and documentation milestone.
+M6 is both a rule-implementation milestone and a final validation milestone.
 
-Any major structural problems discovered during M6 should probably be documented as future work rather than solved immediately, unless they are small and safe to fix. The goal is to finish V3 cleanly, not endlessly extend it.
+The foul-off rule is the only major new gameplay addition planned for M6. Any issues discovered after implementation should be handled conservatively. Small tuning changes are acceptable if they are necessary to preserve stability, but larger strategic rewrites should be documented as future work.
+
+The goal is to finish V3 cleanly, not to keep extending it indefinitely. V4 will focus on restructuring the codebase, while larger new features and deeper behavioral systems will be reserved for V5 or later.
 
 ---
 
